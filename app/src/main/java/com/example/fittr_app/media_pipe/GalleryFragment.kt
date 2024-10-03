@@ -350,7 +350,7 @@ class GalleryFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         fragmentGalleryBinding.videoView.start()
         val videoStartTimeMs = SystemClock.uptimeMillis()
 
-        backgroundExecutor.scheduleAtFixedRate(
+        backgroundExecutor.scheduleWithFixedDelay(
             {
                 activity?.runOnUiThread {
                     val videoElapsedTimeMs =
@@ -448,7 +448,7 @@ class GalleryFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     companion object {
         private const val TAG = "GalleryFragment"
 
-        // Value used to get frames at specific intervals for inference (e.g. every 300ms)
-        private const val VIDEO_INTERVAL_MS = 300L
+        // Value used to get frames at specific intervals for inference (e.g. every 100ms)
+        private const val VIDEO_INTERVAL_MS = 50L
     }
 }

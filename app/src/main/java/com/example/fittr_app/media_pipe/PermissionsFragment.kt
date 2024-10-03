@@ -15,7 +15,11 @@ import androidx.navigation.Navigation
 import com.example.fittr_app.R
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-private val PERMISSIONS_REQUIRED = arrayOf(Manifest.permission.READ_MEDIA_VIDEO, Manifest.permission.READ_MEDIA_IMAGES)
+private val PERMISSIONS_REQUIRED = arrayOf(
+    Manifest.permission.READ_MEDIA_VIDEO,
+    Manifest.permission.READ_MEDIA_IMAGES,
+    Manifest.permission.CAMERA
+    )
 
 class PermissionsFragment : Fragment() {
 
@@ -29,7 +33,7 @@ class PermissionsFragment : Fragment() {
                     "Permissions granted",
                     Toast.LENGTH_LONG
                 ).show()
-                navigateToGallery()
+                navigateToCamera()
             } else {
                 Toast.makeText(
                     context,
@@ -56,32 +60,33 @@ class PermissionsFragment : Fragment() {
             requestPermissionLauncher.launch(missingPermissions.toTypedArray())
         } else {
             // All permissions are already granted
-            navigateToGallery()
+            navigateToCamera()
         }
     }
 
     private fun navigateToGallery() {
         lifecycleScope.launchWhenStarted {
             Navigation.findNavController(requireActivity(), R.id.fragment_container)
-                .navigate(R.id.action_permissions_to_gallery)
+                .navigate(R.id.action_permissions_to_camera)
         }
     }
 
 
-//    private fun navigateToCamera() {
-//        lifecycleScope.launchWhenStarted {
-//            Navigation.findNavController(
-//                requireActivity(),
-//                R.id.fragment_container
-//            ).navigate(
-//                R.id.action_permissions_to_camera
-//            )
-//        }
-//    }
+    private fun navigateToCamera() {
+        lifecycleScope.launchWhenStarted {
+            Navigation.findNavController(
+                requireActivity(),
+                R.id.fragment_container
+            ).navigate(
+                R.id.action_permissions_to_camera
+            )
+        }
+    }
 
     companion object {
 
         /** Convenience method used to check if all permissions required by this app are granted */
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         fun hasPermissions(context: Context) = PERMISSIONS_REQUIRED.all {
             ContextCompat.checkSelfPermission(
                 context,
