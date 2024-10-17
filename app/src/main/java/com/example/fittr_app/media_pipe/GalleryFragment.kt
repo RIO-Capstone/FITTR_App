@@ -443,6 +443,8 @@ class GalleryFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
 
     override fun onResults(resultBundle: PoseLandmarkerHelper.ResultBundle) {
         // no-op
+        var results = resultBundle
+        print(results.results)
     }
 
     companion object {

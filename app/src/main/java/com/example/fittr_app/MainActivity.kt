@@ -9,16 +9,22 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.fittr_app.databinding.ActivityMainBinding
 import androidx.activity.viewModels
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
+import com.example.fittr_app.media_pipe.CameraFragment
+import com.example.fittr_app.media_pipe.GalleryFragment
+import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity() {
 
-    //private lateinit var binding: ActivityMainBinding
-
     private lateinit var activityMainBinding: ActivityMainBinding
     private val viewModel : MainViewModel by viewModels()
+    private lateinit var navController:NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,20 +33,21 @@ class MainActivity : AppCompatActivity() {
 
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.fragment_container) as NavHostFragment
-        val navController = navHostFragment.navController
+        navController = navHostFragment.navController
+        // entry fragment is the permissions fragment, which automatically navigates to the camera fragment
         activityMainBinding.navigation.setupWithNavController(navController)
         activityMainBinding.navigation.setOnNavigationItemReselectedListener {
             // ignore the reselection
         }
-        activityMainBinding.navigation.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.gallery_fragment -> {
-                    navController.navigate(R.id.gallery_fragment)
-                    true
-                }
-                else -> false
-            }
-        }
+
+        // Get the fragment to load from the intent extras
+//        val fragmentToLoad:String = intent.getStringExtra("FRAGMENT_TO_LOAD").toString()
+//
+//        // Load the appropriate fragment
+//        when (fragmentToLoad) {
+//            "CameraFragment" -> navigateToCameraFragment()
+//            "GalleryFragment" -> navigateToGalleryFragment()
+//        }
 
     }
 
@@ -48,5 +55,14 @@ class MainActivity : AppCompatActivity() {
         super.onBackPressed()
         finish();
     }
+
+    private fun navigateToCameraFragment() {
+        navController.navigate(R.id.action_permissions_to_camera)
+    }
+
+    private fun navigateToGalleryFragment() {
+        //navController.navigate(R.id.) // Assuming you have an action defined for this
+    }
+
 
 }

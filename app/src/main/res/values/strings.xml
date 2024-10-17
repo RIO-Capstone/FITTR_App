@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FITTR_APP</string>
+    <string name="app_name">FITTR</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
@@ -37,7 +37,11 @@
         <item>CPU</item>
         <item>GPU</item>
     </string-array>
-
+    <string-array name="gender_options">
+        <item>Male</item>
+        <item>Female</item>
+        <item>Other</item>
+    </string-array>
     <string-array name="models_spinner_titles">
         <item>Pose Landmarker Full</item>
         <item>Pose Landmarker Lite</item>

@@ -2,6 +2,7 @@ package com.example.fittr_app.media_pipe
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -12,7 +13,9 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
+import com.example.fittr_app.HomeActivity
 import com.example.fittr_app.R
+import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 private val PERMISSIONS_REQUIRED = arrayOf(
@@ -64,11 +67,16 @@ class PermissionsFragment : Fragment() {
         }
     }
 
-    private fun navigateToGallery() {
-        lifecycleScope.launchWhenStarted {
-            Navigation.findNavController(requireActivity(), R.id.fragment_container)
-                .navigate(R.id.action_permissions_to_camera)
-        }
+//    private fun navigateToGallery() {
+//        lifecycleScope.launchWhenStarted {
+//            Navigation.findNavController(requireActivity(), R.id.fragment_container)
+//                .navigate(R.id.action_permissions_to_camera)
+//        }
+//    }
+
+    private fun navigateToHome(){
+        val intent = Intent(requireContext(), HomeActivity::class.java)
+        startActivity(intent)
     }
 
 
