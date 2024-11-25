@@ -26,7 +26,13 @@ import com.example.fittr_app.media_pipe.PoseLandmarkerHelper
 import com.example.fittr_app.MainViewModel
 import com.example.fittr_app.R
 import com.example.fittr_app.databinding.FragmentCameraBinding
+import com.example.fittr_app.web_socket.WebSocketClient
+import com.google.gson.Gson
 import com.google.mediapipe.tasks.vision.core.RunningMode
+import okhttp3.OkHttpClient
+import okhttp3.WebSocket
+import okhttp3.Request
+import okio.ByteString
 import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -37,6 +43,10 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     companion object {
         private const val TAG = "Pose Landmarker"
     }
+
+    private lateinit var webSocket: WebSocket
+    private val client = OkHttpClient()
+    private val IP_ADDRESS = "192.168.0.170";
 
     private var _fragmentCameraBinding: FragmentCameraBinding? = null
 
@@ -108,8 +118,20 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     ): View {
         _fragmentCameraBinding =
             FragmentCameraBinding.inflate(inflater, container, false)
-
+        connectWebSocket() // start the web socket connection now
         return fragmentCameraBinding.root
+    }
+
+    private fun connectWebSocket() {
+        val request = Request.Builder()
+            .url("ws://${IP_ADDRESS}:8001/")  // IP and Port using secure websocket connection
+            .build()
+
+        val listener = WebSocketClient()
+        webSocket = client.newWebSocket(request, listener)
+
+        // Shutdown client when the activity/fragment is destroyed
+        client.dispatcher.executorService.shutdown()
     }
 
     @SuppressLint("MissingPermission")
@@ -372,6 +394,16 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
             if (_fragmentCameraBinding != null) {
                 fragmentCameraBinding.bottomSheetLayout.inferenceTimeVal.text =
                     String.format("%d ms", resultBundle.inferenceTime)
+                /*
+                *     data class ResultBundle(
+                        val results: List<PoseLandmarkerResult>,
+                        val inferenceTime: Long,
+                        val inputImageHeight: Int,
+                        val inputImageWidth: Int,
+                )
+                * */
+                val jsonResult: String = Gson().toJson(resultBundle)
+                webSocket.send(jsonResult) // sends results per frame
 
                 // Pass necessary information to OverlayView for drawing on the canvas
                 fragmentCameraBinding.overlay.setResults(
