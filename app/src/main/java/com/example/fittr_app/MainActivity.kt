@@ -32,12 +32,8 @@ class MainActivity : AppCompatActivity() {
         };
 
         val repCountTextView = findViewById<TextView>(R.id.rep_count)
-        sharedViewModel.repCount.observe(this) { repCount ->
-            if(sharedViewModel.isCalibrating.value == true){
-                repCountTextView.text = "Calibrating..."
-            }else{
-                repCountTextView.text = "Rep Count: $repCount"
-            }
+        sharedViewModel.displayText.observe(this) { displayText ->
+            repCountTextView.text = displayText
         }
 
         val navHostFragment =

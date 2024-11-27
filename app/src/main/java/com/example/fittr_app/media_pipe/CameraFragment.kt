@@ -61,7 +61,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     private lateinit var webSocket: WebSocket
     private lateinit var sharedViewModel: SharedViewModel
     private val client = OkHttpClient()
-    private val IP_ADDRESS = "192.168.0.170";
+    private val IP_ADDRESS = "192.168.55.132";
     private val calibrationDuration : Long = 5000;
 
     private var _fragmentCameraBinding: FragmentCameraBinding? = null
@@ -423,7 +423,8 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
                 fragmentCameraBinding.bottomSheetLayout.inferenceTimeVal.text =
                     String.format("%d ms", resultBundle.inferenceTime)
 
-                val message = ClientMessage(results=resultBundle, is_calibrated = sharedViewModel.isCalibrating.value == false)
+                val message = ClientMessage(results=resultBundle,
+                    is_calibrated = sharedViewModel.isCalibrating.value == false)
                 val jsonResult: String = Gson().toJson(message)
                 webSocket.send(jsonResult) // sends results per frame to backend
 
