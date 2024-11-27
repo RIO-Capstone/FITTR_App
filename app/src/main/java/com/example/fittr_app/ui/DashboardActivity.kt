@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import com.example.fittr_app.MainActivity
-import com.example.fittr_app.data_classes.ExerciseType
 import com.example.fittr_app.databinding.ActivityDashboardBinding
 
 class DashboardActivity : AppCompatActivity() {
@@ -22,7 +21,7 @@ class DashboardActivity : AppCompatActivity() {
          * Get the results from it and display the results on the screen
          * **/
         val selectedExercise = "SQUAT";
-        val exerciseBarButton : ImageButton = DashboardBinding.exerciseSquats
+        val exerciseBarButton : ImageButton = DashboardBinding.exerciseSquat
         exerciseBarButton.setOnClickListener {
             // navigate to main activity that handles the core media pipe logic
             navigateToMain(selectedExercise)
