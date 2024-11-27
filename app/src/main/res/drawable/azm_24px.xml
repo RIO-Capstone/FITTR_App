@@ -1,0 +1,23 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+
+  <!-- Gradient Background -->
+  <group>
+    <shape
+        android:fillColor="@android:color/transparent">
+      <gradient
+          android:startColor="#C150F6"
+          android:endColor="#EEA4CE"
+          android:angle="45"/>
+    </shape>
+  </group>
+
+  <!-- Your Path with Black Fill -->
+  <path
+      android:fillColor="@android:color/black"
+      android:pathData="M41.67,95.83L41.67,58.33L4.17,58.33L45.83,16.67L83.33,16.67L83.33,54.17L41.67,95.83ZM66.67,59.06L75,50.73L75,25L49.27,25L40.94,33.33L66.67,33.33L66.67,59.06ZM50,75.73L58.33,67.4L58.33,41.67L32.6,41.67L24.27,50L50,50L50,75.73Z" />
+</vector>
+
