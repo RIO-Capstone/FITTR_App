@@ -22,6 +22,7 @@
     android:background="@android:color/transparent">
 
     <RelativeLayout
+        android:id="@+id/relativeLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -38,18 +39,18 @@
             app:navGraph="@navigation/nav_graph"
             tools:context=".MainActivity" />
 
-<!--        <androidx.appcompat.widget.Toolbar-->
-<!--            android:id="@+id/toolbar"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="?attr/actionBarSize"-->
-<!--            android:layout_alignParentTop="true"-->
-<!--            android:background="@color/toolbar_background">-->
+        <!--        <androidx.appcompat.widget.Toolbar-->
+        <!--            android:id="@+id/toolbar"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="?attr/actionBarSize"-->
+        <!--            android:layout_alignParentTop="true"-->
+        <!--            android:background="@color/toolbar_background">-->
 
-<!--            <ImageView-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:src="@drawable/media_pipe_banner" />-->
-<!--        </androidx.appcompat.widget.Toolbar>-->
+        <!--            <ImageView-->
+        <!--                android:layout_width="wrap_content"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:src="@drawable/media_pipe_banner" />-->
+        <!--        </androidx.appcompat.widget.Toolbar>-->
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/navigation"
@@ -67,5 +68,21 @@
             android:layout_below="@id/navigation"
             android:background="@android:color/darker_gray" />
 
+        <!-- Semi-transparent background -->
+
     </RelativeLayout>
+
+    <TextView
+        android:id="@+id/rep_count"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:background="#80000000"
+        android:gravity="center"
+        android:text="Rep Count: 0"
+        android:textColor="@android:color/white"
+        android:textSize="20sp"
+        app:layout_anchor="@+id/relativeLayout"
+        app:layout_anchorGravity="bottom|center" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

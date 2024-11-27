@@ -5,11 +5,11 @@
     android:layout_height="match_parent">
 
     <ImageButton
-        android:id="@+id/exercise_bar"
+        android:id="@+id/exercise_squats"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/icn_chevron_up"
-        android:contentDescription="exercise using a bar"
+        android:contentDescription="exercise selection"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

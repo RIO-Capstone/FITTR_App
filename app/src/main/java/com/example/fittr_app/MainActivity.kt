@@ -1,28 +1,21 @@
 package com.example.fittr_app
 
 import android.os.Bundle
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.fittr_app.databinding.ActivityMainBinding
 import androidx.activity.viewModels
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
-import androidx.navigation.Navigation
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.setupWithNavController
-import com.example.fittr_app.media_pipe.CameraFragment
-import com.example.fittr_app.media_pipe.GalleryFragment
-import kotlinx.coroutines.launch
+import com.example.fittr_app.data_classes.ExerciseType
 
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var activityMainBinding: ActivityMainBinding
+    private lateinit var sharedViewModel: SharedViewModel
     private val viewModel : MainViewModel by viewModels()
     private lateinit var navController:NavController
 
@@ -31,9 +24,26 @@ class MainActivity : AppCompatActivity() {
         activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(activityMainBinding.root)
 
+        val selectedExercise = intent.getStringExtra("selectedExercise")
+        // initialise the shared view model which shares data between the different fragments in main activity
+        sharedViewModel = ViewModelProvider(this)[SharedViewModel::class.java]
+        if (selectedExercise != null) {
+            sharedViewModel.setSelectedExercise(selectedExercise)
+        };
+
+        val repCountTextView = findViewById<TextView>(R.id.rep_count)
+        sharedViewModel.repCount.observe(this) { repCount ->
+            if(sharedViewModel.isCalibrating.value == true){
+                repCountTextView.text = "Calibrating..."
+            }else{
+                repCountTextView.text = "Rep Count: $repCount"
+            }
+        }
+
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.fragment_container) as NavHostFragment
         navController = navHostFragment.navController
+        // VERY IMPORTANT!
         // entry fragment is the permissions fragment, which automatically navigates to the camera fragment
         activityMainBinding.navigation.setupWithNavController(navController)
         activityMainBinding.navigation.setOnNavigationItemReselectedListener {
