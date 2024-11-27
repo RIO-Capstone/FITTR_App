@@ -23,12 +23,13 @@ import kotlinx.coroutines.launch
 import android.widget.TextView
 import android.graphics.LinearGradient
 import android.graphics.Shader
-
+import androidx.lifecycle.ViewModelProvider
 
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var activityMainBinding: ActivityMainBinding
+    private lateinit var sharedViewModel: SharedViewModel
     private val viewModel : MainViewModel by viewModels()
     private lateinit var navController:NavController
 
@@ -40,9 +41,22 @@ class MainActivity : AppCompatActivity() {
         activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(activityMainBinding.root)
 
+        val selectedExercise = intent.getStringExtra("selectedExercise")
+        // initialise the shared view model which shares data between the different fragments in main activity
+        sharedViewModel = ViewModelProvider(this)[SharedViewModel::class.java]
+        if (selectedExercise != null) {
+            sharedViewModel.setSelectedExercise(selectedExercise)
+        };
+
+        val repCountTextView = findViewById<TextView>(R.id.rep_count)
+        sharedViewModel.displayText.observe(this) { displayText ->
+            repCountTextView.text = displayText
+        }
+
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.fragment_container) as NavHostFragment
         navController = navHostFragment.navController
+        // VERY IMPORTANT!
         // entry fragment is the permissions fragment, which automatically navigates to the camera fragment
         activityMainBinding.navigation.setupWithNavController(navController)
         activityMainBinding.navigation.setOnNavigationItemReselectedListener {

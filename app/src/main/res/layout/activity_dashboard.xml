@@ -31,7 +31,7 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <ImageButton
-        android:id="@+id/exercise_bar"
+        android:id="@+id/exercise_squat"
         android:layout_width="66dp"
         android:layout_height="66dp"
         android:background="@drawable/circular_background"
@@ -52,7 +52,7 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/poppins_bold"
         android:text="Start your workout!"
-        app:layout_constraintBottom_toTopOf="@+id/exercise_bar"
+        app:layout_constraintBottom_toTopOf="@+id/exercise_squat"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
@@ -159,6 +159,8 @@
         android:layout_width="170dp"
         android:layout_height="149dp"
         android:background="@drawable/rounded_white_view"
+        android:src="@drawable/icn_chevron_up"
+        android:contentDescription="exercise selection"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.892"

@@ -21,22 +21,48 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import com.example.fittr_app.media_pipe.PoseLandmarkerHelper
 import com.example.fittr_app.MainViewModel
 import com.example.fittr_app.R
+import com.example.fittr_app.SharedViewModel
 import com.example.fittr_app.databinding.FragmentCameraBinding
+import com.example.fittr_app.web_socket.WebSocketClient
+import com.google.gson.Gson
+import com.google.gson.JsonObject
 import com.google.mediapipe.tasks.vision.core.RunningMode
+import okhttp3.OkHttpClient
+import okhttp3.WebSocket
+import okhttp3.Request
+import okio.ByteString
 import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+
+data class BackendResponse (
+    val rep_count: Int? = null,
+    val error: String? = null,
+    val message: String? = null
+)
+data class ClientMessage(
+   val results: PoseLandmarkerHelper.ResultBundle,
+    val is_calibrated: Boolean? = false
+ )
+
 
 class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
 
     companion object {
         private const val TAG = "Pose Landmarker"
     }
+
+    private lateinit var webSocket: WebSocket
+    private lateinit var sharedViewModel: SharedViewModel
+    private val client = OkHttpClient()
+    private val IP_ADDRESS = "192.168.55.132";
+    private val calibrationDuration : Long = 5000;
 
     private var _fragmentCameraBinding: FragmentCameraBinding? = null
 
@@ -53,6 +79,8 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
 
     /** Blocking ML operations are performed using this executor */
     private lateinit var backgroundExecutor: ExecutorService
+    /** Blocking Calibration is performed using another executor */
+    private lateinit var calibrationExecutor: ExecutorService
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onResume() {
@@ -99,6 +127,10 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         backgroundExecutor.awaitTermination(
             Long.MAX_VALUE, TimeUnit.NANOSECONDS
         )
+        // close the web socket connection
+        if (::webSocket.isInitialized) {
+            webSocket.close(1000, "Closing WebSocket connection")
+        }
     }
 
     override fun onCreateView(
@@ -108,8 +140,24 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     ): View {
         _fragmentCameraBinding =
             FragmentCameraBinding.inflate(inflater, container, false)
-
+        // initialise the shared view model to get the exercise being performed
+        sharedViewModel = ViewModelProvider(requireActivity())[SharedViewModel::class.java]
+        Log.i("Camera Fragment","Currently performing exercise: ${sharedViewModel.selectedExercise.value}")
+        connectWebSocket() // start the web socket connection now
         return fragmentCameraBinding.root
+    }
+
+    private fun connectWebSocket() {
+        val backend_address = "ws://${IP_ADDRESS}:8000/ws/exercise/${sharedViewModel.selectedExercise.value}/"
+        val request = Request.Builder()
+            .url(backend_address)  // IP and Port using secure websocket connection
+            .build()
+        Log.i("WebSocket","Connecting to $backend_address")
+        val listener = WebSocketClient(this)
+        webSocket = client.newWebSocket(request, listener)
+
+        // Shutdown client when the activity/fragment is destroyed
+        client.dispatcher.executorService.shutdown()
     }
 
     @SuppressLint("MissingPermission")
@@ -118,6 +166,8 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
 
         // Initialize our background executor
         backgroundExecutor = Executors.newSingleThreadExecutor()
+        calibrationExecutor = Executors.newSingleThreadExecutor() // Initialise the calibration executor
+        startCalibration() // and start calibration
 
         // Wait for the views to be properly laid out
         fragmentCameraBinding.viewFinder.post {
@@ -373,6 +423,11 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
                 fragmentCameraBinding.bottomSheetLayout.inferenceTimeVal.text =
                     String.format("%d ms", resultBundle.inferenceTime)
 
+                val message = ClientMessage(results=resultBundle,
+                    is_calibrated = sharedViewModel.isCalibrating.value == false)
+                val jsonResult: String = Gson().toJson(message)
+                webSocket.send(jsonResult) // sends results per frame to backend
+
                 // Pass necessary information to OverlayView for drawing on the canvas
                 fragmentCameraBinding.overlay.setResults(
                     resultBundle.results.first(),
@@ -386,6 +441,41 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
             }
         }
     }
+
+    fun handleBackendResponse(response: BackendResponse) {
+        activity?.runOnUiThread {
+            response.rep_count?.let { repCount ->
+                sharedViewModel.updateRepCount(repCount);
+            }
+
+            response.error?.let { error ->
+                // Show an error message
+                Toast.makeText(requireContext(), "Error: $error", Toast.LENGTH_SHORT).show()
+            }
+
+        }
+    }
+
+    private fun startCalibration() {
+        calibrationExecutor.execute {
+            // Simulate calibration for 5 seconds
+            Log.i("CameraFragment", "Calibration Started")
+            // Ensure updates happen on the main thread
+
+            sharedViewModel.updateCalibration(true) // set isCalibrating to true
+
+
+            Thread.sleep(calibrationDuration)
+
+            Log.i("CameraFragment", "Calibration Ended")
+            // Ensure updates happen on the main thread
+
+            sharedViewModel.updateCalibration(false) // set isCalibrating to false after 5 seconds
+
+        }
+    }
+
+
 
     override fun onError(error: String, errorCode: Int) {
         activity?.runOnUiThread {

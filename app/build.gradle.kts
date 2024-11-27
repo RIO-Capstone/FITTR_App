@@ -57,4 +57,6 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.mediapipe.tasks.vision)
     implementation(libs.bundles.camerax)
+    implementation(libs.okhttp)
+    implementation(libs.gson)
 }

@@ -20,15 +20,17 @@ class DashboardActivity : AppCompatActivity() {
          * Send the landmark data to the exercise specific model
          * Get the results from it and display the results on the screen
          * **/
-        val exerciseBarButton : ImageButton = DashboardBinding.exerciseBar
+        val selectedExercise = "SQUAT";
+        val exerciseBarButton : ImageButton = DashboardBinding.exerciseSquat
         exerciseBarButton.setOnClickListener {
             // navigate to main activity that handles the core media pipe logic
-            navigateToMain()
+            navigateToMain(selectedExercise)
         }
 
     }
-    private fun navigateToMain(){
+    private fun navigateToMain(selectedExercise:String){
         val intent = Intent(this, MainActivity::class.java)
+        intent.putExtra("selectedExercise", selectedExercise)
         startActivity(intent)
 
     }
