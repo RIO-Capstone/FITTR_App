@@ -1,15 +1,29 @@
 package com.example.fittr_app
 
 import android.os.Bundle
-import android.widget.TextView
+import android.view.Window
+import android.view.WindowManager
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.fittr_app.databinding.ActivityMainBinding
 import androidx.activity.viewModels
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import androidx.navigation.fragment.NavHostFragment
-import com.example.fittr_app.data_classes.ExerciseType
+import androidx.navigation.ui.setupWithNavController
+import com.example.fittr_app.media_pipe.CameraFragment
+import com.example.fittr_app.media_pipe.GalleryFragment
+import kotlinx.coroutines.launch
+import android.widget.TextView
+import android.graphics.LinearGradient
+import android.graphics.Shader
+import androidx.lifecycle.ViewModelProvider
 
 
 class MainActivity : AppCompatActivity() {
@@ -21,6 +35,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        requestWindowFeature(Window.FEATURE_NO_TITLE)
+
         activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(activityMainBinding.root)
 
@@ -46,6 +63,7 @@ class MainActivity : AppCompatActivity() {
             // ignore the reselection
         }
 
+
         // Get the fragment to load from the intent extras
 //        val fragmentToLoad:String = intent.getStringExtra("FRAGMENT_TO_LOAD").toString()
 //
@@ -56,6 +74,8 @@ class MainActivity : AppCompatActivity() {
 //        }
 
     }
+
+
 
     override fun onBackPressed() {
         super.onBackPressed()
