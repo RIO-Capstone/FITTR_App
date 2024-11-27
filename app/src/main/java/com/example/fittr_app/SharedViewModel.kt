@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.fittr_app.data_classes.ExerciseType
 
 class SharedViewModel : ViewModel() {
     private val _selectedExercise = MutableLiveData<String>()

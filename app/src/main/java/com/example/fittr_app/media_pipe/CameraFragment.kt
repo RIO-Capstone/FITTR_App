@@ -61,7 +61,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     private lateinit var webSocket: WebSocket
     private lateinit var sharedViewModel: SharedViewModel
     private val client = OkHttpClient()
-    private val IP_ADDRESS = "192.168.55.132";
+    private val IP_ADDRESS = "<change to your IP>";
     private val calibrationDuration : Long = 5000;
 
     private var _fragmentCameraBinding: FragmentCameraBinding? = null
@@ -166,8 +166,8 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
 
         // Initialize our background executor
         backgroundExecutor = Executors.newSingleThreadExecutor()
-        calibrationExecutor = Executors.newSingleThreadExecutor() // Initialise the calibration executor
-        startCalibration() // and start calibration
+        //calibrationExecutor = Executors.newSingleThreadExecutor() // Initialise the calibration executor
+        //startCalibration() // and start calibration
 
         // Wait for the views to be properly laid out
         fragmentCameraBinding.viewFinder.post {
