@@ -59,4 +59,6 @@ dependencies {
     implementation(libs.bundles.camerax)
     implementation(libs.okhttp)
     implementation(libs.gson)
+    implementation(libs.moshi)
+    implementation(libs.moshi.kotlin)
 }
