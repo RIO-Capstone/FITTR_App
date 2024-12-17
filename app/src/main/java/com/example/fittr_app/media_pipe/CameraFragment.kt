@@ -23,19 +23,16 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
-import com.example.fittr_app.media_pipe.PoseLandmarkerHelper
 import com.example.fittr_app.MainViewModel
 import com.example.fittr_app.R
 import com.example.fittr_app.SharedViewModel
 import com.example.fittr_app.databinding.FragmentCameraBinding
-import com.example.fittr_app.web_socket.WebSocketClient
+import com.example.fittr_app.connections.WebSocketClient
 import com.google.gson.Gson
-import com.google.gson.JsonObject
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import okhttp3.OkHttpClient
 import okhttp3.WebSocket
 import okhttp3.Request
-import okio.ByteString
 import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -61,7 +58,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     private lateinit var webSocket: WebSocket
     private lateinit var sharedViewModel: SharedViewModel
     private val client = OkHttpClient()
-    private val IP_ADDRESS = "<change to your IP>";
+    private val IP_ADDRESS = "<GET FROM BACKEND>";
     private val calibrationDuration : Long = 5000;
 
     private var _fragmentCameraBinding: FragmentCameraBinding? = null

@@ -22,10 +22,6 @@ class HomeActivity : AppCompatActivity() {
         homeActivityBinding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(homeActivityBinding.root)
 
-
-
-
-
         // Apply gradient to the TextView
         applyGradientToTextView()
 

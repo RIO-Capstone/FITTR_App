@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:padding="16dp"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/tv_register_device_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hey there,"
+            android:textSize="20sp"
+            android:textColor="@color/black"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tv_register_device_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Register your device"
+            android:textStyle="bold"
+            android:textSize="24sp"
+            android:textColor="@color/black"
+            android:layout_marginBottom="24dp" />
+
+        <!-- First Name and Last Name Fields (Horizontal Layout) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal"
+            android:layout_marginBottom="12dp">
+
+            <EditText
+                android:id="@+id/et_first_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="First Name"
+                android:drawableStart="@drawable/icons8_person_30"
+                android:inputType="textPersonName"
+                android:background="@drawable/rounded_field"
+                android:padding="12dp"
+                android:layout_marginEnd="8dp" />  <!-- margin between first and last name -->
+
+            <EditText
+                android:id="@+id/et_last_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Last Name"
+                android:inputType="textPersonName"
+                android:background="@drawable/rounded_field"
+                android:padding="12dp" />
+
+        </LinearLayout>
+
+        <!-- Phone Number Field -->
+        <EditText
+            android:id="@+id/et_phone_number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Phone Number"
+            android:drawableStart="@drawable/icons8_phone_case_50"
+            android:inputType="phone"
+            android:background="@drawable/rounded_field"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Password Field -->
+        <EditText
+            android:id="@+id/et_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:background="@drawable/rounded_field"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Email Field -->
+        <EditText
+            android:id="@+id/et_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Email"
+            android:drawableStart="@drawable/icons8_email_30"
+            android:inputType="textEmailAddress"
+            android:background="@drawable/rounded_field"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp" />
+
+
+
+        <!-- Product ID Field -->
+        <EditText
+            android:id="@+id/et_product_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Product ID"
+            android:inputType="number"
+            android:background="@drawable/rounded_field"
+            android:padding="12dp"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Privacy Policy -->
+        <CheckBox
+            android:id="@+id/cb_accept_terms"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="By continuing you accept our Privacy Policy and Terms of Use"
+            android:textSize="12sp"
+            android:layout_marginBottom="24dp"
+            android:padding="12dp"
+            android:minHeight="48dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true" />
+
+        <!-- Register Button -->
+        <Button
+            android:id="@+id/nxt_button_page_one"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Next"
+            android:background="@drawable/rounded_button"
+            android:textColor="@color/white"
+            android:padding="12dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp" />
+
+    </LinearLayout>
+</ScrollView>

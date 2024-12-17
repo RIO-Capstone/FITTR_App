@@ -38,9 +38,10 @@
         <item>GPU</item>
     </string-array>
     <string-array name="gender_options">
+        <item>Select Gender</item>
         <item>Male</item>
         <item>Female</item>
-        <item>Other</item>
+        <item>GAYYY</item>
     </string-array>
     <string-array name="models_spinner_titles">
         <item>Pose Landmarker Full</item>

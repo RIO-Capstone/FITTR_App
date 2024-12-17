@@ -58,16 +58,6 @@ class MainActivity : AppCompatActivity() {
             // ignore the reselection
         }
 
-
-        // Get the fragment to load from the intent extras
-//        val fragmentToLoad:String = intent.getStringExtra("FRAGMENT_TO_LOAD").toString()
-//
-//        // Load the appropriate fragment
-//        when (fragmentToLoad) {
-//            "CameraFragment" -> navigateToCameraFragment()
-//            "GalleryFragment" -> navigateToGalleryFragment()
-//        }
-
     }
 
 
