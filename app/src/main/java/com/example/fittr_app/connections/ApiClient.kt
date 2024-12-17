@@ -16,25 +16,50 @@ class ApiClient {
 
     private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
     private val jsonAdapter = moshi.adapter(RegisterUserBackendResponse::class.java)
-    private val IP_ADDRESS = "<GET FROM BACKEND>";
 
     companion object {
         private const val BASE_URL = "http://<GET FROM BACKEND>:8000/"
     }
 
-    // This method sends data to the backend server (POST request)
+    // Login User
+    suspend fun loginUser(endpoint: ApiPaths, data: Any): Result<LoginUserBackendResponse> {
+        return makeApiRequest<LoginUserBackendResponse>(endpoint, data)
+    }
+
+    // Register User
     suspend fun registerUser(endpoint: ApiPaths, data: Any): Result<RegisterUserBackendResponse> {
-        // non-blocking function
+        return makeApiRequest<RegisterUserBackendResponse>(endpoint, data)
+    }
+
+    private suspend inline fun <reified T> makeApiRequest(
+        endpoint: ApiPaths,
+        data: Any? = null
+    ): Result<T> {
         return withContext(Dispatchers.IO) {
             try {
-                val jsonData = moshi.adapter(Any::class.java).toJson(data)
-                val requestBody = jsonData.toRequestBody("application/json".toMediaType())
-
-                val request = Request.Builder()
+                val requestBuilder = Request.Builder()
                     .url("$BASE_URL${endpoint.path}")
-                    .post(requestBody) // POST request
-                    .build()
-                // sending request here
+
+                // Determine HTTP method based on endpoint.method
+                when (endpoint.method) {
+                    "POST" -> {
+                        val jsonData = data?.let { moshi.adapter(Any::class.java).toJson(it) }
+                        val requestBody = jsonData?.toRequestBody("application/json".toMediaType())
+                        requestBuilder.post(requestBody ?: throw IllegalArgumentException("POST request requires a body"))
+                    }
+                    "GET" -> requestBuilder.get()
+                    "PUT" -> {
+                        val jsonData = data?.let { moshi.adapter(Any::class.java).toJson(it) }
+                        val requestBody = jsonData?.toRequestBody("application/json".toMediaType())
+                        requestBuilder.put(requestBody ?: throw IllegalArgumentException("PUT request requires a body"))
+                    }
+                    "DELETE" -> requestBuilder.delete()
+                    else -> throw IllegalArgumentException("Unsupported HTTP method: ${endpoint.method}")
+                }
+
+                val request = requestBuilder.build()
+
+                // Execute the HTTP request
                 val response = client.newCall(request).execute()
                 Log.d("ApiClient", "Response code: ${response.code}, message: ${response.message}")
 
@@ -43,7 +68,7 @@ class ApiClient {
                         val responseBody = it.string()
                         Log.d("ApiClient", "Response body: $responseBody")
 
-                        val jsonAdapter = moshi.adapter(RegisterUserBackendResponse::class.java)
+                        val jsonAdapter = moshi.adapter(T::class.java)
                         val apiResponse = jsonAdapter.fromJson(responseBody)
 
                         if (apiResponse != null) {
@@ -62,6 +87,11 @@ class ApiClient {
         }
     }
 
+    data class LoginUserBackendResponse(
+        val user: User,
+        val message: String
+    )
+
     data class RegisterUserBackendResponse(
         val message: String,
         val user_id: Int
@@ -71,17 +101,12 @@ class ApiClient {
         val user: User
     )
     data class User(
-        val id: Int?,
-        val firstName: String,
-        val lastName: String,
-        val email: String,
+        val user_id: Int,
+        val first_name: String,
+        val last_name: String,
         val weight: Int,
         val height: Int,
-        val phoneNumber: String?,
-        val gender: String?,
-        val dateOfBirth: String?, // formatted string "dd-MM-yyyy"
-        val productId: Int?,
-        val password:String?
+        val email: String
     )
 
 }
