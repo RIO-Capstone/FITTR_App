@@ -18,7 +18,7 @@ import com.example.fittr_app.R
 import com.example.fittr_app.connections.ApiClient
 import com.example.fittr_app.connections.ApiPaths
 import com.example.fittr_app.databinding.RegistrationPageTwoBinding
-import com.example.fittr_app.ui.DashboardActivity
+import com.example.fittr_app.DashboardActivity
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
@@ -87,12 +87,12 @@ class RegistrationPageTwo : Fragment() {
         if(result.isSuccess){
             Toast.makeText(activity,"Registration Complete",Toast.LENGTH_LONG).show()
             val userId = result.getOrNull()?.user_id
-            val navToDash = Intent(activity,DashboardActivity::class.java).apply{
+            val navToDash = Intent(activity, DashboardActivity::class.java).apply{
                 putExtra("user_id", userId)
             }
             startActivity(navToDash)
         }else{
-            Toast.makeText(activity,"Registration Unsuccessful. Try again later.",Toast.LENGTH_LONG).show()
+            Toast.makeText(activity,"Registration Unsuccessful. ${result.getOrNull()?.error}",Toast.LENGTH_LONG).show()
         }
     }
 
