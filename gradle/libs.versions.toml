@@ -22,6 +22,7 @@ gson = "2.8.9"
 activity = "1.8.0"
 moshi = "1.13.0"
 moshi-kotlin = "1.13.0"
+mpandroidchart = "3.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -48,6 +49,7 @@ gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 moshi = { group = "com.squareup.moshi", name = "moshi", version.ref = "moshi" }
 moshi-kotlin = { group = "com.squareup.moshi", name = "moshi-kotlin", version.ref = "moshi-kotlin" }
+mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

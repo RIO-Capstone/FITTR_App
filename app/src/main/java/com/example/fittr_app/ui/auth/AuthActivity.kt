@@ -8,7 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.fittr_app.connections.ApiClient
 import com.example.fittr_app.connections.ApiPaths
 import com.example.fittr_app.databinding.ActivityAuthBinding
-import com.example.fittr_app.ui.DashboardActivity
+import com.example.fittr_app.DashboardActivity
 import com.example.fittr_app.ui.registration.RegistrationActivity
 import kotlinx.coroutines.launch
 
@@ -38,7 +38,7 @@ class AuthActivity:AppCompatActivity() {
                     Toast.makeText(this@AuthActivity, "Login Complete", Toast.LENGTH_LONG).show()
                     navigateToDashboard(response.user.user_id)
                 } else {
-                    Toast.makeText(this@AuthActivity, "Login Failed. Please check your credentials.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@AuthActivity, "Login Failed. Check your credentials.", Toast.LENGTH_LONG).show()
                 }
             }
         }
