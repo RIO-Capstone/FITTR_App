@@ -34,6 +34,10 @@ class ApiClient {
     suspend fun registerUser(endpoint: ApiPaths, data: Any): Result<RegisterUserBackendResponse> {
         return makeApiRequest<RegisterUserBackendResponse>(endpoint, data)
     }
+    // Get user history
+    suspend fun getUserHistory(endpoint: ApiPaths, data: Any?): Result<UserHistoryBackendResponse> {
+        return makeApiRequest<UserHistoryBackendResponse>(endpoint, data)
+    }
 
     private suspend inline fun <reified T> makeApiRequest(
         endpoint: ApiPaths,
@@ -111,6 +115,14 @@ class ApiClient {
         val weight: Int,
         val height: Int,
         val email: String
+    )
+    data class UserHistoryBackendResponse(
+        val session_data: List<SessionData>,
+        val streak: Int
+    )
+    data class SessionData(
+        val duration: Int,
+        val date: String
     )
 
 }

@@ -40,40 +40,18 @@
             android:textStyle="bold"
             android:gravity="center"
             android:textColor="@color/black" />
-
-        <!-- Streak Counter -->
-        <LinearLayout
-            android:id="@+id/streak_counter"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
+        <!-- Bluetooth Status Icon -->
+        <ImageButton
+            android:id="@+id/dashboard_bluetooth_status_button"
+            android:layout_width="40sp"
+            android:layout_height="40sp"
+            android:src="@drawable/bluetooth_red"
             android:background="@drawable/rounded_button"
-            android:padding="8dp">
+            android:elevation="1dp"
+            android:padding="10dp"
+            android:scaleType="centerInside"
+            android:contentDescription="Bluetooth Status Icon" />
 
-            <!-- Streak Number -->
-            <TextView
-                android:id="@+id/streak_number"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="3"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/white"
-                android:gravity="center" />
-
-            <!-- Days Label -->
-            <TextView
-                android:id="@+id/streak_days_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Days"
-                android:textSize="12sp"
-                android:textColor="@android:color/white"
-                android:gravity="center" />
-
-        </LinearLayout>
     </LinearLayout>
 
     <TextView
@@ -106,21 +84,47 @@
         <!-- Use a ConstraintLayout to align TextView and BarChart -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:id="@+id/progress_box"
+            >
 
-            <!-- TextView for Progress Label -->
-            <TextView
-                android:id="@+id/progress_label"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="12dp"
-                android:fontFamily="@font/poppins_bold"
-                android:text="Your Progress"
-                android:textColor="@android:color/black"
-                android:textSize="15sp"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
+                android:orientation="horizontal"
+                app:layout_constraintStart_toStartOf="@id/progress_box"
+                app:layout_constraintTop_toTopOf="@id/progress_box"
+                android:layout_margin="0dp"
+            >
+                <!-- TextView for Progress Label -->
+                <TextView
+                    android:id="@+id/progress_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="12dp"
+                    android:fontFamily="@font/poppins_bold"
+                    android:text="Your Progress"
+                    android:textColor="@android:color/black"
+                    android:textSize="15sp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <!-- Streak Number -->
+                <TextView
+                    android:id="@+id/streak_number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="3"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"
+                    android:gravity="center" />
+                <ImageView
+                    android:layout_width="15sp"
+                    android:layout_height="15sp"
+                    android:src="@drawable/fire_icon"/>
+            </LinearLayout>
 
             <!-- BarChart Below the TextView -->
             <com.github.mikephil.charting.charts.BarChart
