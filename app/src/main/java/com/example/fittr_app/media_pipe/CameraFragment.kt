@@ -59,7 +59,6 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     private lateinit var sharedViewModel: SharedViewModel
     private val client = OkHttpClient()
     private val IP_ADDRESS = "<GET FROM BACKEND>";
-    private val calibrationDuration : Long = 5000;
 
     private var _fragmentCameraBinding: FragmentCameraBinding? = null
 
@@ -74,10 +73,8 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     private var cameraProvider: ProcessCameraProvider? = null
     private var cameraFacing = CameraSelector.LENS_FACING_BACK
 
-    /** Blocking ML operations are performed using this executor */
+    /** Blocking backend operations are performed using this executor */
     private lateinit var backgroundExecutor: ExecutorService
-    /** Blocking Calibration is performed using another executor */
-    private lateinit var calibrationExecutor: ExecutorService
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onResume() {
@@ -88,7 +85,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
             Navigation.findNavController(
                 requireActivity(), R.id.fragment_container
             )
-                .navigate(R.id.action_camera_to_permissions)
+            .navigate(R.id.action_camera_to_permissions)
         }
 
         // Start the PoseLandmarkerHelper again when users come back
@@ -452,26 +449,6 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
 
         }
     }
-
-    private fun startCalibration() {
-        calibrationExecutor.execute {
-            // Simulate calibration for 5 seconds
-            Log.i("CameraFragment", "Calibration Started")
-            // Ensure updates happen on the main thread
-
-            sharedViewModel.updateCalibration(true) // set isCalibrating to true
-
-
-            Thread.sleep(calibrationDuration)
-
-            Log.i("CameraFragment", "Calibration Ended")
-            // Ensure updates happen on the main thread
-
-            sharedViewModel.updateCalibration(false) // set isCalibrating to false after 5 seconds
-
-        }
-    }
-
 
 
     override fun onError(error: String, errorCode: Int) {
