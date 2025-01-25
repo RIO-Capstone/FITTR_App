@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
     <!-- Declare features -->
     <uses-feature android:name="android.hardware.camera" /> <!-- Declare permissions -->
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
@@ -41,7 +42,6 @@
 
         <activity android:name=".ui.auth.AuthActivity" />
         <activity android:name=".ui.registration.RegistrationActivity"/>
-        <activity android:name=".ui.DashboardActivity" />
     </application>
 
 </manifest>

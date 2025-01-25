@@ -12,13 +12,6 @@ import androidx.activity.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.setupWithNavController
-import com.example.fittr_app.media_pipe.CameraFragment
-import com.example.fittr_app.media_pipe.GalleryFragment
-import kotlinx.coroutines.launch
-import android.graphics.LinearGradient
-import android.graphics.Shader
-
 
 
 class MainActivity : AppCompatActivity() {

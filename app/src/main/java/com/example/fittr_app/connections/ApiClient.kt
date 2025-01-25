@@ -20,6 +20,10 @@ class ApiClient {
     companion object {
         private const val BASE_URL = "http://<GET FROM BACKEND>:8000/"
     }
+    // Get user
+    suspend fun getUser(endpoint: ApiPaths,data:Any?): Result<GetUserBackendResponse>{
+        return makeApiRequest<GetUserBackendResponse>(endpoint,data)
+    }
 
     // Login User
     suspend fun loginUser(endpoint: ApiPaths, data: Any): Result<LoginUserBackendResponse> {
@@ -29,6 +33,10 @@ class ApiClient {
     // Register User
     suspend fun registerUser(endpoint: ApiPaths, data: Any): Result<RegisterUserBackendResponse> {
         return makeApiRequest<RegisterUserBackendResponse>(endpoint, data)
+    }
+    // Get user history
+    suspend fun getUserHistory(endpoint: ApiPaths, data: Any?): Result<UserHistoryBackendResponse> {
+        return makeApiRequest<UserHistoryBackendResponse>(endpoint, data)
     }
 
     private suspend inline fun <reified T> makeApiRequest(
@@ -94,10 +102,10 @@ class ApiClient {
 
     data class RegisterUserBackendResponse(
         val message: String,
-        val user_id: Int
+        val user_id: Int,
+        val error:String?
     )
     data class GetUserBackendResponse(
-        val status: Int,
         val user: User
     )
     data class User(
@@ -107,6 +115,14 @@ class ApiClient {
         val weight: Int,
         val height: Int,
         val email: String
+    )
+    data class UserHistoryBackendResponse(
+        val session_data: List<SessionData>,
+        val streak: Int
+    )
+    data class SessionData(
+        val duration: Int,
+        val date: String
     )
 
 }
