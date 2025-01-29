@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.fittr_app.connections.ApiClient
 import com.example.fittr_app.connections.ApiPaths
+import com.example.fittr_app.connections.BluetoothHelper
 import com.example.fittr_app.databinding.ActivityDashboardBinding
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
@@ -24,17 +25,30 @@ import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.utils.ColorTemplate
 import kotlinx.coroutines.launch
 
+interface BluetoothReadCallback {
+    fun onValueRead(value: String)
+    fun onError(message: String)
+}
 
 class DashboardActivity : AppCompatActivity() {
     private lateinit var DashboardBinding : ActivityDashboardBinding
     private lateinit var api_client : ApiClient
     private lateinit var user: ApiClient.User
+    private lateinit var bluetoothHelper: BluetoothHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         DashboardBinding = ActivityDashboardBinding.inflate(layoutInflater)
         setContentView(DashboardBinding.root)
         api_client = ApiClient()
+        bluetoothHelper = BluetoothHelper(context = this,object : BluetoothReadCallback {
+            override fun onValueRead(value: String) {
+                Log.d("DashboardActivity", "Received value: $value")
+            }
+            override fun onError(message: String) {
+                Log.e("DashboardActivity", "Error: $message")
+            }
+        });
         val intent = intent
         if(intent.hasExtra("user_id")){
             val user_id = intent.getIntExtra("user_id",0)
@@ -197,6 +211,7 @@ class DashboardActivity : AppCompatActivity() {
     }
     private fun checkBluetoothConnection(): Boolean {
         // Check if the app has the BLUETOOTH_CONNECT permission (required for Android 12+)
+        Log.d("DashboardActivity", "Checking Bluetooth connection")
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
             if (checkSelfPermission(android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                 // Request the permission if it hasn't been granted
@@ -214,25 +229,28 @@ class DashboardActivity : AppCompatActivity() {
 
         // Check if Bluetooth is enabled
         if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled) {
+            Toast.makeText(this, "Bluetooth is not enabled!", Toast.LENGTH_SHORT).show()
             return false // Bluetooth is either not supported or not enabled
         }
 
-        // Check connected devices
+        // List of paired devices
         val connectedDevices: Set<BluetoothDevice> = bluetoothAdapter.bondedDevices
 
         // Iterate through paired device
-        // TODO: Logic needs refining as we only consider a connection to be valid
-        // if its with our FITTR device
+        // TODO: Logic needs refining as we only consider a connection to be valid if its with our FITTR device
         for (device in connectedDevices) {
             val deviceName = device.name ?: "Unknown Device"
             val deviceAddress = device.address
 
             // Log information about the device
-            Log.d("BluetoothConnection", "Device Name: $deviceName, Address: $deviceAddress")
+            Log.d("DashboardActivity", "Device Name: $deviceName, Address: $deviceAddress")
 
             // Check if the device is connected (bonded)
-            if (device.bondState == BluetoothDevice.BOND_BONDED) {
-                Log.d("BluetoothConnection", "Connected to $deviceName")
+            val state_check = device.bondState == BluetoothDevice.BOND_BONDED
+            val id_check = device.uuids[0].toString()
+            Log.d("DashboardActivity", "Device State: $state_check, UUID: $id_check")
+            if (state_check) {
+                bluetoothHelper.connectAndRead(device, "283a973e-38ae-4f32-abad-114e5abe277e");
                 return true
             }
         }

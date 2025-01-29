@@ -58,7 +58,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     private lateinit var webSocket: WebSocket
     private lateinit var sharedViewModel: SharedViewModel
     private val client = OkHttpClient()
-    private val IP_ADDRESS = "<GET FROM BACKEND>";
+    private val IP_ADDRESS = "GET FROM BACKEND";
 
     private var _fragmentCameraBinding: FragmentCameraBinding? = null
 
