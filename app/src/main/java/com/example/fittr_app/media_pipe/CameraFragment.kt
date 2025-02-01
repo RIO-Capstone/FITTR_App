@@ -23,9 +23,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
+import com.example.fittr_app.BluetoothReadCallback
 import com.example.fittr_app.MainViewModel
 import com.example.fittr_app.R
 import com.example.fittr_app.SharedViewModel
+import com.example.fittr_app.connections.BluetoothHelper
 import com.example.fittr_app.databinding.FragmentCameraBinding
 import com.example.fittr_app.connections.WebSocketClient
 import com.google.gson.Gson
@@ -158,10 +160,17 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // set up live data state listeners
+        viewModel.currentMotorState.observe(viewLifecycleOwner) { motorState ->
+            fragmentCameraBinding.bottomSheetLayout.motorStateToggle.isChecked = motorState
+        }
+        viewModel.currentResistance.observe(viewLifecycleOwner) { resistanceValue ->
+            fragmentCameraBinding.bottomSheetLayout.resistanceValue.text =
+                String.format(Locale.US,"%.2f",resistanceValue)
+        }
+
         // Initialize our background executor
         backgroundExecutor = Executors.newSingleThreadExecutor()
-        //calibrationExecutor = Executors.newSingleThreadExecutor() // Initialise the calibration executor
-        //startCalibration() // and start calibration
 
         // Wait for the views to be properly laid out
         fragmentCameraBinding.viewFinder.post {
@@ -182,150 +191,137 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
             )
         }
 
-        // Attach listeners to UI control widgets
+        // Attach listeners to UI control widgets and update default UI values
         initBottomSheetControls()
     }
 
     private fun initBottomSheetControls() {
-        // init bottom sheet settings
+        // init bottom sheet settings (should not start without already establishing a bluetooth connection in the parent activity)
+        BluetoothHelper.connectAndRead(requireContext(),
+            sharedViewModel.deviceStopUUID,
+            object : BluetoothReadCallback {
+            override fun onValueRead(value: String) {
+                handleUpdateMotorState(value)
+                //updateControlsUi()
+            }
+            override fun onError(message: String) {
+                Log.e("CameraFragment", "Error reading motor value from Bluetooth: $message")
+            }
+        })
+        BluetoothHelper.connectAndRead(requireContext(),
+            sharedViewModel.deviceResistanceUUID,
+            object : BluetoothReadCallback{
+            override fun onValueRead(value: String) {
+                handleUpdateResistance(value)
+                //updateControlsUi()
+            }
+            override fun onError(message: String) {
+                // set something anyways?
+                fragmentCameraBinding.bottomSheetLayout.resistanceValue.text =
+                    String.format(Locale.US,"%.2f",viewModel.currentResistance)
+                Log.e("CameraFragment", "Error reading resistance value from Bluetooth: $message")
+            }
+        })
 
-        fragmentCameraBinding.bottomSheetLayout.detectionThresholdValue.text =
-            String.format(
-                Locale.US, "%.2f", viewModel.currentMinPoseDetectionConfidence
-            )
-        fragmentCameraBinding.bottomSheetLayout.trackingThresholdValue.text =
-            String.format(
-                Locale.US, "%.2f", viewModel.currentMinPoseTrackingConfidence
-            )
-        fragmentCameraBinding.bottomSheetLayout.presenceThresholdValue.text =
-            String.format(
-                Locale.US, "%.2f", viewModel.currentMinPosePresenceConfidence
-            )
-
-        // When clicked, lower pose detection score threshold floor
-        fragmentCameraBinding.bottomSheetLayout.detectionThresholdMinus.setOnClickListener {
-            if (poseLandmarkerHelper.minPoseDetectionConfidence >= 0.2) {
-                poseLandmarkerHelper.minPoseDetectionConfidence -= 0.1f
-                updateControlsUi()
+        // TODO: Implementing a drop down weight selector makes more sense (similar to gym machines)
+        // When clicked, send a bluetooth message to FITTR to decrease resistance on the motors
+        // once a successful response is received, then update the UI
+        fragmentCameraBinding.bottomSheetLayout.resistanceMinus.setOnClickListener {
+            val currentResistance = viewModel.currentResistance.value ?: PoseLandmarkerHelper.MIN_RESISTANCE_VALUE
+            if (currentResistance > PoseLandmarkerHelper.MIN_RESISTANCE_VALUE) {
+                val newResistance = currentResistance - 1
+                sendResistanceUpdate(newResistance)
+            } else {
+                Log.w("CameraFragment", "Cannot set resistance value lower than the minimum")
             }
         }
 
-        // When clicked, raise pose detection score threshold floor
-        fragmentCameraBinding.bottomSheetLayout.detectionThresholdPlus.setOnClickListener {
-            if (poseLandmarkerHelper.minPoseDetectionConfidence <= 0.8) {
-                poseLandmarkerHelper.minPoseDetectionConfidence += 0.1f
-                updateControlsUi()
+        fragmentCameraBinding.bottomSheetLayout.resistancePlus.setOnClickListener {
+            val currentResistance = viewModel.currentResistance.value ?: PoseLandmarkerHelper.MIN_RESISTANCE_VALUE
+            if (currentResistance < PoseLandmarkerHelper.MAX_RESISTANCE_VALUE) {
+                val newResistance = currentResistance + 1
+                sendResistanceUpdate(newResistance)
+            } else {
+                Log.w("CameraFragment", "Cannot set resistance value greater than the maximum")
             }
         }
-
-        // When clicked, lower pose tracking score threshold floor
-        fragmentCameraBinding.bottomSheetLayout.trackingThresholdMinus.setOnClickListener {
-            if (poseLandmarkerHelper.minPoseTrackingConfidence >= 0.2) {
-                poseLandmarkerHelper.minPoseTrackingConfidence -= 0.1f
-                updateControlsUi()
-            }
+        fragmentCameraBinding.bottomSheetLayout.motorStateToggle.setOnClickListener {
+            val currentState = viewModel.currentMotorState.value ?: PoseLandmarkerHelper.DEFAULT_MOTOR_STATE
+            val newState = !currentState
+            sendMotorStateUpdate(newState)
         }
-
-        // When clicked, raise pose tracking score threshold floor
-        fragmentCameraBinding.bottomSheetLayout.trackingThresholdPlus.setOnClickListener {
-            if (poseLandmarkerHelper.minPoseTrackingConfidence <= 0.8) {
-                poseLandmarkerHelper.minPoseTrackingConfidence += 0.1f
-                updateControlsUi()
-            }
-        }
-
-        // When clicked, lower pose presence score threshold floor
-        fragmentCameraBinding.bottomSheetLayout.presenceThresholdMinus.setOnClickListener {
-            if (poseLandmarkerHelper.minPosePresenceConfidence >= 0.2) {
-                poseLandmarkerHelper.minPosePresenceConfidence -= 0.1f
-                updateControlsUi()
-            }
-        }
-
-        // When clicked, raise pose presence score threshold floor
-        fragmentCameraBinding.bottomSheetLayout.presenceThresholdPlus.setOnClickListener {
-            if (poseLandmarkerHelper.minPosePresenceConfidence <= 0.8) {
-                poseLandmarkerHelper.minPosePresenceConfidence += 0.1f
-                updateControlsUi()
-            }
-        }
-
-        // When clicked, change the underlying hardware used for inference.
-        // Current options are CPU and GPU
-        fragmentCameraBinding.bottomSheetLayout.spinnerDelegate.setSelection(
-            viewModel.currentDelegate, false
-        )
-        fragmentCameraBinding.bottomSheetLayout.spinnerDelegate.onItemSelectedListener =
-            object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(
-                    p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long
-                ) {
-                    try {
-                        poseLandmarkerHelper.currentDelegate = p2
-                        updateControlsUi()
-                    } catch(e: UninitializedPropertyAccessException) {
-                        Log.e(TAG, "PoseLandmarkerHelper has not been initialized yet.")
-                    }
-                }
-
-                override fun onNothingSelected(p0: AdapterView<*>?) {
-                    /* no op */
-                }
-            }
-
-        // When clicked, change the underlying model used for object detection
-        fragmentCameraBinding.bottomSheetLayout.spinnerModel.setSelection(
-            viewModel.currentModel,
-            false
-        )
-        fragmentCameraBinding.bottomSheetLayout.spinnerModel.onItemSelectedListener =
-            object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(
-                    p0: AdapterView<*>?,
-                    p1: View?,
-                    p2: Int,
-                    p3: Long
-                ) {
-                    poseLandmarkerHelper.currentModel = p2
-                    updateControlsUi()
-                }
-
-                override fun onNothingSelected(p0: AdapterView<*>?) {
-                    /* no op */
-                }
-            }
     }
 
     // Update the values displayed in the bottom sheet. Reset Poselandmarker
     // helper.
     private fun updateControlsUi() {
         if(this::poseLandmarkerHelper.isInitialized) {
-            fragmentCameraBinding.bottomSheetLayout.detectionThresholdValue.text =
-                String.format(
-                    Locale.US,
-                    "%.2f",
-                    poseLandmarkerHelper.minPoseDetectionConfidence
-                )
-            fragmentCameraBinding.bottomSheetLayout.trackingThresholdValue.text =
-                String.format(
-                    Locale.US,
-                    "%.2f",
-                    poseLandmarkerHelper.minPoseTrackingConfidence
-                )
-            fragmentCameraBinding.bottomSheetLayout.presenceThresholdValue.text =
-                String.format(
-                    Locale.US,
-                    "%.2f",
-                    poseLandmarkerHelper.minPosePresenceConfidence
-                )
+            fragmentCameraBinding.bottomSheetLayout.motorStateToggle.text =
+                String.format(Locale.US, "%.2f", viewModel.currentMotorState)
+
+            fragmentCameraBinding.bottomSheetLayout.resistanceValue.text =
+                String.format(Locale.US,"%.2f",viewModel.currentResistance)
 
             // Needs to be cleared instead of reinitialized because the GPU
             // delegate needs to be initialized on the thread using it when applicable
-            backgroundExecutor.execute {
-                poseLandmarkerHelper.clearPoseLandmarker()
-                poseLandmarkerHelper.setupPoseLandmarker()
+//            backgroundExecutor.execute {
+//                poseLandmarkerHelper.clearPoseLandmarker()
+//                poseLandmarkerHelper.setupPoseLandmarker()
+//            }
+//            fragmentCameraBinding.overlay.clear()
+        }
+    }
+
+    private fun sendResistanceUpdate(newResistance: Float) {
+        val message = newResistance.toString()
+        BluetoothHelper.connectAndSendMessage(requireContext(), message, sharedViewModel.deviceResistanceUUID,
+            object : BluetoothReadCallback {
+                override fun onValueRead(value: String) {
+                    handleUpdateResistance(message)
+                }
+                override fun onError(message: String) {
+                    Log.e("CameraFragment", message)
+                }
+            })
+    }
+
+    private fun sendMotorStateUpdate(newState: Boolean) {
+        BluetoothHelper.connectAndSendMessage(requireContext(), newState.toString(), sharedViewModel.deviceStopUUID,
+            object : BluetoothReadCallback {
+                override fun onValueRead(value: String) {
+                    handleUpdateMotorState(value)
+                }
+                override fun onError(message: String) {
+                    Log.e("CameraFragment", message)
+                }
+            })
+    }
+
+    private fun handleUpdateResistance(value:String){
+        try{
+            Log.i("CameraFragment","Handling resistance value: $value")
+            val resistance = value.toFloat()
+            activity?.runOnUiThread{
+                viewModel.setResistanceValue(resistance)
             }
-            fragmentCameraBinding.overlay.clear()
+        }catch (e:NumberFormatException){
+            Log.e("CameraFragment", "Invalid resistance value: $value")
+        }catch (e:Exception){
+            Log.e("CameraFragment", "Error updating resistance: $e")
+        }
+    }
+
+    private fun handleUpdateMotorState(value:String){
+        try{
+            Log.i("CameraFragment","Handling motor state value: $value")
+            val state = value.toBoolean() // careful! Only returns true is value == "true" ELSE false everytime
+            activity?.runOnUiThread{
+                viewModel.setMotorStateValue(state)
+            }
+        }catch (e:NumberFormatException){
+            Log.e("CameraFragment", "Invalid resistance value: $value")
+        }catch (e:Exception){
+            Log.e("CameraFragment", "Error updating resistance: $e")
         }
     }
 
@@ -414,8 +410,6 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     ) {
         activity?.runOnUiThread {
             if (_fragmentCameraBinding != null) {
-                fragmentCameraBinding.bottomSheetLayout.inferenceTimeVal.text =
-                    String.format("%d ms", resultBundle.inferenceTime)
 
                 val message = ClientMessage(results=resultBundle,
                     is_calibrated = sharedViewModel.isCalibrating.value == false)
@@ -454,11 +448,6 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     override fun onError(error: String, errorCode: Int) {
         activity?.runOnUiThread {
             Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
-            if (errorCode == PoseLandmarkerHelper.GPU_ERROR) {
-                fragmentCameraBinding.bottomSheetLayout.spinnerDelegate.setSelection(
-                    PoseLandmarkerHelper.DELEGATE_CPU, false
-                )
-            }
         }
     }
 }

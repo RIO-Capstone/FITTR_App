@@ -13,28 +13,25 @@ import android.util.Log
 import com.example.fittr_app.BluetoothReadCallback
 
 @SuppressLint("MissingPermission")
-class BluetoothHelper(
-    private val context: Context,
-    private val readCallback: BluetoothReadCallback? = null
-) {
+object BluetoothHelper{
     private var bluetoothGatt: BluetoothGatt? = null
-    private var serviceUUID = "4c72c9a7-69af-4a0b-8630-fab8f513fb9e" // Default service UUID
-    private var characteristicUUID = "" // To be specified dynamically in the read function
+    private var serviceUUID = "4c72c9a7-69af-4a0b-8630-fab8f513fb9e" // TODO: Retrieve dynamically
+    private var characteristicUUID = "" // To be specified dynamically in the read/send function
     private var readMode = false
     private var sendMode = false
     private var messageToSend: String? = null
-
+    private var currentCallback: BluetoothReadCallback? = null
     private val connectionTimeoutHandler = Handler(Looper.getMainLooper())
+    private var device: BluetoothDevice? = null
     private val connectionTimeoutRunnable = Runnable {
         if (bluetoothGatt == null) {
             Log.e("BluetoothHelper", "Connection timed out")
-            readCallback?.onError("Connection timed out")
+            currentCallback?.onError("Connection timed out")
         }
     }
-    public fun serviceIDCheck(id:String):Boolean{
-        return id == serviceUUID
+    fun initialize(device: BluetoothDevice){
+        this.device = device
     }
-
     private fun startConnectionTimeout() {
         connectionTimeoutHandler.postDelayed(connectionTimeoutRunnable, 10000) // 10-second timeout
     }
@@ -44,43 +41,49 @@ class BluetoothHelper(
     }
 
     // Reading characteristics dynamically
-    fun connectAndRead(device: BluetoothDevice, characteristicUUID: String): Boolean {
+    fun connectAndRead(context: Context, characteristicUUID: String, callback: BluetoothReadCallback): Boolean {
         this.characteristicUUID = characteristicUUID
+        this.currentCallback = callback
         readMode = true
         sendMode = false
 
-        return handleConnection(device)
+        return handleConnection(context)
     }
 
     // Function to write a characteristic value
-    fun connectAndSendMessage(device: BluetoothDevice, message: String, characteristicUUID: String): Boolean {
+    fun connectAndSendMessage(context: Context, message: String, characteristicUUID: String, callback: BluetoothReadCallback): Boolean {
         this.messageToSend = message
         this.characteristicUUID = characteristicUUID
+        this.currentCallback = callback
         readMode = false
         sendMode = true
         Log.d("BluetoothHelper", "Connecting and sending message: $message")
-        return handleConnection(device)
+        return handleConnection(context)
     }
 
     // Handles connection logic
-    private fun handleConnection(device: BluetoothDevice): Boolean {
+    private fun handleConnection(context: Context): Boolean {
+        if(device == null){
+            Log.e("BluetoothHelper", "Unable to complete bluetooth operation as device is null")
+            return false
+        }
         // Check if the device is already connected
         if (bluetoothGatt != null) {
             Log.d("BluetoothHelper", "Device already connected. Proceeding with operation.")
             bluetoothGatt?.discoverServices()
             return true
         }
-        bluetoothGatt = device.connectGatt(context, true, gattCallback)
-        Log.d("BluetoothHelper", "Connecting to device UUID: ${device.name}")
+        bluetoothGatt = device!!.connectGatt(context, true, gattCallback)
+        Log.d("BluetoothHelper", "Connecting to device UUID: ${device!!.name}")
+        // retry connection until timeout
         startConnectionTimeout()
         if (bluetoothGatt == null) {
-            Log.e("BluetoothHelper", "Failed to connect to ${device.name}")
-            readCallback?.onError("Failed to connect to ${device.name}")
+            Log.e("BluetoothHelper", "Failed to connect to ${device!!.name}")
+            currentCallback?.onError("Failed to connect to ${device!!.name}")
             clearConnectionTimeout()
             return false
         }
         return true
-
     }
 
     private val gattCallback = object : BluetoothGattCallback() {
@@ -93,7 +96,7 @@ class BluetoothHelper(
             } else{
                 Log.e("BluetoothHelper", "Disconnected from GATT server")
                 bluetoothGatt = null
-                readCallback?.onError("Disconnected from GATT server")
+                currentCallback?.onError("Disconnected from GATT server")
             }
         }
 
@@ -108,7 +111,7 @@ class BluetoothHelper(
                 }
             } else {
                 Log.e("BluetoothHelper", "Service discovery failed with status $status")
-                readCallback?.onError("Service discovery failed with status $status")
+                currentCallback?.onError("Service discovery failed with status $status")
             }
         }
 
@@ -123,15 +126,15 @@ class BluetoothHelper(
                         Log.d("BluetoothHelper", "Read request sent successfully")
                     } else {
                         Log.e("BluetoothHelper", "Failed to send read request")
-                        readCallback?.onError("Failed to send read request")
+                        currentCallback?.onError("Failed to send read request")
                     }
                 } else {
-                    Log.e("BluetoothHelper", "Characteristic not found or not readable")
-                    readCallback?.onError("Characteristic not found or not readable")
+                    Log.e("BluetoothHelper", "Characteristic $characteristicUUID not found or not readable")
+                    currentCallback?.onError("Characteristic not found or not readable")
                 }
             } else {
                 Log.e("BluetoothHelper", "Service not found")
-                readCallback?.onError("Service not found")
+                currentCallback?.onError("Service not found")
             }
         }
 
@@ -142,7 +145,7 @@ class BluetoothHelper(
                 val characteristic = service.getCharacteristic(java.util.UUID.fromString(characteristicUUID))
                 if(characteristic == null){
                     Log.e("BluetoothHelper", "Characteristic $characteristicUUID not found")
-                    readCallback?.onError("Characteristic not found")
+                    currentCallback?.onError("Characteristic not found")
                     return
                 }
                 if (isCharacteristicWritable(characteristic)) {
@@ -150,17 +153,18 @@ class BluetoothHelper(
                     val success = gatt.writeCharacteristic(characteristic)
                     if (success) {
                         Log.d("BluetoothHelper", "Message sent successfully: $messageToSend")
+                        currentCallback?.onValueRead(messageToSend?:"")
                     } else {
                         Log.e("BluetoothHelper", "Failed to send message")
-                        readCallback?.onError("Failed to send message")
+                        currentCallback?.onError("Failed to send message")
                     }
                 } else {
                     Log.e("BluetoothHelper", "Characteristic not writable")
-                    readCallback?.onError("Characteristic not found or not writable")
+                    currentCallback?.onError("Characteristic $characteristicUUID not found or not writable")
                 }
             } else {
                 Log.e("BluetoothHelper", "Service not found")
-                readCallback?.onError("Service not found")
+                currentCallback?.onError("Service $serviceUUID not found")
             }
         }
 
@@ -173,10 +177,10 @@ class BluetoothHelper(
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 val value = characteristic.value.toString(Charsets.UTF_8)
                 Log.d("BluetoothHelper", "Characteristic read successfully: $value")
-                readCallback?.onValueRead(value)
+                currentCallback?.onValueRead(value)
             } else {
                 Log.e("BluetoothHelper", "Failed to read characteristic with status $status")
-                readCallback?.onError("Failed to read characteristic with status $status")
+                currentCallback?.onError("Failed to read characteristic with status $status")
             }
         }
 

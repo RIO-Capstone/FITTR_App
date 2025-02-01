@@ -34,27 +34,21 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var DashboardBinding : ActivityDashboardBinding
     private lateinit var api_client : ApiClient
     private lateinit var user: ApiClient.User
-    private lateinit var bluetoothHelper: BluetoothHelper
+    private lateinit var productData: ApiClient.ProductData
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         DashboardBinding = ActivityDashboardBinding.inflate(layoutInflater)
         setContentView(DashboardBinding.root)
         api_client = ApiClient()
-        bluetoothHelper = BluetoothHelper(context = this,object : BluetoothReadCallback {
-            override fun onValueRead(value: String) {
-                Log.d("DashboardActivity", "Received value: $value")
-            }
-            override fun onError(message: String) {
-                Log.e("DashboardActivity", "Error: $message")
-            }
-        });
+
         val intent = intent
         if(intent.hasExtra("user_id")){
             val user_id = intent.getIntExtra("user_id",0)
             lifecycleScope.launch {
                 getUserInformation(user_id)
                 getUserHistory()
+                getProductData(user.product_id)
             }
         }
         /**
@@ -71,10 +65,11 @@ class DashboardActivity : AppCompatActivity() {
         val selectedExercise = "LEFT_BICEP_CURLS";
         exerciseStartButton.setOnClickListener {
             // navigate to main activity that handles the core media pipe logic (if connected to device)
-//            if(checkBluetoothConnection()) {
-//                navigateToMain(selectedExercise)
-//            }
-            navigateToMain(selectedExercise)
+            if(checkBluetoothConnection()) {
+                navigateToMain(selectedExercise)
+            }else{
+                Log.e("DashboardActivity","Bluetooth connection not established")
+            }
         }
         val bluetoothButton = findViewById<ImageButton>(R.id.dashboard_bluetooth_status_button)
         bluetoothButton.setOnClickListener{
@@ -92,6 +87,9 @@ class DashboardActivity : AppCompatActivity() {
     private fun navigateToMain(selectedExercise:String){
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra("selectedExercise", selectedExercise)
+        intent.putExtra("deviceServiceUUID",productData.service_uuid)
+        intent.putExtra("deviceStopUUID",productData.stop_uuid)
+        intent.putExtra("deviceResistanceUUID",productData.resistance_uuid)
         startActivity(intent)
     }
     private suspend fun getUserInformation(user_id:Int){
@@ -113,7 +111,7 @@ class DashboardActivity : AppCompatActivity() {
     private suspend fun getUserHistory(){
         try {
             if (!::user.isInitialized) {
-                Log.w("DashboardActivity", "User not found when calling get history")
+                Log.e("DashboardActivity", "User not initialised when calling get history")
                 return
             }
             val response = api_client.getUserHistory(ApiPaths.GetUserHistory(user.user_id),null)
@@ -196,6 +194,23 @@ class DashboardActivity : AppCompatActivity() {
         barChart.invalidate()
     }
 
+    private suspend fun getProductData(product_id:Int){
+        if (!::user.isInitialized) {
+            Log.e("DashboardActivity", "User not initialised when calling get product")
+            return
+        }
+        try{
+            val response = api_client.getProductData(ApiPaths.GetProduct(product_id),null)
+            if(response.isSuccess){
+                productData = response.getOrNull()!!
+            }else{
+                Log.e("DashboardActivity","Error getting product data: ${response.getOrNull()?.message}")
+            }
+        }catch (e:Exception) {
+            Log.e("DashboardActivity", "Error getting product data: $e")
+        }
+    }
+
     private fun styliseButton(btn:ImageButton){
         val gradientDrawable = GradientDrawable(
             GradientDrawable.Orientation.LEFT_RIGHT, // Direction of the gradient
@@ -247,10 +262,10 @@ class DashboardActivity : AppCompatActivity() {
 
             // Check if the device is connected (bonded)
             val state_check = device.bondState == BluetoothDevice.BOND_BONDED
-            val id_check = device.uuids[0].toString()
+            val id_check = device.uuids[0].toString() // TODO: Identify that the device is a FITTR device using serviceUUID
             Log.d("DashboardActivity", "Device State: $state_check, UUID: $id_check")
             if (state_check) {
-                bluetoothHelper.connectAndRead(device, "283a973e-38ae-4f32-abad-114e5abe277e");
+                BluetoothHelper.initialize(device)
                 return true
             }
         }

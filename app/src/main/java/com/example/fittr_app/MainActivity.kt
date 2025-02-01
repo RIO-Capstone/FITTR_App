@@ -30,11 +30,16 @@ class MainActivity : AppCompatActivity() {
         setContentView(activityMainBinding.root)
 
         val selectedExercise = intent.getStringExtra("selectedExercise")
+        val deviceServiceUUID = intent.getStringExtra("deviceServiceUUID")
+        val deviceResistanceUUID = intent.getStringExtra("deviceResistanceUUID")
+        val deviceStopUUID = intent.getStringExtra("deviceStopUUID")
+
         // initialise the shared view model which shares data between the different fragments in main activity
         sharedViewModel = ViewModelProvider(this)[SharedViewModel::class.java]
-        if (selectedExercise != null) {
-            sharedViewModel.setSelectedExercise(selectedExercise)
-        };
+        sharedViewModel.setSelectedExercise(selectedExercise!!)
+        sharedViewModel.setDeviceServiceUUID(deviceServiceUUID!!)
+        sharedViewModel.setDeviceStopUUID(deviceStopUUID!!)
+        sharedViewModel.setDeviceResistanceUUID(deviceResistanceUUID!!)
 
         val repCountTextView = findViewById<TextView>(R.id.rep_count)
         sharedViewModel.displayText.observe(this) { displayText ->
@@ -46,6 +51,7 @@ class MainActivity : AppCompatActivity() {
         navController = navHostFragment.navController
         // VERY IMPORTANT!
         // entry fragment is the permissions fragment, which automatically navigates to the camera fragment
+        // camera fragment is the one where HTTP and WebSocket connections are made
         activityMainBinding.navigation.setupWithNavController(navController)
         activityMainBinding.navigation.setOnNavigationItemReselectedListener {
             // ignore the reselection
