@@ -38,6 +38,10 @@ class ApiClient {
     suspend fun getUserHistory(endpoint: ApiPaths, data: Any?): Result<UserHistoryBackendResponse> {
         return makeApiRequest<UserHistoryBackendResponse>(endpoint, data)
     }
+    // Get product data
+    suspend fun getProductData(endpoint: ApiPaths, data: Any?): Result<ProductData> {
+        return makeApiRequest<ProductData>(endpoint,data)
+    }
 
     private suspend inline fun <reified T> makeApiRequest(
         endpoint: ApiPaths,
@@ -114,7 +118,8 @@ class ApiClient {
         val last_name: String,
         val weight: Int,
         val height: Int,
-        val email: String
+        val email: String,
+        val product_id: Int
     )
     data class UserHistoryBackendResponse(
         val session_data: List<SessionData>,
@@ -123,6 +128,13 @@ class ApiClient {
     data class SessionData(
         val duration: Int,
         val date: String
+    )
+    data class ProductData(
+        val service_uuid:String,
+        val resistance_uuid:String,
+        val stop_uuid:String,
+        val error:String?,
+        val message:String?
     )
 
 }

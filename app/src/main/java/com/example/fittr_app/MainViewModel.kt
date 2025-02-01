@@ -1,48 +1,35 @@
 package com.example.fittr_app
 
-/*
- * Copyright 2023 The TensorFlow Authors. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.fittr_app.media_pipe.PoseLandmarkerHelper
 
-/**
- *  This ViewModel is used to store pose landmarker helper settings
- */
+
 class MainViewModel : ViewModel() {
 
     private var _model = PoseLandmarkerHelper.MODEL_POSE_LANDMARKER_FULL
     private var _delegate: Int = PoseLandmarkerHelper.DELEGATE_CPU
     private var _minPoseDetectionConfidence: Float =
         PoseLandmarkerHelper.DEFAULT_POSE_DETECTION_CONFIDENCE
-    private var _minPoseTrackingConfidence: Float = PoseLandmarkerHelper
-        .DEFAULT_POSE_TRACKING_CONFIDENCE
-    private var _minPosePresenceConfidence: Float = PoseLandmarkerHelper
-        .DEFAULT_POSE_PRESENCE_CONFIDENCE
+    private var _minPoseTrackingConfidence: Float =
+        PoseLandmarkerHelper.DEFAULT_POSE_TRACKING_CONFIDENCE
+    private var _minPosePresenceConfidence: Float =
+        PoseLandmarkerHelper.DEFAULT_POSE_PRESENCE_CONFIDENCE
+
+    // LiveData for Motor State
+    private val _motorState = MutableLiveData(PoseLandmarkerHelper.DEFAULT_MOTOR_STATE)
+    val currentMotorState: LiveData<Boolean> get() = _motorState
+
+    // LiveData for Resistance Value
+    private val _resistance = MutableLiveData(PoseLandmarkerHelper.DEFAULT_RESISTANCE_VALUE)
+    val currentResistance: LiveData<Float> get() = _resistance
 
     val currentDelegate: Int get() = _delegate
     val currentModel: Int get() = _model
-    val currentMinPoseDetectionConfidence: Float
-        get() =
-            _minPoseDetectionConfidence
-    val currentMinPoseTrackingConfidence: Float
-        get() =
-            _minPoseTrackingConfidence
-    val currentMinPosePresenceConfidence: Float
-        get() =
-            _minPosePresenceConfidence
+    val currentMinPoseDetectionConfidence: Float get() = _minPoseDetectionConfidence
+    val currentMinPoseTrackingConfidence: Float get() = _minPoseTrackingConfidence
+    val currentMinPosePresenceConfidence: Float get() = _minPosePresenceConfidence
 
     fun setDelegate(delegate: Int) {
         _delegate = delegate
@@ -58,6 +45,14 @@ class MainViewModel : ViewModel() {
 
     fun setMinPosePresenceConfidence(confidence: Float) {
         _minPosePresenceConfidence = confidence
+    }
+
+    fun setMotorStateValue(state: Boolean) {
+        _motorState.postValue(state)
+    }
+
+    fun setResistanceValue(resistance: Float) {
+        _resistance.postValue(resistance)
     }
 
     fun setModel(model: Int) {

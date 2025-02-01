@@ -107,279 +107,279 @@ class GalleryFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
 
     private fun initBottomSheetControls() {
         // init bottom sheet settings
-        fragmentGalleryBinding.bottomSheetLayout.detectionThresholdValue.text =
-            String.format(
-                Locale.US, "%.2f", viewModel.currentMinPoseDetectionConfidence
-            )
-        fragmentGalleryBinding.bottomSheetLayout.trackingThresholdValue.text =
-            String.format(
-                Locale.US, "%.2f", viewModel.currentMinPoseTrackingConfidence
-            )
-        fragmentGalleryBinding.bottomSheetLayout.presenceThresholdValue.text =
-            String.format(
-                Locale.US, "%.2f", viewModel.currentMinPosePresenceConfidence
-            )
-
-        // When clicked, lower detection score threshold floor
-        fragmentGalleryBinding.bottomSheetLayout.detectionThresholdMinus.setOnClickListener {
-            if (viewModel.currentMinPoseDetectionConfidence >= 0.2) {
-                viewModel.setMinPoseDetectionConfidence(viewModel.currentMinPoseDetectionConfidence - 0.1f)
-                updateControlsUi()
-            }
-        }
-
-        // When clicked, raise detection score threshold floor
-        fragmentGalleryBinding.bottomSheetLayout.detectionThresholdPlus.setOnClickListener {
-            if (viewModel.currentMinPoseDetectionConfidence <= 0.8) {
-                viewModel.setMinPoseDetectionConfidence(viewModel.currentMinPoseDetectionConfidence + 0.1f)
-                updateControlsUi()
-            }
-        }
-
-        // When clicked, lower pose tracking score threshold floor
-        fragmentGalleryBinding.bottomSheetLayout.trackingThresholdMinus.setOnClickListener {
-            if (viewModel.currentMinPoseTrackingConfidence >= 0.2) {
-                viewModel.setMinPoseTrackingConfidence(
-                    viewModel.currentMinPoseTrackingConfidence - 0.1f
-                )
-                updateControlsUi()
-            }
-        }
-
-        // When clicked, raise pose tracking score threshold floor
-        fragmentGalleryBinding.bottomSheetLayout.trackingThresholdPlus.setOnClickListener {
-            if (viewModel.currentMinPoseTrackingConfidence <= 0.8) {
-                viewModel.setMinPoseTrackingConfidence(
-                    viewModel.currentMinPoseTrackingConfidence + 0.1f
-                )
-                updateControlsUi()
-            }
-        }
-
-        // When clicked, lower pose presence score threshold floor
-        fragmentGalleryBinding.bottomSheetLayout.presenceThresholdMinus.setOnClickListener {
-            if (viewModel.currentMinPosePresenceConfidence >= 0.2) {
-                viewModel.setMinPosePresenceConfidence(
-                    viewModel.currentMinPosePresenceConfidence - 0.1f
-                )
-                updateControlsUi()
-            }
-        }
-
-        // When clicked, raise pose presence score threshold floor
-        fragmentGalleryBinding.bottomSheetLayout.presenceThresholdPlus.setOnClickListener {
-            if (viewModel.currentMinPosePresenceConfidence <= 0.8) {
-                viewModel.setMinPosePresenceConfidence(
-                    viewModel.currentMinPosePresenceConfidence + 0.1f
-                )
-                updateControlsUi()
-            }
-        }
-
-        // When clicked, change the underlying hardware used for inference. Current options are CPU
-        // GPU, and NNAPI
-        fragmentGalleryBinding.bottomSheetLayout.spinnerDelegate.setSelection(
-            viewModel.currentDelegate,
-            false
-        )
-        fragmentGalleryBinding.bottomSheetLayout.spinnerDelegate.onItemSelectedListener =
-            object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(
-                    p0: AdapterView<*>?,
-                    p1: View?,
-                    p2: Int,
-                    p3: Long
-                ) {
-
-                    viewModel.setDelegate(p2)
-                    updateControlsUi()
-                }
-
-                override fun onNothingSelected(p0: AdapterView<*>?) {
-                    /* no op */
-                }
-            }
-
-        // When clicked, change the underlying model used for object detection
-        fragmentGalleryBinding.bottomSheetLayout.spinnerModel.setSelection(
-            viewModel.currentModel,
-            false
-        )
-        fragmentGalleryBinding.bottomSheetLayout.spinnerModel.onItemSelectedListener =
-            object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(
-                    p0: AdapterView<*>?,
-                    p1: View?,
-                    p2: Int,
-                    p3: Long
-                ) {
-                    poseLandmarkerHelper.currentModel = p2
-                    updateControlsUi()
-                }
-
-                override fun onNothingSelected(p0: AdapterView<*>?) {
-                    /* no op */
-                }
-            }
+//        fragmentGalleryBinding.bottomSheetLayout.detectionThresholdValue.text =
+//            String.format(
+//                Locale.US, "%.2f", viewModel.currentMinPoseDetectionConfidence
+//            )
+//        fragmentGalleryBinding.bottomSheetLayout.trackingThresholdValue.text =
+//            String.format(
+//                Locale.US, "%.2f", viewModel.currentMinPoseTrackingConfidence
+//            )
+//        fragmentGalleryBinding.bottomSheetLayout.presenceThresholdValue.text =
+//            String.format(
+//                Locale.US, "%.2f", viewModel.currentMinPosePresenceConfidence
+//            )
+//
+//        // When clicked, lower detection score threshold floor
+//        fragmentGalleryBinding.bottomSheetLayout.detectionThresholdMinus.setOnClickListener {
+//            if (viewModel.currentMinPoseDetectionConfidence >= 0.2) {
+//                viewModel.setMinPoseDetectionConfidence(viewModel.currentMinPoseDetectionConfidence - 0.1f)
+//                updateControlsUi()
+//            }
+//        }
+//
+//        // When clicked, raise detection score threshold floor
+//        fragmentGalleryBinding.bottomSheetLayout.detectionThresholdPlus.setOnClickListener {
+//            if (viewModel.currentMinPoseDetectionConfidence <= 0.8) {
+//                viewModel.setMinPoseDetectionConfidence(viewModel.currentMinPoseDetectionConfidence + 0.1f)
+//                updateControlsUi()
+//            }
+//        }
+//
+//        // When clicked, lower pose tracking score threshold floor
+//        fragmentGalleryBinding.bottomSheetLayout.trackingThresholdMinus.setOnClickListener {
+//            if (viewModel.currentMinPoseTrackingConfidence >= 0.2) {
+//                viewModel.setMinPoseTrackingConfidence(
+//                    viewModel.currentMinPoseTrackingConfidence - 0.1f
+//                )
+//                updateControlsUi()
+//            }
+//        }
+//
+//        // When clicked, raise pose tracking score threshold floor
+//        fragmentGalleryBinding.bottomSheetLayout.trackingThresholdPlus.setOnClickListener {
+//            if (viewModel.currentMinPoseTrackingConfidence <= 0.8) {
+//                viewModel.setMinPoseTrackingConfidence(
+//                    viewModel.currentMinPoseTrackingConfidence + 0.1f
+//                )
+//                updateControlsUi()
+//            }
+//        }
+//
+//        // When clicked, lower pose presence score threshold floor
+//        fragmentGalleryBinding.bottomSheetLayout.presenceThresholdMinus.setOnClickListener {
+//            if (viewModel.currentMinPosePresenceConfidence >= 0.2) {
+//                viewModel.setMinPosePresenceConfidence(
+//                    viewModel.currentMinPosePresenceConfidence - 0.1f
+//                )
+//                updateControlsUi()
+//            }
+//        }
+//
+//        // When clicked, raise pose presence score threshold floor
+//        fragmentGalleryBinding.bottomSheetLayout.presenceThresholdPlus.setOnClickListener {
+//            if (viewModel.currentMinPosePresenceConfidence <= 0.8) {
+//                viewModel.setMinPosePresenceConfidence(
+//                    viewModel.currentMinPosePresenceConfidence + 0.1f
+//                )
+//                updateControlsUi()
+//            }
+//        }
+//
+//        // When clicked, change the underlying hardware used for inference. Current options are CPU
+//        // GPU, and NNAPI
+//        fragmentGalleryBinding.bottomSheetLayout.spinnerDelegate.setSelection(
+//            viewModel.currentDelegate,
+//            false
+//        )
+//        fragmentGalleryBinding.bottomSheetLayout.spinnerDelegate.onItemSelectedListener =
+//            object : AdapterView.OnItemSelectedListener {
+//                override fun onItemSelected(
+//                    p0: AdapterView<*>?,
+//                    p1: View?,
+//                    p2: Int,
+//                    p3: Long
+//                ) {
+//
+//                    viewModel.setDelegate(p2)
+//                    updateControlsUi()
+//                }
+//
+//                override fun onNothingSelected(p0: AdapterView<*>?) {
+//                    /* no op */
+//                }
+//            }
+//
+//        // When clicked, change the underlying model used for object detection
+//        fragmentGalleryBinding.bottomSheetLayout.spinnerModel.setSelection(
+//            viewModel.currentModel,
+//            false
+//        )
+//        fragmentGalleryBinding.bottomSheetLayout.spinnerModel.onItemSelectedListener =
+//            object : AdapterView.OnItemSelectedListener {
+//                override fun onItemSelected(
+//                    p0: AdapterView<*>?,
+//                    p1: View?,
+//                    p2: Int,
+//                    p3: Long
+//                ) {
+//                    poseLandmarkerHelper.currentModel = p2
+//                    updateControlsUi()
+//                }
+//
+//                override fun onNothingSelected(p0: AdapterView<*>?) {
+//                    /* no op */
+//                }
+//            }
     }
 
     // Update the values displayed in the bottom sheet. Reset detector.
     private fun updateControlsUi() {
-        if (fragmentGalleryBinding.videoView.isPlaying) {
-            fragmentGalleryBinding.videoView.stopPlayback()
-        }
-        fragmentGalleryBinding.videoView.visibility = View.GONE
-        fragmentGalleryBinding.imageResult.visibility = View.GONE
-        fragmentGalleryBinding.overlay.clear()
-        fragmentGalleryBinding.bottomSheetLayout.detectionThresholdValue.text =
-            String.format(
-                Locale.US, "%.2f", viewModel.currentMinPoseDetectionConfidence
-            )
-        fragmentGalleryBinding.bottomSheetLayout.trackingThresholdValue.text =
-            String.format(
-                Locale.US, "%.2f", viewModel.currentMinPoseTrackingConfidence
-            )
-        fragmentGalleryBinding.bottomSheetLayout.presenceThresholdValue.text =
-            String.format(
-                Locale.US, "%.2f", viewModel.currentMinPosePresenceConfidence
-            )
-
-        fragmentGalleryBinding.overlay.clear()
-        fragmentGalleryBinding.tvPlaceholder.visibility = View.VISIBLE
+//        if (fragmentGalleryBinding.videoView.isPlaying) {
+//            fragmentGalleryBinding.videoView.stopPlayback()
+//        }
+//        fragmentGalleryBinding.videoView.visibility = View.GONE
+//        fragmentGalleryBinding.imageResult.visibility = View.GONE
+//        fragmentGalleryBinding.overlay.clear()
+//        fragmentGalleryBinding.bottomSheetLayout.detectionThresholdValue.text =
+//            String.format(
+//                Locale.US, "%.2f", viewModel.currentMinPoseDetectionConfidence
+//            )
+//        fragmentGalleryBinding.bottomSheetLayout.trackingThresholdValue.text =
+//            String.format(
+//                Locale.US, "%.2f", viewModel.currentMinPoseTrackingConfidence
+//            )
+//        fragmentGalleryBinding.bottomSheetLayout.presenceThresholdValue.text =
+//            String.format(
+//                Locale.US, "%.2f", viewModel.currentMinPosePresenceConfidence
+//            )
+//
+//        fragmentGalleryBinding.overlay.clear()
+//        fragmentGalleryBinding.tvPlaceholder.visibility = View.VISIBLE
     }
 
     // Load and display the image.
     private fun runDetectionOnImage(uri: Uri) {
-        setUiEnabled(false)
-        backgroundExecutor = Executors.newSingleThreadScheduledExecutor()
-        updateDisplayView(MediaType.IMAGE)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            val source = ImageDecoder.createSource(
-                requireActivity().contentResolver,
-                uri
-            )
-            ImageDecoder.decodeBitmap(source)
-        } else {
-            MediaStore.Images.Media.getBitmap(
-                requireActivity().contentResolver,
-                uri
-            )
-        }
-            .copy(Bitmap.Config.ARGB_8888, true)
-            ?.let { bitmap ->
-                fragmentGalleryBinding.imageResult.setImageBitmap(bitmap)
-
-                // Run pose landmarker on the input image
-                backgroundExecutor.execute {
-
-                    poseLandmarkerHelper =
-                        PoseLandmarkerHelper(
-                            context = requireContext(),
-                            runningMode = RunningMode.IMAGE,
-                            minPoseDetectionConfidence = viewModel.currentMinPoseDetectionConfidence,
-                            minPoseTrackingConfidence = viewModel.currentMinPoseTrackingConfidence,
-                            minPosePresenceConfidence = viewModel.currentMinPosePresenceConfidence,
-                            currentDelegate = viewModel.currentDelegate
-                        )
-
-                    poseLandmarkerHelper.detectImage(bitmap)?.let { result ->
-                        activity?.runOnUiThread {
-                            fragmentGalleryBinding.overlay.setResults(
-                                result.results[0],
-                                bitmap.height,
-                                bitmap.width,
-                                RunningMode.IMAGE
-                            )
-
-                            setUiEnabled(true)
-                            fragmentGalleryBinding.bottomSheetLayout.inferenceTimeVal.text =
-                                String.format("%d ms", result.inferenceTime)
-                        }
-                    } ?: run { Log.e(TAG, "Error running pose landmarker.") }
-
-                    poseLandmarkerHelper.clearPoseLandmarker()
-                }
-            }
+//        setUiEnabled(false)
+//        backgroundExecutor = Executors.newSingleThreadScheduledExecutor()
+//        updateDisplayView(MediaType.IMAGE)
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+//            val source = ImageDecoder.createSource(
+//                requireActivity().contentResolver,
+//                uri
+//            )
+//            ImageDecoder.decodeBitmap(source)
+//        } else {
+//            MediaStore.Images.Media.getBitmap(
+//                requireActivity().contentResolver,
+//                uri
+//            )
+//        }
+//            .copy(Bitmap.Config.ARGB_8888, true)
+//            ?.let { bitmap ->
+//                fragmentGalleryBinding.imageResult.setImageBitmap(bitmap)
+//
+//                // Run pose landmarker on the input image
+//                backgroundExecutor.execute {
+//
+//                    poseLandmarkerHelper =
+//                        PoseLandmarkerHelper(
+//                            context = requireContext(),
+//                            runningMode = RunningMode.IMAGE,
+//                            minPoseDetectionConfidence = viewModel.currentMinPoseDetectionConfidence,
+//                            minPoseTrackingConfidence = viewModel.currentMinPoseTrackingConfidence,
+//                            minPosePresenceConfidence = viewModel.currentMinPosePresenceConfidence,
+//                            currentDelegate = viewModel.currentDelegate
+//                        )
+//
+//                    poseLandmarkerHelper.detectImage(bitmap)?.let { result ->
+//                        activity?.runOnUiThread {
+//                            fragmentGalleryBinding.overlay.setResults(
+//                                result.results[0],
+//                                bitmap.height,
+//                                bitmap.width,
+//                                RunningMode.IMAGE
+//                            )
+//
+//                            setUiEnabled(true)
+//                            fragmentGalleryBinding.bottomSheetLayout.inferenceTimeVal.text =
+//                                String.format("%d ms", result.inferenceTime)
+//                        }
+//                    } ?: run { Log.e(TAG, "Error running pose landmarker.") }
+//
+//                    poseLandmarkerHelper.clearPoseLandmarker()
+//                }
+//            }
     }
 
     private fun runDetectionOnVideo(uri: Uri) {
-        setUiEnabled(false)
-        updateDisplayView(MediaType.VIDEO)
-
-        with(fragmentGalleryBinding.videoView) {
-            setVideoURI(uri)
-            // mute the audio
-            setOnPreparedListener { it.setVolume(0f, 0f) }
-            requestFocus()
-        }
-
-        backgroundExecutor = Executors.newSingleThreadScheduledExecutor()
-        backgroundExecutor.execute {
-
-            poseLandmarkerHelper =
-                PoseLandmarkerHelper(
-                    context = requireContext(),
-                    runningMode = RunningMode.VIDEO,
-                    minPoseDetectionConfidence = viewModel.currentMinPoseDetectionConfidence,
-                    minPoseTrackingConfidence = viewModel.currentMinPoseTrackingConfidence,
-                    minPosePresenceConfidence = viewModel.currentMinPosePresenceConfidence,
-                    currentDelegate = viewModel.currentDelegate
-                )
-
-            activity?.runOnUiThread {
-                fragmentGalleryBinding.videoView.visibility = View.GONE
-                fragmentGalleryBinding.progress.visibility = View.VISIBLE
-            }
-
-            poseLandmarkerHelper.detectVideoFile(uri, VIDEO_INTERVAL_MS)
-                ?.let { resultBundle ->
-                    activity?.runOnUiThread { displayVideoResult(resultBundle) }
-                }
-                ?: run { Log.e(TAG, "Error running pose landmarker.") }
-
-            poseLandmarkerHelper.clearPoseLandmarker()
-        }
+//        setUiEnabled(false)
+//        updateDisplayView(MediaType.VIDEO)
+//
+//        with(fragmentGalleryBinding.videoView) {
+//            setVideoURI(uri)
+//            // mute the audio
+//            setOnPreparedListener { it.setVolume(0f, 0f) }
+//            requestFocus()
+//        }
+//
+//        backgroundExecutor = Executors.newSingleThreadScheduledExecutor()
+//        backgroundExecutor.execute {
+//
+//            poseLandmarkerHelper =
+//                PoseLandmarkerHelper(
+//                    context = requireContext(),
+//                    runningMode = RunningMode.VIDEO,
+//                    minPoseDetectionConfidence = viewModel.currentMinPoseDetectionConfidence,
+//                    minPoseTrackingConfidence = viewModel.currentMinPoseTrackingConfidence,
+//                    minPosePresenceConfidence = viewModel.currentMinPosePresenceConfidence,
+//                    currentDelegate = viewModel.currentDelegate
+//                )
+//
+//            activity?.runOnUiThread {
+//                fragmentGalleryBinding.videoView.visibility = View.GONE
+//                fragmentGalleryBinding.progress.visibility = View.VISIBLE
+//            }
+//
+//            poseLandmarkerHelper.detectVideoFile(uri, VIDEO_INTERVAL_MS)
+//                ?.let { resultBundle ->
+//                    activity?.runOnUiThread { displayVideoResult(resultBundle) }
+//                }
+//                ?: run { Log.e(TAG, "Error running pose landmarker.") }
+//
+//            poseLandmarkerHelper.clearPoseLandmarker()
+//        }
     }
 
     // Setup and display the video.
     private fun displayVideoResult(result: PoseLandmarkerHelper.ResultBundle) {
 
-        fragmentGalleryBinding.videoView.visibility = View.VISIBLE
-        fragmentGalleryBinding.progress.visibility = View.GONE
-
-        fragmentGalleryBinding.videoView.start()
-        val videoStartTimeMs = SystemClock.uptimeMillis()
-
-        backgroundExecutor.scheduleWithFixedDelay(
-            {
-                activity?.runOnUiThread {
-                    val videoElapsedTimeMs =
-                        SystemClock.uptimeMillis() - videoStartTimeMs
-                    val resultIndex =
-                        videoElapsedTimeMs.div(VIDEO_INTERVAL_MS).toInt()
-
-                    if (resultIndex >= result.results.size || fragmentGalleryBinding.videoView.visibility == View.GONE) {
-                        // The video playback has finished so we stop drawing bounding boxes
-                        backgroundExecutor.shutdown()
-                    } else {
-                        fragmentGalleryBinding.overlay.setResults(
-                            result.results[resultIndex],
-                            result.inputImageHeight,
-                            result.inputImageWidth,
-                            RunningMode.VIDEO
-                        )
-
-                        setUiEnabled(true)
-
-                        fragmentGalleryBinding.bottomSheetLayout.inferenceTimeVal.text =
-                            String.format("%d ms", result.inferenceTime)
-                    }
-                }
-            },
-            0,
-            VIDEO_INTERVAL_MS,
-            TimeUnit.MILLISECONDS
-        )
+//        fragmentGalleryBinding.videoView.visibility = View.VISIBLE
+//        fragmentGalleryBinding.progress.visibility = View.GONE
+//
+//        fragmentGalleryBinding.videoView.start()
+//        val videoStartTimeMs = SystemClock.uptimeMillis()
+//
+//        backgroundExecutor.scheduleWithFixedDelay(
+//            {
+//                activity?.runOnUiThread {
+//                    val videoElapsedTimeMs =
+//                        SystemClock.uptimeMillis() - videoStartTimeMs
+//                    val resultIndex =
+//                        videoElapsedTimeMs.div(VIDEO_INTERVAL_MS).toInt()
+//
+//                    if (resultIndex >= result.results.size || fragmentGalleryBinding.videoView.visibility == View.GONE) {
+//                        // The video playback has finished so we stop drawing bounding boxes
+//                        backgroundExecutor.shutdown()
+//                    } else {
+//                        fragmentGalleryBinding.overlay.setResults(
+//                            result.results[resultIndex],
+//                            result.inputImageHeight,
+//                            result.inputImageWidth,
+//                            RunningMode.VIDEO
+//                        )
+//
+//                        setUiEnabled(true)
+//
+//                        fragmentGalleryBinding.bottomSheetLayout.inferenceTimeVal.text =
+//                            String.format("%d ms", result.inferenceTime)
+//                    }
+//                }
+//            },
+//            0,
+//            VIDEO_INTERVAL_MS,
+//            TimeUnit.MILLISECONDS
+//        )
     }
 
     private fun updateDisplayView(mediaType: MediaType) {
@@ -403,21 +403,21 @@ class GalleryFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     }
 
     private fun setUiEnabled(enabled: Boolean) {
-        fragmentGalleryBinding.fabGetContent.isEnabled = enabled
-        fragmentGalleryBinding.bottomSheetLayout.detectionThresholdMinus.isEnabled =
-            enabled
-        fragmentGalleryBinding.bottomSheetLayout.detectionThresholdPlus.isEnabled =
-            enabled
-        fragmentGalleryBinding.bottomSheetLayout.trackingThresholdMinus.isEnabled =
-            enabled
-        fragmentGalleryBinding.bottomSheetLayout.trackingThresholdPlus.isEnabled =
-            enabled
-        fragmentGalleryBinding.bottomSheetLayout.presenceThresholdMinus.isEnabled =
-            enabled
-        fragmentGalleryBinding.bottomSheetLayout.presenceThresholdPlus.isEnabled =
-            enabled
-        fragmentGalleryBinding.bottomSheetLayout.spinnerDelegate.isEnabled =
-            enabled
+//        fragmentGalleryBinding.fabGetContent.isEnabled = enabled
+//        fragmentGalleryBinding.bottomSheetLayout.detectionThresholdMinus.isEnabled =
+//            enabled
+//        fragmentGalleryBinding.bottomSheetLayout.detectionThresholdPlus.isEnabled =
+//            enabled
+//        fragmentGalleryBinding.bottomSheetLayout.trackingThresholdMinus.isEnabled =
+//            enabled
+//        fragmentGalleryBinding.bottomSheetLayout.trackingThresholdPlus.isEnabled =
+//            enabled
+//        fragmentGalleryBinding.bottomSheetLayout.presenceThresholdMinus.isEnabled =
+//            enabled
+//        fragmentGalleryBinding.bottomSheetLayout.presenceThresholdPlus.isEnabled =
+//            enabled
+//        fragmentGalleryBinding.bottomSheetLayout.spinnerDelegate.isEnabled =
+//            enabled
     }
 
     private fun classifyingError() {
@@ -429,16 +429,16 @@ class GalleryFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     }
 
     override fun onError(error: String, errorCode: Int) {
-        classifyingError()
-        activity?.runOnUiThread {
-            Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
-            if (errorCode == PoseLandmarkerHelper.GPU_ERROR) {
-                fragmentGalleryBinding.bottomSheetLayout.spinnerDelegate.setSelection(
-                    PoseLandmarkerHelper.DELEGATE_CPU,
-                    false
-                )
-            }
-        }
+//        classifyingError()
+//        activity?.runOnUiThread {
+//            Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
+//            if (errorCode == PoseLandmarkerHelper.GPU_ERROR) {
+//                fragmentGalleryBinding.bottomSheetLayout.spinnerDelegate.setSelection(
+//                    PoseLandmarkerHelper.DELEGATE_CPU,
+//                    false
+//                )
+//            }
+//        }
     }
 
     override fun onResults(resultBundle: PoseLandmarkerHelper.ResultBundle) {

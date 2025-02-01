@@ -59,19 +59,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:text="@string/label_inference_time"
+                android:text="@string/stop_characteristic_label"
                 android:textColor="@color/bottom_sheet_text_color"
                 android:textSize="@dimen/bottom_sheet_text_size" />
 
-            <TextView
-                android:id="@+id/inference_time_val"
-                android:layout_width="match_parent"
+            <ToggleButton
+                android:id="@+id/motor_state_toggle"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:gravity="end"
-                android:text="0ms"
+                android:textOff="Motor OFF"
+                android:textOn="Motor ON"
                 android:textColor="@color/bottom_sheet_text_color"
-                android:textSize="@dimen/bottom_sheet_text_size" />
+                android:textSize="@dimen/bottom_sheet_text_size"
+                android:layout_weight="1"
+                android:gravity="end"/>
         </androidx.appcompat.widget.LinearLayoutCompat>
 
         <!-- ML confidence threshold adjustment row -->
@@ -86,7 +87,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:text="@string/label_pose_detection_confidence_threshold"
+                android:text="@string/resistance_characteristic_label"
                 android:textColor="@color/bottom_sheet_text_color"
                 android:textSize="@dimen/bottom_sheet_text_size" />
 
@@ -98,14 +99,14 @@
                 android:orientation="horizontal">
 
                 <androidx.appcompat.widget.AppCompatImageButton
-                    android:id="@+id/detection_threshold_minus"
+                    android:id="@+id/resistance_minus"
                     android:layout_width="@dimen/bottom_sheet_control_btn_size"
                     android:layout_height="@dimen/bottom_sheet_control_btn_size"
                     android:contentDescription="@string/alt_bottom_sheet_threshold_button_minus"
                     android:src="@drawable/ic_minus" />
 
                 <TextView
-                    android:id="@+id/detection_threshold_value"
+                    android:id="@+id/resistance_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="@dimen/bottom_sheet_control_text_side_margin"
@@ -116,7 +117,7 @@
                     android:textSize="@dimen/bottom_sheet_text_size" />
 
                 <androidx.appcompat.widget.AppCompatImageButton
-                    android:id="@+id/detection_threshold_plus"
+                    android:id="@+id/resistance_plus"
                     android:layout_width="@dimen/bottom_sheet_control_btn_size"
                     android:layout_height="@dimen/bottom_sheet_control_btn_size"
                     android:contentDescription="@string/alt_bottom_sheet_threshold_button_plus"
@@ -124,152 +125,104 @@
             </LinearLayout>
         </RelativeLayout>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/bottom_sheet_default_row_margin"
-            android:gravity="center"
-            android:orientation="horizontal">
+<!--        <RelativeLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="@dimen/bottom_sheet_default_row_margin"-->
+<!--            android:gravity="center"-->
+<!--            android:orientation="horizontal">-->
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:text="@string/label_pose_tracking_confidence_threshold"
-                android:textColor="@color/bottom_sheet_text_color"
-                android:textSize="@dimen/bottom_sheet_text_size" />
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_centerVertical="true"-->
+<!--                android:text="@string/label_pose_tracking_confidence_threshold"-->
+<!--                android:textColor="@color/bottom_sheet_text_color"-->
+<!--                android:textSize="@dimen/bottom_sheet_text_size" />-->
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+<!--            <LinearLayout-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_alignParentRight="true"-->
+<!--                android:gravity="center_vertical"-->
+<!--                android:orientation="horizontal">-->
 
-                <androidx.appcompat.widget.AppCompatImageButton
-                    android:id="@+id/tracking_threshold_minus"
-                    android:layout_width="@dimen/bottom_sheet_control_btn_size"
-                    android:layout_height="@dimen/bottom_sheet_control_btn_size"
-                    android:contentDescription="@string/alt_bottom_sheet_threshold_button_minus"
-                    android:src="@drawable/ic_minus" />
+<!--                <androidx.appcompat.widget.AppCompatImageButton-->
+<!--                    android:id="@+id/tracking_threshold_minus"-->
+<!--                    android:layout_width="@dimen/bottom_sheet_control_btn_size"-->
+<!--                    android:layout_height="@dimen/bottom_sheet_control_btn_size"-->
+<!--                    android:contentDescription="@string/alt_bottom_sheet_threshold_button_minus"-->
+<!--                    android:src="@drawable/ic_minus" />-->
 
-                <TextView
-                    android:id="@+id/tracking_threshold_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/bottom_sheet_control_text_side_margin"
-                    android:layout_marginRight="@dimen/bottom_sheet_control_text_side_margin"
-                    android:gravity="center"
-                    android:minEms="@integer/bottom_sheet_control_text_min_ems"
-                    android:textColor="@color/bottom_sheet_text_color"
-                    android:textSize="@dimen/bottom_sheet_text_size" />
+<!--                <TextView-->
+<!--                    android:id="@+id/tracking_threshold_value"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginLeft="@dimen/bottom_sheet_control_text_side_margin"-->
+<!--                    android:layout_marginRight="@dimen/bottom_sheet_control_text_side_margin"-->
+<!--                    android:gravity="center"-->
+<!--                    android:minEms="@integer/bottom_sheet_control_text_min_ems"-->
+<!--                    android:textColor="@color/bottom_sheet_text_color"-->
+<!--                    android:textSize="@dimen/bottom_sheet_text_size" />-->
 
-                <androidx.appcompat.widget.AppCompatImageButton
-                    android:id="@+id/tracking_threshold_plus"
-                    android:layout_width="@dimen/bottom_sheet_control_btn_size"
-                    android:layout_height="@dimen/bottom_sheet_control_btn_size"
-                    android:contentDescription="@string/alt_bottom_sheet_threshold_button_plus"
-                    android:src="@drawable/ic_plus" />
-            </LinearLayout>
-        </RelativeLayout>
+<!--                <androidx.appcompat.widget.AppCompatImageButton-->
+<!--                    android:id="@+id/tracking_threshold_plus"-->
+<!--                    android:layout_width="@dimen/bottom_sheet_control_btn_size"-->
+<!--                    android:layout_height="@dimen/bottom_sheet_control_btn_size"-->
+<!--                    android:contentDescription="@string/alt_bottom_sheet_threshold_button_plus"-->
+<!--                    android:src="@drawable/ic_plus" />-->
+<!--            </LinearLayout>-->
+<!--        </RelativeLayout>-->
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/bottom_sheet_default_row_margin"
-            android:gravity="center"
-            android:orientation="horizontal">
+<!--        <RelativeLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="@dimen/bottom_sheet_default_row_margin"-->
+<!--            android:gravity="center"-->
+<!--            android:orientation="horizontal">-->
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:text="@string/label_pose_presence_confidence_threshold"
-                android:textColor="@color/bottom_sheet_text_color"
-                android:textSize="@dimen/bottom_sheet_text_size" />
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_centerVertical="true"-->
+<!--                android:text="@string/label_pose_presence_confidence_threshold"-->
+<!--                android:textColor="@color/bottom_sheet_text_color"-->
+<!--                android:textSize="@dimen/bottom_sheet_text_size" />-->
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+<!--            <LinearLayout-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_alignParentRight="true"-->
+<!--                android:gravity="center_vertical"-->
+<!--                android:orientation="horizontal">-->
 
-                <androidx.appcompat.widget.AppCompatImageButton
-                    android:id="@+id/presence_threshold_minus"
-                    android:layout_width="@dimen/bottom_sheet_control_btn_size"
-                    android:layout_height="@dimen/bottom_sheet_control_btn_size"
-                    android:contentDescription="@string/alt_bottom_sheet_threshold_button_minus"
-                    android:src="@drawable/ic_minus" />
+<!--                <androidx.appcompat.widget.AppCompatImageButton-->
+<!--                    android:id="@+id/presence_threshold_minus"-->
+<!--                    android:layout_width="@dimen/bottom_sheet_control_btn_size"-->
+<!--                    android:layout_height="@dimen/bottom_sheet_control_btn_size"-->
+<!--                    android:contentDescription="@string/alt_bottom_sheet_threshold_button_minus"-->
+<!--                    android:src="@drawable/ic_minus" />-->
 
-                <TextView
-                    android:id="@+id/presence_threshold_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/bottom_sheet_control_text_side_margin"
-                    android:layout_marginRight="@dimen/bottom_sheet_control_text_side_margin"
-                    android:gravity="center"
-                    android:minEms="@integer/bottom_sheet_control_text_min_ems"
-                    android:textColor="@color/bottom_sheet_text_color"
-                    android:textSize="@dimen/bottom_sheet_text_size" />
+<!--                <TextView-->
+<!--                    android:id="@+id/presence_threshold_value"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginLeft="@dimen/bottom_sheet_control_text_side_margin"-->
+<!--                    android:layout_marginRight="@dimen/bottom_sheet_control_text_side_margin"-->
+<!--                    android:gravity="center"-->
+<!--                    android:minEms="@integer/bottom_sheet_control_text_min_ems"-->
+<!--                    android:textColor="@color/bottom_sheet_text_color"-->
+<!--                    android:textSize="@dimen/bottom_sheet_text_size" />-->
 
-                <androidx.appcompat.widget.AppCompatImageButton
-                    android:id="@+id/presence_threshold_plus"
-                    android:layout_width="@dimen/bottom_sheet_control_btn_size"
-                    android:layout_height="@dimen/bottom_sheet_control_btn_size"
-                    android:contentDescription="@string/alt_bottom_sheet_threshold_button_plus"
-                    android:src="@drawable/ic_plus" />
-            </LinearLayout>
-        </RelativeLayout>
+<!--                <androidx.appcompat.widget.AppCompatImageButton-->
+<!--                    android:id="@+id/presence_threshold_plus"-->
+<!--                    android:layout_width="@dimen/bottom_sheet_control_btn_size"-->
+<!--                    android:layout_height="@dimen/bottom_sheet_control_btn_size"-->
+<!--                    android:contentDescription="@string/alt_bottom_sheet_threshold_button_plus"-->
+<!--                    android:src="@drawable/ic_plus" />-->
+<!--            </LinearLayout>-->
+<!--        </RelativeLayout>-->
 
-        <!-- Model selection row -->
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/bottom_sheet_default_row_margin">
 
-            <TextView
-                android:text="@string/label_models"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/bottom_sheet_text_size"
-                android:textColor="@color/bottom_sheet_text_color" />
-
-            <androidx.appcompat.widget.AppCompatSpinner
-                android:id="@+id/spinner_model"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minWidth="@dimen/bottom_sheet_spinner_model_min_width"
-                android:spinnerMode="dropdown"
-                android:theme="@style/BottomSheetSpinnerItemStyle"
-                android:layout_alignParentRight="true"
-                android:entries="@array/models_spinner_titles"/>
-
-        </RelativeLayout>
-
-        <!-- Delegate selection row -->
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/bottom_sheet_default_row_margin">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/label_delegate"
-                android:textColor="@color/bottom_sheet_text_color"
-                android:textSize="@dimen/bottom_sheet_text_size" />
-
-            <androidx.appcompat.widget.AppCompatSpinner
-                android:id="@+id/spinner_delegate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:entries="@array/delegate_spinner_titles"
-                android:minWidth="@dimen/bottom_sheet_spinner_delegate_min_width"
-                android:spinnerMode="dropdown"
-                android:theme="@style/BottomSheetSpinnerItemStyle" />
-
-        </RelativeLayout>
     </androidx.appcompat.widget.LinearLayoutCompat>
 </androidx.core.widget.NestedScrollView>
