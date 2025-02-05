@@ -132,7 +132,6 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_margin="8dp"
-                app:layout_constraintTop_toBottomOf="@id/progress_label"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent" />
@@ -156,6 +155,7 @@
         >
         <!-- Left Card -->
         <FrameLayout
+            android:id="@+id/dashboard_exercise_squats"
             android:elevation="1dp"
             android:layout_width="170dp"
             android:layout_height="149dp"
@@ -176,7 +176,6 @@
 
             <!-- TextView positioned at the top-center -->
             <TextView
-                android:id="@+id/dashboard_exercise_squats"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_bold"
@@ -191,6 +190,7 @@
 
         <!-- Right Card -->
         <FrameLayout
+            android:id="@+id/dashboard_exercises_bicep_curl_right"
             android:elevation="1dp"
             android:layout_width="170dp"
             android:layout_height="149dp"
@@ -213,7 +213,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Bicep Curls"
+                android:text="Right Bicep Curls"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="12dp"
                 android:textColor="@android:color/black"
@@ -223,17 +223,15 @@
 
     </LinearLayout>
 
-
-
     <ImageButton
-        android:id="@+id/exercise_squat"
+        android:id="@+id/dashboard_ai_button"
         android:layout_width="66dp"
         android:layout_height="66dp"
         android:background="@drawable/circular_background"
         android:contentDescription="exercise using a bar"
         android:elevation="1dp"
         android:scaleType="centerInside"
-        android:src="@drawable/exercise_24px"
+        android:src="@drawable/ai_icon_background"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -246,8 +244,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/poppins_bold"
-        android:text="Start your workout!"
-        app:layout_constraintBottom_toTopOf="@+id/exercise_squat"
+        android:text="Ask FITTR what's up"
+        app:layout_constraintBottom_toTopOf="@+id/dashboard_ai_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"

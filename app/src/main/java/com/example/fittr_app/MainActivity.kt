@@ -2,8 +2,6 @@ package com.example.fittr_app
 
 import android.os.Bundle
 import android.view.Window
-import android.view.WindowManager
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.ui.setupWithNavController
@@ -33,6 +31,8 @@ class MainActivity : AppCompatActivity() {
         val deviceServiceUUID = intent.getStringExtra("deviceServiceUUID")
         val deviceResistanceUUID = intent.getStringExtra("deviceResistanceUUID")
         val deviceStopUUID = intent.getStringExtra("deviceStopUUID")
+        val userId = intent.getIntExtra("user_id",0)
+        val productId = intent.getIntExtra("product_id",0)
 
         // initialise the shared view model which shares data between the different fragments in main activity
         sharedViewModel = ViewModelProvider(this)[SharedViewModel::class.java]
@@ -40,6 +40,8 @@ class MainActivity : AppCompatActivity() {
         sharedViewModel.setDeviceServiceUUID(deviceServiceUUID!!)
         sharedViewModel.setDeviceStopUUID(deviceStopUUID!!)
         sharedViewModel.setDeviceResistanceUUID(deviceResistanceUUID!!)
+        sharedViewModel.setUserId(userId)
+        sharedViewModel.setProductId(productId)
 
         val repCountTextView = findViewById<TextView>(R.id.rep_count)
         sharedViewModel.displayText.observe(this) { displayText ->
