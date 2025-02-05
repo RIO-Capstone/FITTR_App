@@ -5,18 +5,24 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
+// TODO: Refactor the class to get rid of calibration and to UUIDS do not need to be Mutable
+
 class SharedViewModel : ViewModel() {
     private val _selectedExercise = MutableLiveData<String>()
     private val _isCalibrating = MutableLiveData<Boolean>()
     private val _deviceServiceUUID = MutableLiveData<String>()
     private val _deviceResistanceUUID = MutableLiveData<String>()
     private val _deviceStopUUID = MutableLiveData<String>()
+    private var _userId = 0;
+    private var _productId = 0;
 
     val isCalibrating: LiveData<Boolean> get() = _isCalibrating
     val selectedExercise: LiveData<String> get() = _selectedExercise
     val deviceServiceUUID: String get() = _deviceServiceUUID.value.toString()
     val deviceResistanceUUID: String get() = _deviceResistanceUUID.value.toString()
     val deviceStopUUID: String get() = _deviceStopUUID.value.toString()
+    val user_id: Int get() = _userId
+    val product_id: Int get() = _productId
 
     private val _repCount = MutableLiveData<Int>()
     val repCount: LiveData<Int> = _repCount
@@ -52,6 +58,14 @@ class SharedViewModel : ViewModel() {
 
     fun setDeviceStopUUID(uuid: String) {
         _deviceStopUUID.value = uuid
+    }
+
+    fun setUserId(id: Int) {
+        _userId = id
+    }
+
+    fun setProductId(id: Int) {
+        _productId = id
     }
 
     fun updateCalibration(calibrating:Boolean){

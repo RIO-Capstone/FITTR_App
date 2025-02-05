@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.Toast
@@ -24,6 +25,7 @@ import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.utils.ColorTemplate
 import kotlinx.coroutines.launch
+import okhttp3.internal.concurrent.Task
 
 interface BluetoothReadCallback {
     fun onValueRead(value: String)
@@ -43,7 +45,7 @@ class DashboardActivity : AppCompatActivity() {
         api_client = ApiClient()
 
         val intent = intent
-        if(intent.hasExtra("user_id")){
+        if(intent.hasExtra("user_id")){ // getting the user_id from the login session
             val user_id = intent.getIntExtra("user_id",0)
             lifecycleScope.launch {
                 getUserInformation(user_id)
@@ -59,18 +61,15 @@ class DashboardActivity : AppCompatActivity() {
          * Send the landmark data to the exercise specific model
          * Get the results from it and display the results on the screen
          * **/
-        val exerciseStartButton = findViewById<ImageButton>(R.id.exercise_squat)
-        styliseButton(exerciseStartButton)
-
-        val selectedExercise = "LEFT_BICEP_CURLS";
-        exerciseStartButton.setOnClickListener {
-            // navigate to main activity that handles the core media pipe logic (if connected to device)
-            if(checkBluetoothConnection()) {
-                navigateToMain(selectedExercise)
-            }else{
-                Log.e("DashboardActivity","Bluetooth connection not established")
-            }
+        val squatStartButton = findViewById<View>(R.id.dashboard_exercise_squats)
+        squatStartButton.setOnClickListener{
+            navigateToMain("SQUATS")
         }
+        val bicepCurlStartButton = findViewById<View>(R.id.dashboard_exercises_bicep_curl_right)
+        bicepCurlStartButton.setOnClickListener {
+            navigateToMain("RIGHT_BICEP_CURLS")
+        }
+
         val bluetoothButton = findViewById<ImageButton>(R.id.dashboard_bluetooth_status_button)
         bluetoothButton.setOnClickListener{
             val isConnected = checkBluetoothConnection()
@@ -81,17 +80,32 @@ class DashboardActivity : AppCompatActivity() {
             }
         }
 
+        val aiButton = findViewById<ImageButton>(R.id.dashboard_ai_button)
+        aiButton.setOnClickListener{
+            lifecycleScope.launch {
+                getAIReply()
+            }
+        }
     }
 
     // Function responsible for starting the Exercise Session from the dashboard
     private fun navigateToMain(selectedExercise:String){
+        // Disabled bluetooth check for testing purposes
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra("selectedExercise", selectedExercise)
         intent.putExtra("deviceServiceUUID",productData.service_uuid)
         intent.putExtra("deviceStopUUID",productData.stop_uuid)
         intent.putExtra("deviceResistanceUUID",productData.resistance_uuid)
+        intent.putExtra("user_id",user.user_id)
+        intent.putExtra("product_id",user.product_id)
         startActivity(intent)
+//        if(checkBluetoothConnection()){
+//
+//        } else {
+//            Log.e("DashboardActivity", "Bluetooth connection not established")
+//        }
     }
+
     private suspend fun getUserInformation(user_id:Int){
         try {
             val response = api_client.getUser(ApiPaths.GetUser(user_id),null)
@@ -250,7 +264,10 @@ class DashboardActivity : AppCompatActivity() {
 
         // List of paired devices
         val connectedDevices: Set<BluetoothDevice> = bluetoothAdapter.bondedDevices
-
+        if(connectedDevices.isNullOrEmpty()){
+            Toast.makeText(this, "No connected devices found", Toast.LENGTH_SHORT).show()
+            return false
+        }
         // Iterate through paired device
         // TODO: Logic needs refining as we only consider a connection to be valid if its with our FITTR device
         for (device in connectedDevices) {
@@ -269,10 +286,21 @@ class DashboardActivity : AppCompatActivity() {
                 return true
             }
         }
-
-        // No connected devices were found
-        Toast.makeText(this, "No connected devices found", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this,"None of the connected devices passed the state check",Toast.LENGTH_LONG).show()
         return false
+    }
+    private suspend fun getAIReply(){
+        if(!::user.isInitialized){
+            Log.e("DashboardActivity","User not initialised when calling get AI reply")
+            return
+        }
+        val response = api_client.getAIReply(ApiPaths.GetAIReply(user.user_id),data = null)
+        if(response.isSuccess){
+            Toast.makeText(this,response.getOrNull()?.message,Toast.LENGTH_LONG).show()
+            Log.i("DashboardActivity","AI reply retrieved successfully")
+        }else{
+            Log.e("DashboardActivity","Error getting AI reply: ${response.getOrNull()?.message}")
+        }
     }
 
 
