@@ -42,6 +42,10 @@ class ApiClient {
     suspend fun getProductData(endpoint: ApiPaths, data: Any?): Result<ProductData> {
         return makeApiRequest<ProductData>(endpoint,data)
     }
+    // Get AI Feedback
+    suspend fun getAIReply(endpoint: ApiPaths,data: Any?):Result<AIReply>{
+        return makeApiRequest<AIReply>(endpoint,data)
+    }
 
     private suspend inline fun <reified T> makeApiRequest(
         endpoint: ApiPaths,
@@ -135,6 +139,10 @@ class ApiClient {
         val stop_uuid:String,
         val error:String?,
         val message:String?
+    )
+    data class AIReply(
+        val message:String,
+        val error: String?
     )
 
 }

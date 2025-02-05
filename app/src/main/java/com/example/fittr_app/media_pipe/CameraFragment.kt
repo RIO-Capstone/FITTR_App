@@ -49,6 +49,11 @@ data class ClientMessage(
    val results: PoseLandmarkerHelper.ResultBundle,
     val is_calibrated: Boolean? = false
  )
+data class SocketInitMessage(
+    val user_id:Int,
+    val product_id:Int,
+    val exercise_type:String
+)
 
 
 class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
@@ -144,7 +149,8 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     }
 
     private fun connectWebSocket() {
-        val backend_address = "ws://${IP_ADDRESS}:8000/ws/exercise/${sharedViewModel.selectedExercise.value}/"
+        val backend_address = "ws://${IP_ADDRESS}:8000/ws/exercise/" +
+                "${sharedViewModel.user_id}/${sharedViewModel.product_id}/${sharedViewModel.selectedExercise.value}"
         val request = Request.Builder()
             .url(backend_address)  // IP and Port using secure websocket connection
             .build()
