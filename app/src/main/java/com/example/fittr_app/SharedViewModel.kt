@@ -11,7 +11,9 @@ class SharedViewModel : ViewModel() {
     private val _selectedExercise = MutableLiveData<String>()
     private val _isCalibrating = MutableLiveData<Boolean>()
     private val _deviceServiceUUID = MutableLiveData<String>()
-    private val _deviceResistanceUUID = MutableLiveData<String>()
+    private val _deviceLeftResistanceUUID = MutableLiveData<String>()
+    private val _deviceRightResistanceUUID = MutableLiveData<String>()
+    private var _deviceExerciseInitializeUUID = "";
     private val _deviceStopUUID = MutableLiveData<String>()
     private var _userId = 0;
     private var _productId = 0;
@@ -19,7 +21,9 @@ class SharedViewModel : ViewModel() {
     val isCalibrating: LiveData<Boolean> get() = _isCalibrating
     val selectedExercise: LiveData<String> get() = _selectedExercise
     val deviceServiceUUID: String get() = _deviceServiceUUID.value.toString()
-    val deviceResistanceUUID: String get() = _deviceResistanceUUID.value.toString()
+    val deviceLeftResistanceUUID: String get() = _deviceLeftResistanceUUID.value.toString()
+    val deviceRightResistanceUUID:String get() = _deviceRightResistanceUUID.value.toString()
+    val deviceExerciseInitializeUUID: String get() = _deviceExerciseInitializeUUID
     val deviceStopUUID: String get() = _deviceStopUUID.value.toString()
     val user_id: Int get() = _userId
     val product_id: Int get() = _productId
@@ -52,8 +56,11 @@ class SharedViewModel : ViewModel() {
         _deviceServiceUUID.value = uuid
     }
 
-    fun setDeviceResistanceUUID(uuid: String) {
-        _deviceResistanceUUID.value = uuid
+    fun setDeviceLeftResistanceUUID(uuid: String) {
+        _deviceLeftResistanceUUID.value = uuid
+    }
+    fun setDeviceRightResistanceUUID(uuid: String) {
+        _deviceRightResistanceUUID.value = uuid
     }
 
     fun setDeviceStopUUID(uuid: String) {
@@ -66,6 +73,9 @@ class SharedViewModel : ViewModel() {
 
     fun setProductId(id: Int) {
         _productId = id
+    }
+    fun setDeviceExerciseInitializeUUID(uuid: String) {
+        _deviceExerciseInitializeUUID = uuid
     }
 
     fun updateCalibration(calibrating:Boolean){

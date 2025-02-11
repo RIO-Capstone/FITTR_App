@@ -30,13 +30,31 @@ import okhttp3.internal.concurrent.Task
 interface BluetoothReadCallback {
     fun onValueRead(value: String)
     fun onError(message: String)
+    fun onBluetoothConnectionChange(isConnected: Boolean){} // default implementation to do nothing
 }
 
-class DashboardActivity : AppCompatActivity() {
+class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
     private lateinit var DashboardBinding : ActivityDashboardBinding
     private lateinit var api_client : ApiClient
     private lateinit var user: ApiClient.User
     private lateinit var productData: ApiClient.ProductData
+
+    override fun onValueRead(value: String) {
+        // TODO("Implementation has yet to be decided")
+    }
+
+    override fun onError(message: String) {
+        Log.e("DashboardActivity","Bluetooth error : $message")
+    }
+
+    override fun onBluetoothConnectionChange(isConnected: Boolean) {
+        val bluetoothButton = findViewById<ImageButton>(R.id.dashboard_bluetooth_status_button)
+        if (isConnected) {
+            bluetoothButton.setImageResource(R.drawable.bluetooth_green)
+        } else {
+            bluetoothButton.setImageResource(R.drawable.bluetooth_red)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,12 +90,12 @@ class DashboardActivity : AppCompatActivity() {
 
         val bluetoothButton = findViewById<ImageButton>(R.id.dashboard_bluetooth_status_button)
         bluetoothButton.setOnClickListener{
-            val isConnected = checkBluetoothConnection()
-            if(isConnected){
-                bluetoothButton.setImageResource(R.drawable.bluetooth_green)
-            }else {
-                bluetoothButton.setImageResource(R.drawable.bluetooth_red)
-            }
+            checkBluetoothConnection()
+//            if(isConnected){
+//                bluetoothButton.setImageResource(R.drawable.bluetooth_green)
+//            }else {
+//                bluetoothButton.setImageResource(R.drawable.bluetooth_red)
+//            }
         }
 
         val aiButton = findViewById<ImageButton>(R.id.dashboard_ai_button)
@@ -91,19 +109,24 @@ class DashboardActivity : AppCompatActivity() {
     // Function responsible for starting the Exercise Session from the dashboard
     private fun navigateToMain(selectedExercise:String){
         // Disabled bluetooth check for testing purposes
-        val intent = Intent(this, MainActivity::class.java)
-        intent.putExtra("selectedExercise", selectedExercise)
-        intent.putExtra("deviceServiceUUID",productData.service_uuid)
-        intent.putExtra("deviceStopUUID",productData.stop_uuid)
-        intent.putExtra("deviceResistanceUUID",productData.resistance_uuid)
-        intent.putExtra("user_id",user.user_id)
-        intent.putExtra("product_id",user.product_id)
-        startActivity(intent)
-//        if(checkBluetoothConnection()){
-//
-//        } else {
-//            Log.e("DashboardActivity", "Bluetooth connection not established")
-//        }
+        if(checkBluetoothConnection()){
+            val intent = Intent(this, MainActivity::class.java)
+            intent.putExtra("selectedExercise", selectedExercise)
+            intent.putExtra("deviceServiceUUID",productData.service_uuid)
+            intent.putExtra("deviceStopUUID",productData.stop_uuid)
+            intent.putExtra("leftResistanceUUID",productData.left_resistance_uuid)
+            intent.putExtra("rightResistanceUUID",productData.right_resistance_uuid)
+            intent.putExtra("exercise_initialize_uuid",productData.exercise_initialize_uuid)
+            intent.putExtra("user_id",user.user_id)
+            intent.putExtra("product_id",user.product_id)
+            BluetoothHelper.connectAndSendMessage(this,
+                message = "true",
+                characteristicUUID = productData.exercise_initialize_uuid,
+                callback = this)
+            startActivity(intent)
+        } else {
+            Log.e("DashboardActivity", "Bluetooth connection not established")
+        }
     }
 
     private suspend fun getUserInformation(user_id:Int){
@@ -248,6 +271,7 @@ class DashboardActivity : AppCompatActivity() {
                     arrayOf(android.Manifest.permission.BLUETOOTH_CONNECT),
                     1
                 )
+                Toast.makeText(this,"Bluetooth permission not granted",Toast.LENGTH_SHORT).show()
                 return false // Cannot proceed without permission
             }
         }
@@ -271,24 +295,19 @@ class DashboardActivity : AppCompatActivity() {
         // Iterate through paired device
         // TODO: Logic needs refining as we only consider a connection to be valid if its with our FITTR device
         for (device in connectedDevices) {
-            val deviceName = device.name ?: "Unknown Device"
-            val deviceAddress = device.address
-
-            // Log information about the device
-            Log.d("DashboardActivity", "Device Name: $deviceName, Address: $deviceAddress")
 
             // Check if the device is connected (bonded)
             val state_check = device.bondState == BluetoothDevice.BOND_BONDED
-            val id_check = device.uuids[0].toString() // TODO: Identify that the device is a FITTR device using serviceUUID
-            Log.d("DashboardActivity", "Device State: $state_check, UUID: $id_check")
+//            val id_check = device.uuids[0].toString() // TODO: Identify that the device is a FITTR device using serviceUUID
             if (state_check) {
-                BluetoothHelper.initialize(device)
+                BluetoothHelper.initialize(this,device,this)
                 return true
             }
         }
         Toast.makeText(this,"None of the connected devices passed the state check",Toast.LENGTH_LONG).show()
         return false
     }
+
     private suspend fun getAIReply(){
         if(!::user.isInitialized){
             Log.e("DashboardActivity","User not initialised when calling get AI reply")

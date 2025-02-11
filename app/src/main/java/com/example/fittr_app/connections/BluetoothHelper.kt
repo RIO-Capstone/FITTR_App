@@ -10,6 +10,7 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.widget.ImageButton
 import com.example.fittr_app.BluetoothReadCallback
 
 @SuppressLint("MissingPermission")
@@ -29,8 +30,13 @@ object BluetoothHelper{
             currentCallback?.onError("Connection timed out")
         }
     }
-    fun initialize(device: BluetoothDevice){
+    fun initialize(context: Context,device: BluetoothDevice,initCallback: BluetoothReadCallback){
+        val deviceName = device.name ?: "Unknown Device"
+        val deviceAddress = device.address
+        Log.d("BluetoothHelper", "Initializing with Device Name: $deviceName, Address: $deviceAddress")
         this.device = device
+        this.currentCallback = initCallback
+        handleConnection(context)
     }
     private fun startConnectionTimeout() {
         connectionTimeoutHandler.postDelayed(connectionTimeoutRunnable, 10000) // 10-second timeout
@@ -74,7 +80,7 @@ object BluetoothHelper{
             return true
         }
         bluetoothGatt = device!!.connectGatt(context, true, gattCallback)
-        Log.d("BluetoothHelper", "Connecting to device UUID: ${device!!.name}")
+        Log.d("BluetoothHelper", "Connecting to device: ${device?.name}}")
         // retry connection until timeout
         startConnectionTimeout()
         if (bluetoothGatt == null) {
@@ -92,11 +98,12 @@ object BluetoothHelper{
             Log.d("BluetoothHelper", "Device onConnectionStateChange: status: $status, newState: $newState")
             if (newState == BluetoothGatt.STATE_CONNECTED) {
                 Log.d("BluetoothHelper", "Successfully connected to GATT server")
+                currentCallback?.onBluetoothConnectionChange(true)
                 gatt.discoverServices()
             } else{
                 Log.e("BluetoothHelper", "Disconnected from GATT server")
-                bluetoothGatt = null
-                currentCallback?.onError("Disconnected from GATT server")
+                disconnect()
+                currentCallback?.onBluetoothConnectionChange(false)
             }
         }
 
@@ -118,7 +125,7 @@ object BluetoothHelper{
         private fun readCharacteristic(gatt: BluetoothGatt) {
             val service = gatt.getService(java.util.UUID.fromString(serviceUUID))
             if (service != null) {
-                Log.d("BluetoothHelper", "Reading from ${service.uuid}")
+                Log.d("BluetoothHelper", "Reading from device ${service.uuid}")
                 val characteristic = service.getCharacteristic(java.util.UUID.fromString(characteristicUUID))
                 if (characteristic != null && isCharacteristicReadable(characteristic)) {
                     val success = gatt.readCharacteristic(characteristic)
