@@ -22,8 +22,10 @@ class MainViewModel : ViewModel() {
     val currentMotorState: LiveData<Boolean> get() = _motorState
 
     // LiveData for Resistance Value
-    private val _resistance = MutableLiveData(PoseLandmarkerHelper.DEFAULT_RESISTANCE_VALUE)
-    val currentResistance: LiveData<Float> get() = _resistance
+    private val _leftResistance = MutableLiveData(PoseLandmarkerHelper.DEFAULT_RESISTANCE_VALUE)
+    private val _rightResistance = MutableLiveData(PoseLandmarkerHelper.DEFAULT_RESISTANCE_VALUE)
+    val leftCurrentResistance: LiveData<Float> get() = _leftResistance
+    val rightCurrentResistance: LiveData<Float> get() = _rightResistance
 
     val currentDelegate: Int get() = _delegate
     val currentModel: Int get() = _model
@@ -51,8 +53,11 @@ class MainViewModel : ViewModel() {
         _motorState.postValue(state)
     }
 
-    fun setResistanceValue(resistance: Float) {
-        _resistance.postValue(resistance)
+    fun setLeftResistanceValue(resistance: Float) {
+        _leftResistance.postValue(resistance)
+    }
+    fun setRightResistanceValue(resistance: Float) {
+        _rightResistance.postValue(resistance)
     }
 
     fun setModel(model: Int) {

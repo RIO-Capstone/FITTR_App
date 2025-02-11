@@ -18,7 +18,7 @@ class ApiClient {
     private val jsonAdapter = moshi.adapter(RegisterUserBackendResponse::class.java)
 
     companion object {
-        private const val BASE_URL = "http://GET FROM BACKEND:8000/"
+        private const val BASE_URL = "http://<GET FROM BACKEND>:8000/"
     }
     // Get user
     suspend fun getUser(endpoint: ApiPaths,data:Any?): Result<GetUserBackendResponse>{
@@ -135,7 +135,9 @@ class ApiClient {
     )
     data class ProductData(
         val service_uuid:String,
-        val resistance_uuid:String,
+        val left_resistance_uuid:String,
+        val right_resistance_uuid:String,
+        val exercise_initialize_uuid: String,
         val stop_uuid:String,
         val error:String?,
         val message:String?

@@ -29,7 +29,9 @@ class MainActivity : AppCompatActivity() {
 
         val selectedExercise = intent.getStringExtra("selectedExercise")
         val deviceServiceUUID = intent.getStringExtra("deviceServiceUUID")
-        val deviceResistanceUUID = intent.getStringExtra("deviceResistanceUUID")
+        val leftDeviceResistanceUUID = intent.getStringExtra("leftResistanceUUID")
+        val rightDeviceResistanceUUID = intent.getStringExtra("rightResistanceUUID")
+        val exerciseInitializeUUID = intent.getStringExtra("exercise_initialize_uuid")
         val deviceStopUUID = intent.getStringExtra("deviceStopUUID")
         val userId = intent.getIntExtra("user_id",0)
         val productId = intent.getIntExtra("product_id",0)
@@ -39,7 +41,9 @@ class MainActivity : AppCompatActivity() {
         sharedViewModel.setSelectedExercise(selectedExercise!!)
         sharedViewModel.setDeviceServiceUUID(deviceServiceUUID!!)
         sharedViewModel.setDeviceStopUUID(deviceStopUUID!!)
-        sharedViewModel.setDeviceResistanceUUID(deviceResistanceUUID!!)
+        sharedViewModel.setDeviceLeftResistanceUUID(leftDeviceResistanceUUID!!)
+        sharedViewModel.setDeviceRightResistanceUUID(rightDeviceResistanceUUID!!)
+        sharedViewModel.setDeviceExerciseInitializeUUID(exerciseInitializeUUID!!)
         sharedViewModel.setUserId(userId)
         sharedViewModel.setProductId(productId)
 
@@ -61,8 +65,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-
-
+    @Deprecated("onBackPressed deprecated in Java")
     override fun onBackPressed() {
         super.onBackPressed()
         finish();
