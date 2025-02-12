@@ -19,6 +19,9 @@ import com.example.fittr_app.connections.ApiClient
 import com.example.fittr_app.connections.ApiPaths
 import com.example.fittr_app.connections.BluetoothHelper
 import com.example.fittr_app.databinding.ActivityDashboardBinding
+import com.example.fittr_app.types.Exercise
+import com.example.fittr_app.types.ProductData
+import com.example.fittr_app.types.User
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
@@ -28,7 +31,7 @@ import kotlinx.coroutines.launch
 import okhttp3.internal.concurrent.Task
 
 interface BluetoothReadCallback {
-    fun onValueRead(value: String)
+    fun onValueRead(value: String){}
     fun onError(message: String)
     fun onBluetoothConnectionChange(isConnected: Boolean){} // default implementation to do nothing
 }
@@ -36,15 +39,13 @@ interface BluetoothReadCallback {
 class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
     private lateinit var DashboardBinding : ActivityDashboardBinding
     private lateinit var api_client : ApiClient
-    private lateinit var user: ApiClient.User
-    private lateinit var productData: ApiClient.ProductData
-
-    override fun onValueRead(value: String) {
-        // TODO("Implementation has yet to be decided")
-    }
+    private lateinit var user: User
+    private lateinit var productData: ProductData
 
     override fun onError(message: String) {
         Log.e("DashboardActivity","Bluetooth error : $message")
+        Toast.makeText(this,"Unstable bluetooth connection",Toast.LENGTH_LONG).show()
+        this.onResume()
     }
 
     override fun onBluetoothConnectionChange(isConnected: Boolean) {
@@ -81,11 +82,11 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
          * **/
         val squatStartButton = findViewById<View>(R.id.dashboard_exercise_squats)
         squatStartButton.setOnClickListener{
-            navigateToMain("SQUATS")
+            navigateToMain(Exercise.SQUATS)
         }
         val bicepCurlStartButton = findViewById<View>(R.id.dashboard_exercises_bicep_curl_right)
         bicepCurlStartButton.setOnClickListener {
-            navigateToMain("RIGHT_BICEP_CURLS")
+            navigateToMain(Exercise.RIGHT_BICEP_CURLS)
         }
 
         val bluetoothButton = findViewById<ImageButton>(R.id.dashboard_bluetooth_status_button)
@@ -107,7 +108,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
     }
 
     // Function responsible for starting the Exercise Session from the dashboard
-    private fun navigateToMain(selectedExercise:String){
+    private fun navigateToMain(selectedExercise:Exercise){
         // Disabled bluetooth check for testing purposes
         if(checkBluetoothConnection()){
             val intent = Intent(this, MainActivity::class.java)

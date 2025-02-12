@@ -9,6 +9,7 @@ import com.example.fittr_app.connections.ApiClient
 import com.example.fittr_app.connections.ApiPaths
 import com.example.fittr_app.databinding.ActivityAuthBinding
 import com.example.fittr_app.DashboardActivity
+import com.example.fittr_app.types.LoginUserBackendResponse
 import com.example.fittr_app.ui.registration.RegistrationActivity
 import kotlinx.coroutines.launch
 
@@ -45,7 +46,7 @@ class AuthActivity:AppCompatActivity() {
 
     }
 
-    private suspend fun login(email: String, password: String): ApiClient.LoginUserBackendResponse? {
+    private suspend fun login(email: String, password: String): LoginUserBackendResponse? {
         val loginData = mapOf("email" to email, "password" to password)
         val result = apiClient.loginUser(ApiPaths.LoginUser, loginData)
 

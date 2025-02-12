@@ -29,6 +29,7 @@ import com.example.fittr_app.SharedViewModel
 import com.example.fittr_app.connections.BluetoothHelper
 import com.example.fittr_app.databinding.FragmentCameraBinding
 import com.example.fittr_app.connections.WebSocketClient
+import com.example.fittr_app.types.Exercise
 import com.google.gson.Gson
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import okhttp3.OkHttpClient
@@ -174,13 +175,26 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         viewModel.currentMotorState.observe(viewLifecycleOwner) { motorState ->
             fragmentCameraBinding.bottomSheetLayout.motorStateToggle.isChecked = motorState
         }
-        viewModel.leftCurrentResistance.observe(viewLifecycleOwner) { resistanceValue ->
-            fragmentCameraBinding.bottomSheetLayout.leftResistanceValue.text =
-                String.format(Locale.US,"%.2f",resistanceValue)
-        }
-        viewModel.rightCurrentResistance.observe(viewLifecycleOwner){resistanceValue ->
-            fragmentCameraBinding.bottomSheetLayout.rightResistanceValue.text =
-                String.format(Locale.US,"%.2f",resistanceValue)
+
+        when(sharedViewModel.selectedExercise.value){
+            Exercise.RIGHT_BICEP_CURLS -> {
+                viewModel.rightCurrentResistance.observe(viewLifecycleOwner){resistanceValue->
+                    fragmentCameraBinding.bottomSheetLayout.resistanceValue.text =
+                        String.format(Locale.US,"%.2f",resistanceValue)
+                }
+            }
+            Exercise.LEFT_BICEP_CURLS -> {
+                viewModel.leftCurrentResistance.observe(viewLifecycleOwner) { resistanceValue ->
+                    fragmentCameraBinding.bottomSheetLayout.resistanceValue.text =
+                        String.format(Locale.US,"%.2f",resistanceValue)
+                }
+            }
+            else -> {
+                viewModel.rightCurrentResistance.observe(viewLifecycleOwner){resistanceValue->
+                    fragmentCameraBinding.bottomSheetLayout.resistanceValue.text =
+                        String.format(Locale.US,"%.2f",resistanceValue)
+                }
+            }
         }
 
         // Initialize our background executor
@@ -206,10 +220,11 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         }
 
         // Attach listeners to UI control widgets and update default UI values
-        initBottomSheetControls()
+        val updateFunction = exerciseToUpdateMap(sharedViewModel.selectedExercise.value!!)
+        initBottomSheetControls(updateFunction)
     }
 
-    private fun initBottomSheetControls() {
+    private fun initBottomSheetControls(updateFunction: (Float)->Unit) {
         // init bottom sheet settings (should not start without already establishing a bluetooth connection in the parent activity)
         BluetoothHelper.connectAndRead(requireContext(),
             sharedViewModel.deviceStopUUID,
@@ -221,28 +236,28 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
                 Log.e("CameraFragment", "Error reading motor value from Bluetooth: $message")
             }
         })
-        BluetoothHelper.connectAndRead(requireContext(),
-            sharedViewModel.deviceLeftResistanceUUID,
-            object : BluetoothReadCallback{
-            override fun onValueRead(value: String) {
-                handleLeftUpdateResistance(value)
-            }
-            override fun onError(message: String) {
-                // set something anyways?
-                fragmentCameraBinding.bottomSheetLayout.leftResistanceValue.text =
-                    String.format(Locale.US,"%.2f",viewModel.leftCurrentResistance)
-                Log.e("CameraFragment", "Error reading left resistance value from Bluetooth: $message")
-            }
-        })
+//        BluetoothHelper.connectAndRead(requireContext(),
+//            sharedViewModel.deviceLeftResistanceUUID,
+//            object : BluetoothReadCallback{
+//            override fun onValueRead(value: String) {
+//                handleLeftUIUpdateResistance(value.toFloat())
+//            }
+//            override fun onError(message: String) {
+//                // set something anyways?
+////                fragmentCameraBinding.bottomSheetLayout.leftResistanceValue.text =
+////                    String.format(Locale.US,"%.2f",viewModel.leftCurrentResistance)
+//                Log.e("CameraFragment", "Error reading left resistance value from Bluetooth: $message")
+//            }
+//        })
         BluetoothHelper.connectAndRead(requireContext(),
             sharedViewModel.deviceRightResistanceUUID,
             object : BluetoothReadCallback{
                 override fun onValueRead(value: String) {
-                    handleRightUpdateResistance(value)
+                    handleRightUIUpdateResistance(value.toFloat())
                 }
                 override fun onError(message: String) {
-                    fragmentCameraBinding.bottomSheetLayout.rightResistanceValue.text =
-                        String.format(Locale.US,"%.2f",viewModel.rightCurrentResistance)
+//                    fragmentCameraBinding.bottomSheetLayout.rightResistanceValue.text =
+//                        String.format(Locale.US,"%.2f",viewModel.rightCurrentResistance)
                     Log.e("CameraFragment", "Error reading right resistance value from Bluetooth: $message")
                 }
                 }
@@ -251,45 +266,45 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         // TODO: Implementing a drop down weight selector makes more sense (similar to gym machines)
         // When clicked, send a bluetooth message to FITTR to decrease resistance on the motors
         // once a successful response is received, then update the UI
-        fragmentCameraBinding.bottomSheetLayout.leftResistanceMinus.setOnClickListener {
+        fragmentCameraBinding.bottomSheetLayout.resistanceMinus.setOnClickListener {
             val currentResistance = viewModel.leftCurrentResistance.value ?: PoseLandmarkerHelper.MIN_RESISTANCE_VALUE
             if (currentResistance > PoseLandmarkerHelper.MIN_RESISTANCE_VALUE) {
                 val newResistance = currentResistance - 1
-                sendResistanceUpdate(newResistance,rightSide = false)
+                updateFunction(newResistance)
             } else {
                 Log.w("CameraFragment", "Cannot set resistance value lower than the minimum")
             }
         }
 
-        fragmentCameraBinding.bottomSheetLayout.leftResistancePlus.setOnClickListener {
+        fragmentCameraBinding.bottomSheetLayout.resistancePlus.setOnClickListener {
             val currentResistance = viewModel.leftCurrentResistance.value ?: PoseLandmarkerHelper.MIN_RESISTANCE_VALUE
             if (currentResistance < PoseLandmarkerHelper.MAX_RESISTANCE_VALUE) {
                 val newResistance = currentResistance + 1
-                sendResistanceUpdate(newResistance, rightSide = false)
+                updateFunction(newResistance)
             } else {
                 Log.w("CameraFragment", "Cannot set left resistance value greater than the maximum")
             }
         }
 
-        fragmentCameraBinding.bottomSheetLayout.rightResistanceMinus.setOnClickListener{
-            val currentResistance = viewModel.rightCurrentResistance.value ?: PoseLandmarkerHelper.MIN_RESISTANCE_VALUE
-            if(currentResistance > PoseLandmarkerHelper.MIN_RESISTANCE_VALUE){
-                val newResistance = currentResistance - 1
-                sendResistanceUpdate(newResistance, rightSide = true)
-            }else{
-                Log.w("CameraFragment", "Cannot set right resistance value lower than the minimum")
-            }
-        }
-
-        fragmentCameraBinding.bottomSheetLayout.rightResistancePlus.setOnClickListener{
-            val currentResistance = viewModel.rightCurrentResistance.value ?: PoseLandmarkerHelper.MIN_RESISTANCE_VALUE
-            if(currentResistance < PoseLandmarkerHelper.MAX_RESISTANCE_VALUE){
-                val newResistance = currentResistance + 1
-                sendResistanceUpdate(newResistance, rightSide = true)
-            }else{
-                Log.w("CameraFragment", "Cannot set right resistance value greater than the maximum")
-            }
-        }
+//        fragmentCameraBinding.bottomSheetLayout.rightResistanceMinus.setOnClickListener{
+//            val currentResistance = viewModel.rightCurrentResistance.value ?: PoseLandmarkerHelper.MIN_RESISTANCE_VALUE
+//            if(currentResistance > PoseLandmarkerHelper.MIN_RESISTANCE_VALUE){
+//                val newResistance = currentResistance - 1
+//                sendResistanceUpdate(newResistance, rightSide = true)
+//            }else{
+//                Log.w("CameraFragment", "Cannot set right resistance value lower than the minimum")
+//            }
+//        }
+//
+//        fragmentCameraBinding.bottomSheetLayout.rightResistancePlus.setOnClickListener{
+//            val currentResistance = viewModel.rightCurrentResistance.value ?: PoseLandmarkerHelper.MIN_RESISTANCE_VALUE
+//            if(currentResistance < PoseLandmarkerHelper.MAX_RESISTANCE_VALUE){
+//                val newResistance = currentResistance + 1
+//                sendResistanceUpdate(newResistance, rightSide = true)
+//            }else{
+//                Log.w("CameraFragment", "Cannot set right resistance value greater than the maximum")
+//            }
+//        }
 
         fragmentCameraBinding.bottomSheetLayout.motorStateToggle.setOnClickListener {
             val currentState = viewModel.currentMotorState.value ?: PoseLandmarkerHelper.DEFAULT_MOTOR_STATE
@@ -298,17 +313,71 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         }
     }
 
-    private fun sendResistanceUpdate(newResistance: Float, rightSide:Boolean){
-        val side = if(rightSide) sharedViewModel.deviceRightResistanceUUID else sharedViewModel.deviceLeftResistanceUUID
-        val onSuccess = if(rightSide) this::handleRightUpdateResistance else this::handleLeftUpdateResistance
-        val message = newResistance.toString()
+    private fun exerciseToUpdateMap(exercise: Exercise): (Float) -> Unit {
+        return when (exercise) {
+            Exercise.SQUATS -> this::handleResistanceUpdate
+            Exercise.RIGHT_BICEP_CURLS -> this::handleRightResistanceUpdate
+            Exercise.LEFT_BICEP_CURLS -> this::handleLeftResistanceUpdate
+            else -> this::handleResistanceUpdate // Handle UNKNOWN case
+        }
+    }
+
+    private fun handleRightResistanceUpdate(newResistance: Float){
         BluetoothHelper.connectAndSendMessage(
             requireContext(),
-            message,
-            side,
+            newResistance.toString(),
+            sharedViewModel.deviceRightResistanceUUID,
             object : BluetoothReadCallback{
                 override fun onValueRead(value: String) {
-                    onSuccess(message)
+                    handleRightUIUpdateResistance(newResistance)
+                }
+
+                override fun onError(message: String) {
+                    Log.e("CameraFragment", "Error updating the right resistance value $message")
+                }
+            }
+        )
+    }
+
+    private fun handleLeftResistanceUpdate(newResistance: Float){
+        BluetoothHelper.connectAndSendMessage(
+            requireContext(),
+            newResistance.toString(),
+            sharedViewModel.deviceLeftResistanceUUID,
+            object : BluetoothReadCallback{
+                override fun onValueRead(value: String) {
+                    handleLeftUIUpdateResistance(newResistance)
+                }
+
+                override fun onError(message: String) {
+                    Log.e("CameraFragment", "Error updating the right resistance value $message")
+                }
+            }
+        )
+    }
+
+    private fun handleResistanceUpdate(newResistance: Float){
+        BluetoothHelper.connectAndSendMessage(
+            requireContext(),
+            newResistance.toString(),
+            sharedViewModel.deviceRightResistanceUUID,
+            object : BluetoothReadCallback{
+                override fun onValueRead(value: String) {
+                    Log.d("CameraFragment","Successfully set the right resistance to $newResistance")
+                    BluetoothHelper.connectAndSendMessage(
+                        requireContext(),
+                        newResistance.toString(),
+                        sharedViewModel.deviceLeftResistanceUUID,
+                        object : BluetoothReadCallback{
+                            override fun onValueRead(value: String) {
+                                handleLeftUIUpdateResistance(newResistance)
+                                handleRightUIUpdateResistance(newResistance)
+                            }
+
+                            override fun onError(message: String) {
+                                Log.e("CameraFragment",message)
+                                Toast.makeText(requireContext(),"Unable to change resistance. Unstable Bluetooth connection",Toast.LENGTH_LONG).show()
+                            }})
                 }
                 override fun onError(message: String) {
                     Log.e("CameraFragment", message)
@@ -328,12 +397,11 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
             })
     }
 
-    private fun handleLeftUpdateResistance(value:String){
+    private fun handleLeftUIUpdateResistance(value:Float){
         try{
             Log.i("CameraFragment","Handling left resistance value: $value")
-            val resistance = value.toFloat()
             activity?.runOnUiThread{
-                viewModel.setLeftResistanceValue(resistance)
+                viewModel.setLeftResistanceValue(value)
             }
         }catch (e:NumberFormatException){
             Log.e("CameraFragment", "Invalid resistance value: $value")
@@ -342,12 +410,11 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         }
     }
 
-    private fun handleRightUpdateResistance(value:String){
+    private fun handleRightUIUpdateResistance(value:Float){
         try {
             Log.i("CameraFragment", "Handling right resistance value: $value")
-            val resistance = value.toFloat()
             activity?.runOnUiThread {
-                viewModel.setRightResistanceValue(resistance)
+                viewModel.setRightResistanceValue(value)
             }
         }catch (e:NumberFormatException){
             Log.e("CameraFragment", "Invalid resistance value: $value")
