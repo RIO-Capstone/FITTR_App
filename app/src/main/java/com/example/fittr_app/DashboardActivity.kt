@@ -144,68 +144,12 @@ class DashboardActivity : AppCompatActivity() {
                     // Map the date to the x-axis (index-based for simplicity)
                     barEntries.add(BarEntry(index.toFloat(), duration))
                 }
-                runOnUiThread {
-                    DashboardBinding.streakNumber.text = streak.toString()
-                    updateBarChart(barEntries)
-                }
+
             }
         }catch (e:Exception){
             Log.e("DashboardActivity","Error getting user history: ${e}")
             e.printStackTrace()
         }
-    }
-    private fun updateBarChart(barEntries: ArrayList<BarEntry>) {
-        // Create a new BarDataSet with the updated data
-        val barDataSet = BarDataSet(barEntries, "Activity Progress")
-        barDataSet.setColors(*ColorTemplate.MATERIAL_COLORS) // Use color templates
-        barDataSet.valueTextSize = 14f
-        barDataSet.setDrawValues(true) // Show values on bars
-
-        // Create new BarData and set it to the BarChart
-        val barData = BarData(barDataSet)
-        val barChart = DashboardBinding.dashboardBarChart
-        val progressLayout = findViewById<FrameLayout>(R.id.dashboard_progress_layout)
-        barChart.data = barData
-
-        // Customize BarChart appearance (if needed)
-        barChart.description.isEnabled = false
-        barChart.setDrawGridBackground(false)
-        barChart.axisRight.isEnabled = false
-
-        // Refresh X-Axis labels if needed
-        val xAxis = barChart.xAxis
-        xAxis.position = XAxis.XAxisPosition.BOTTOM
-        xAxis.granularity = 1f
-        xAxis.setDrawGridLines(false)
-        xAxis.labelCount = barEntries.size
-        xAxis.textSize = 12f
-        xAxis.textColor = resources.getColor(android.R.color.black)
-
-        val maxYValue = barEntries.maxOf { it.y }
-        val minHeightInDp = 155 // Minimum height for FrameLayout
-        val dynamicHeightInDp = minHeightInDp + (maxYValue * 10).toInt() // Adjust height based on Y-value
-
-        // Convert dp to pixels for consistent size across devices
-        val displayMetrics = resources.displayMetrics
-        val dynamicHeightInPx = (dynamicHeightInDp * displayMetrics.density).toInt()
-
-        // Animate the height change of FrameLayout
-        val currentLayoutParams = progressLayout.layoutParams
-        val startHeight = currentLayoutParams.height
-        val endHeight = dynamicHeightInPx
-
-        val valueAnimator = ValueAnimator.ofInt(startHeight, endHeight)
-        valueAnimator.duration = 1000 // Match BarChart animation duration
-        valueAnimator.addUpdateListener { animation ->
-            val animatedValue = animation.animatedValue as Int
-            currentLayoutParams.height = animatedValue
-            progressLayout.layoutParams = currentLayoutParams
-        }
-        valueAnimator.start()
-
-        // Animate and refresh the chart
-        barChart.animateY(1000)
-        barChart.invalidate()
     }
 
     private suspend fun getProductData(product_id:Int){

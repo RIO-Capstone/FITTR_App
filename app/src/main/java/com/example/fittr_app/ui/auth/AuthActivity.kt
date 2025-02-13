@@ -23,6 +23,7 @@ class AuthActivity:AppCompatActivity() {
 
         apiClient = ApiClient()
 
+
         val userNameField = _binding.authIdField
         val passwordField = _binding.authPasswordField
         val loginButton = _binding.authLoginButton
