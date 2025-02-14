@@ -49,6 +49,6 @@
         <item>Pose Landmarker Heavy</item>
     </string-array>
     <string name="stop_characteristic_label">Motor state</string>
-    <string name="left_resistance_characteristic_label">Left motor resistance</string>
+    <string name="resistance_characteristic_label">Motor resistance</string>
     <string name="right_resistance_characteristic_label">Right motor resistance</string>"
 </resources>

@@ -87,7 +87,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:text="@string/left_resistance_characteristic_label"
+                android:text="@string/resistance_characteristic_label"
                 android:textColor="@color/bottom_sheet_text_color"
                 android:textSize="@dimen/bottom_sheet_text_size" />
 
@@ -99,14 +99,14 @@
                 android:orientation="horizontal">
 
                 <androidx.appcompat.widget.AppCompatImageButton
-                    android:id="@+id/left_resistance_minus"
+                    android:id="@+id/resistance_minus"
                     android:layout_width="@dimen/bottom_sheet_control_btn_size"
                     android:layout_height="@dimen/bottom_sheet_control_btn_size"
                     android:contentDescription="@string/alt_bottom_sheet_threshold_button_minus"
                     android:src="@drawable/ic_minus" />
 
                 <TextView
-                    android:id="@+id/left_resistance_value"
+                    android:id="@+id/resistance_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="@dimen/bottom_sheet_control_text_side_margin"
@@ -117,7 +117,7 @@
                     android:textSize="@dimen/bottom_sheet_text_size" />
 
                 <androidx.appcompat.widget.AppCompatImageButton
-                    android:id="@+id/left_resistance_plus"
+                    android:id="@+id/resistance_plus"
                     android:layout_width="@dimen/bottom_sheet_control_btn_size"
                     android:layout_height="@dimen/bottom_sheet_control_btn_size"
                     android:contentDescription="@string/alt_bottom_sheet_threshold_button_plus"
@@ -125,54 +125,54 @@
             </LinearLayout>
         </RelativeLayout>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/bottom_sheet_default_row_margin"
-            android:gravity="center"
-            android:orientation="horizontal">
+<!--        <RelativeLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="@dimen/bottom_sheet_default_row_margin"-->
+<!--            android:gravity="center"-->
+<!--            android:orientation="horizontal">-->
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:text="@string/right_resistance_characteristic_label"
-                android:textColor="@color/bottom_sheet_text_color"
-                android:textSize="@dimen/bottom_sheet_text_size" />
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_centerVertical="true"-->
+<!--                android:text="@string/right_resistance_characteristic_label"-->
+<!--                android:textColor="@color/bottom_sheet_text_color"-->
+<!--                android:textSize="@dimen/bottom_sheet_text_size" />-->
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+<!--            <LinearLayout-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_alignParentRight="true"-->
+<!--                android:gravity="center_vertical"-->
+<!--                android:orientation="horizontal">-->
 
-                <androidx.appcompat.widget.AppCompatImageButton
-                    android:id="@+id/right_resistance_minus"
-                    android:layout_width="@dimen/bottom_sheet_control_btn_size"
-                    android:layout_height="@dimen/bottom_sheet_control_btn_size"
-                    android:contentDescription="@string/alt_bottom_sheet_threshold_button_minus"
-                    android:src="@drawable/ic_minus" />
+<!--                <androidx.appcompat.widget.AppCompatImageButton-->
+<!--                    android:id="@+id/right_resistance_minus"-->
+<!--                    android:layout_width="@dimen/bottom_sheet_control_btn_size"-->
+<!--                    android:layout_height="@dimen/bottom_sheet_control_btn_size"-->
+<!--                    android:contentDescription="@string/alt_bottom_sheet_threshold_button_minus"-->
+<!--                    android:src="@drawable/ic_minus" />-->
 
-                <TextView
-                    android:id="@+id/right_resistance_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/bottom_sheet_control_text_side_margin"
-                    android:layout_marginRight="@dimen/bottom_sheet_control_text_side_margin"
-                    android:gravity="center"
-                    android:minEms="@integer/bottom_sheet_control_text_min_ems"
-                    android:textColor="@color/bottom_sheet_text_color"
-                    android:textSize="@dimen/bottom_sheet_text_size" />
+<!--                <TextView-->
+<!--                    android:id="@+id/right_resistance_value"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginLeft="@dimen/bottom_sheet_control_text_side_margin"-->
+<!--                    android:layout_marginRight="@dimen/bottom_sheet_control_text_side_margin"-->
+<!--                    android:gravity="center"-->
+<!--                    android:minEms="@integer/bottom_sheet_control_text_min_ems"-->
+<!--                    android:textColor="@color/bottom_sheet_text_color"-->
+<!--                    android:textSize="@dimen/bottom_sheet_text_size" />-->
 
-                <androidx.appcompat.widget.AppCompatImageButton
-                    android:id="@+id/right_resistance_plus"
-                    android:layout_width="@dimen/bottom_sheet_control_btn_size"
-                    android:layout_height="@dimen/bottom_sheet_control_btn_size"
-                    android:contentDescription="@string/alt_bottom_sheet_threshold_button_plus"
-                    android:src="@drawable/ic_plus" />
-            </LinearLayout>
-        </RelativeLayout>
+<!--                <androidx.appcompat.widget.AppCompatImageButton-->
+<!--                    android:id="@+id/right_resistance_plus"-->
+<!--                    android:layout_width="@dimen/bottom_sheet_control_btn_size"-->
+<!--                    android:layout_height="@dimen/bottom_sheet_control_btn_size"-->
+<!--                    android:contentDescription="@string/alt_bottom_sheet_threshold_button_plus"-->
+<!--                    android:src="@drawable/ic_plus" />-->
+<!--            </LinearLayout>-->
+<!--        </RelativeLayout>-->
 
 <!--        <RelativeLayout-->
 <!--            android:layout_width="match_parent"-->

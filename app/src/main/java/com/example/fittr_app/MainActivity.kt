@@ -1,5 +1,6 @@
 package com.example.fittr_app
 
+import android.os.Build
 import android.os.Bundle
 import android.view.Window
 import android.widget.TextView
@@ -7,9 +8,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.ui.setupWithNavController
 import com.example.fittr_app.databinding.ActivityMainBinding
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import com.example.fittr_app.types.Exercise
 
 
 class MainActivity : AppCompatActivity() {
@@ -19,6 +22,7 @@ class MainActivity : AppCompatActivity() {
     private val viewModel : MainViewModel by viewModels()
     private lateinit var navController:NavController
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -27,7 +31,7 @@ class MainActivity : AppCompatActivity() {
         activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(activityMainBinding.root)
 
-        val selectedExercise = intent.getStringExtra("selectedExercise")
+        val selectedExercise = intent.getSerializableExtra("selectedExercise") as? Exercise ?: Exercise.UNKNOWN
         val deviceServiceUUID = intent.getStringExtra("deviceServiceUUID")
         val leftDeviceResistanceUUID = intent.getStringExtra("leftResistanceUUID")
         val rightDeviceResistanceUUID = intent.getStringExtra("rightResistanceUUID")
@@ -38,7 +42,7 @@ class MainActivity : AppCompatActivity() {
 
         // initialise the shared view model which shares data between the different fragments in main activity
         sharedViewModel = ViewModelProvider(this)[SharedViewModel::class.java]
-        sharedViewModel.setSelectedExercise(selectedExercise!!)
+        sharedViewModel.setSelectedExercise(selectedExercise)
         sharedViewModel.setDeviceServiceUUID(deviceServiceUUID!!)
         sharedViewModel.setDeviceStopUUID(deviceStopUUID!!)
         sharedViewModel.setDeviceLeftResistanceUUID(leftDeviceResistanceUUID!!)

@@ -4,11 +4,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.fittr_app.types.Exercise
 
 // TODO: Refactor the class to get rid of calibration and to UUIDS do not need to be Mutable
 
 class SharedViewModel : ViewModel() {
-    private val _selectedExercise = MutableLiveData<String>()
+    private val _selectedExercise = MutableLiveData<Exercise>()
     private val _isCalibrating = MutableLiveData<Boolean>()
     private val _deviceServiceUUID = MutableLiveData<String>()
     private val _deviceLeftResistanceUUID = MutableLiveData<String>()
@@ -19,7 +20,7 @@ class SharedViewModel : ViewModel() {
     private var _productId = 0;
 
     val isCalibrating: LiveData<Boolean> get() = _isCalibrating
-    val selectedExercise: LiveData<String> get() = _selectedExercise
+    val selectedExercise: LiveData<Exercise> get() = _selectedExercise
     val deviceServiceUUID: String get() = _deviceServiceUUID.value.toString()
     val deviceLeftResistanceUUID: String get() = _deviceLeftResistanceUUID.value.toString()
     val deviceRightResistanceUUID:String get() = _deviceRightResistanceUUID.value.toString()
@@ -44,7 +45,7 @@ class SharedViewModel : ViewModel() {
         }
     }
 
-    fun setSelectedExercise(exercise: String) {
+    fun setSelectedExercise(exercise: Exercise) {
         _selectedExercise.value = exercise
     }
 
@@ -74,6 +75,7 @@ class SharedViewModel : ViewModel() {
     fun setProductId(id: Int) {
         _productId = id
     }
+
     fun setDeviceExerciseInitializeUUID(uuid: String) {
         _deviceExerciseInitializeUUID = uuid
     }
