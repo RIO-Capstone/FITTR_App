@@ -120,7 +120,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             intent.putExtra("exercise_initialize_uuid",productData.exercise_initialize_uuid)
             intent.putExtra("user_id",user.user_id)
             intent.putExtra("product_id",user.product_id)
-            BluetoothHelper.connectAndSendMessage(this,
+            BluetoothHelper.queueWriteOperation(
                 message = "true",
                 characteristicUUID = productData.exercise_initialize_uuid,
                 callback = this)
