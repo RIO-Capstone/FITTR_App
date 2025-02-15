@@ -7,6 +7,10 @@ android {
     namespace = "com.example.fittr_app"
     compileSdk = 34
 
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.3"
+    }
+
     defaultConfig {
         applicationId = "com.example.fittr_app"
         minSdk = 24
@@ -35,11 +39,17 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        compose=true
     }
 }
 
 dependencies {
 
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.runtime)
+    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -62,4 +72,6 @@ dependencies {
     implementation(libs.moshi)
     implementation(libs.moshi.kotlin)
     implementation(libs.mpandroidchart)
+
+
 }

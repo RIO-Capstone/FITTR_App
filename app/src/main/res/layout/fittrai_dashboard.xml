@@ -83,7 +83,6 @@
         android:layout_height="94dp"
         android:fontFamily="@font/poppins_bold"
         android:justificationMode="inter_word"
-
         android:text="Your rate of progress remains consistent! Keep up the good work!"
         android:textColor="#6C44B3"
         android:textSize="20sp"

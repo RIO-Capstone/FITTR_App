@@ -86,6 +86,9 @@ class DashboardActivity : AppCompatActivity() {
                 getAIReply()
             }
         }
+
+
+
     }
 
     // Function responsible for starting the Exercise Session from the dashboard

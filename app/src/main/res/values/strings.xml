@@ -50,4 +50,5 @@
     </string-array>
     <string name="stop_characteristic_label">Motor state</string>
     <string name="resistance_characteristic_label">Set Weights</string>
+    <string name="title_activity_fittraiactivity">FITTRAIActivity</string>
 </resources>
