@@ -33,6 +33,11 @@
             android:theme="@style/Theme.FITTR_APP" />
 
         <activity
+            android:name=".AIDashboardActivity"
+            android:exported="true"
+            android:theme="@style/Theme.FITTR_APP" />
+
+        <activity
             android:name=".HomeActivity"
             android:exported="true"
             android:theme="@style/Theme.FITTR_APP">

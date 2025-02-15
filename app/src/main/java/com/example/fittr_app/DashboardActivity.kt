@@ -44,6 +44,7 @@ class DashboardActivity : AppCompatActivity() {
         setContentView(DashboardBinding.root)
         api_client = ApiClient()
 
+
         val intent = intent
         if(intent.hasExtra("user_id")){ // getting the user_id from the login session
             val user_id = intent.getIntExtra("user_id",0)
@@ -87,6 +88,14 @@ class DashboardActivity : AppCompatActivity() {
             }
         }
 
+        val aiLayout = findViewById<View>(R.id.ai_layout)
+        aiLayout.setOnClickListener {
+            // Navigate to AIDashboardActivity
+            val intent = Intent(this, AIDashboardActivity::class.java)
+            intent.putExtra("user_id", user.user_id) // Pass user_id or other data as needed
+            startActivity(intent)
+        }
+
 
 
     }
@@ -108,6 +117,11 @@ class DashboardActivity : AppCompatActivity() {
 //            Log.e("DashboardActivity", "Bluetooth connection not established")
 //        }
     }
+
+
+
+
+
 
     private suspend fun getUserInformation(user_id:Int){
         try {
