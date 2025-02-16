@@ -62,10 +62,10 @@ class MainActivity : AppCompatActivity() {
         // VERY IMPORTANT!
         // entry fragment is the permissions fragment, which automatically navigates to the camera fragment
         // camera fragment is the one where HTTP and WebSocket connections are made
-        activityMainBinding.navigation.setupWithNavController(navController)
-        activityMainBinding.navigation.setOnNavigationItemReselectedListener {
-            // ignore the reselection
-        }
+//        activityMainBinding.navigation.setupWithNavController(navController)
+//        activityMainBinding.navigation.setOnNavigationItemReselectedListener {
+//            // ignore the reselection
+//        }
 
     }
 
