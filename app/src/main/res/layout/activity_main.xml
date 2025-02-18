@@ -52,21 +52,21 @@
         <!--                android:src="@drawable/media_pipe_banner" />-->
         <!--        </androidx.appcompat.widget.Toolbar>-->
 
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/navigation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+<!--        <com.google.android.material.bottomnavigation.BottomNavigationView-->
+<!--            android:id="@+id/navigation"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
 
-            app:itemIconTint="@color/bg_nav_item"
-            app:itemTextColor="@color/bg_nav_item"
-            app:menu="@menu/bottom_nav_menu" />
+<!--            app:itemIconTint="@color/bg_nav_item"-->
+<!--            app:itemTextColor="@color/bg_nav_item"-->
+<!--            app:menu="@menu/bottom_nav_menu" />-->
 
-        <View
-            android:id="@+id/view"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_below="@id/navigation"
-            android:background="@android:color/darker_gray" />
+<!--        <View-->
+<!--            android:id="@+id/view"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="1dp"-->
+<!--            android:layout_below="@id/navigation"-->
+<!--            android:background="@android:color/darker_gray" />-->
 
         <!-- Semi-transparent background -->
 
@@ -76,13 +76,13 @@
         android:id="@+id/rep_count"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
         android:background="#80000000"
         android:gravity="center"
         android:text="Rep Count: 0"
         android:textColor="@android:color/white"
         android:textSize="20sp"
         app:layout_anchor="@+id/relativeLayout"
-        app:layout_anchorGravity="bottom|center" />
+        app:layout_anchorGravity="top|center" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -28,7 +28,6 @@ import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.utils.ColorTemplate
 import kotlinx.coroutines.launch
-import okhttp3.internal.concurrent.Task
 
 interface BluetoothReadCallback {
     fun onValueRead(value: String){}
@@ -41,6 +40,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
     private lateinit var api_client : ApiClient
     private lateinit var user: User
     private lateinit var productData: ProductData
+    private var isBluetoothConnected = false
 
     override fun onError(message: String) {
         Log.e("DashboardActivity","Bluetooth error : $message")
@@ -55,6 +55,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         } else {
             bluetoothButton.setImageResource(R.drawable.bluetooth_red)
         }
+        isBluetoothConnected = isConnected
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,7 +64,6 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         setContentView(DashboardBinding.root)
         api_client = ApiClient()
 
-        val intent = intent
         if(intent.hasExtra("user_id")){ // getting the user_id from the login session
             val user_id = intent.getIntExtra("user_id",0)
             lifecycleScope.launch {
@@ -80,19 +80,23 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         squatStartButton.setOnClickListener{
             navigateToMain(Exercise.SQUATS)
         }
-        val bicepCurlStartButton = findViewById<View>(R.id.dashboard_exercises_bicep_curl_right)
-        bicepCurlStartButton.setOnClickListener {
+        val rightBicepCurlStartButton = findViewById<View>(R.id.dashboard_exercises_bicep_curl_right)
+        rightBicepCurlStartButton.setOnClickListener {
             navigateToMain(Exercise.RIGHT_BICEP_CURLS)
+        }
+        val leftBicepCurlStartButton = findViewById<View>(R.id.dashboard_exercises_left_bicep_curl)
+        leftBicepCurlStartButton.setOnClickListener{
+            navigateToMain(Exercise.LEFT_BICEP_CURLS)
+        }
+        val cableTricepExtensionStartButton = findViewById<View>(R.id.dashboard_exercises_cable_tricep_extension)
+        cableTricepExtensionStartButton.setOnClickListener{
+            // TODO: Implemented UI and backend logic first
+            //navigateToMain(Exercise.CABLE_TRICEP_EXTENSION)
         }
 
         val bluetoothButton = findViewById<ImageButton>(R.id.dashboard_bluetooth_status_button)
         bluetoothButton.setOnClickListener{
             checkBluetoothConnection()
-//            if(isConnected){
-//                bluetoothButton.setImageResource(R.drawable.bluetooth_green)
-//            }else {
-//                bluetoothButton.setImageResource(R.drawable.bluetooth_red)
-//            }
         }
 
         val aiButton = findViewById<ImageButton>(R.id.dashboard_ai_button)
@@ -106,7 +110,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
     // Function responsible for starting the Exercise Session from the dashboard
     private fun navigateToMain(selectedExercise:Exercise){
         // Disabled bluetooth check for testing purposes
-        if(checkBluetoothConnection()){
+        if(isBluetoothConnected){
             val intent = Intent(this, MainActivity::class.java)
             intent.putExtra("selectedExercise", selectedExercise)
             intent.putExtra("deviceServiceUUID",productData.service_uuid)
@@ -116,19 +120,20 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             intent.putExtra("exercise_initialize_uuid",productData.exercise_initialize_uuid)
             intent.putExtra("user_id",user.user_id)
             intent.putExtra("product_id",user.product_id)
-            BluetoothHelper.connectAndSendMessage(this,
+            BluetoothHelper.queueWriteOperation(
                 message = "true",
                 characteristicUUID = productData.exercise_initialize_uuid,
                 callback = this)
             startActivity(intent)
         } else {
+            Toast.makeText(this,"Establish Bluetooth connection first",Toast.LENGTH_LONG).show()
             Log.e("DashboardActivity", "Bluetooth connection not established")
         }
     }
 
-    private suspend fun getUserInformation(user_id:Int){
+    private suspend fun getUserInformation(userId:Int){
         try {
-            val response = api_client.getUser(ApiPaths.GetUser(user_id),null)
+            val response = api_client.getUser(ApiPaths.GetUser(userId),null)
             if(response.isSuccess){
                 Log.i("DashboardActivity","User information retrieved successfully")
                 user = response.getOrNull()?.user!!
@@ -142,6 +147,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             Log.e("DashboardActivity","Error getting user information: $e")
         }
     }
+
     private suspend fun getUserHistory(){
         try {
             if (!::user.isInitialized) {
@@ -154,7 +160,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
                 val history = response.getOrNull()?.session_data // history will have max length of 5 from backend
                 val streak = response.getOrNull()?.streak
                 val barEntries = ArrayList<BarEntry>()
-                if(history == null || history.isEmpty()){
+                if(history.isNullOrEmpty()){
                     return
                 }
                 history.forEachIndexed{index,session->
@@ -170,7 +176,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
                 }
             }
         }catch (e:Exception){
-            Log.e("DashboardActivity","Error getting user history: ${e}")
+            Log.e("DashboardActivity","Error getting user history: $e")
             e.printStackTrace()
         }
     }
@@ -228,13 +234,13 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         barChart.invalidate()
     }
 
-    private suspend fun getProductData(product_id:Int){
+    private suspend fun getProductData(productId:Int){
         if (!::user.isInitialized) {
             Log.e("DashboardActivity", "User not initialised when calling get product")
             return
         }
         try{
-            val response = api_client.getProductData(ApiPaths.GetProduct(product_id),null)
+            val response = api_client.getProductData(ApiPaths.GetProduct(productId),null)
             if(response.isSuccess){
                 productData = response.getOrNull()!!
             }else{
