@@ -52,7 +52,7 @@
             android:padding="16dp" />
 
         <!-- Date of Birth -->
-        <EditText
+        <TextView
             android:id="@+id/et_date_of_birth"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -76,7 +76,6 @@
                 android:layout_weight="1"
                 android:hint="Your Weight"
                 android:inputType="numberDecimal"
-                android:background="@drawable/rounded_field"
                 android:padding="12dp" />
 
             <TextView
@@ -103,7 +102,6 @@
                 android:layout_weight="1"
                 android:hint="Your Height"
                 android:inputType="numberDecimal"
-                android:background="@drawable/rounded_field"
                 android:padding="12dp" />
 
             <TextView

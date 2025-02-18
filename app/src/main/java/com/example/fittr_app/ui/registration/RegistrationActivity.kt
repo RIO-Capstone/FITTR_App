@@ -16,7 +16,7 @@ class RegistrationActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             // Start with the first fragment
             supportFragmentManager.beginTransaction()
-                .replace(registrationBinding.registrationFragmentContainer.id, RegistrationPageOne())
+                .replace(registrationBinding.registrationFragmentContainer.id, RegistrationPageThree()) // TODO: Change to registration page one
                 .commit()
         }
     }

@@ -21,7 +21,6 @@ class ApiClient {
     private val client = OkHttpClient()
 
     private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
-    private val jsonAdapter = moshi.adapter(RegisterUserBackendResponse::class.java)
 
     companion object {
         private const val BASE_URL = "http://GET FROM BACKEND:8000/"

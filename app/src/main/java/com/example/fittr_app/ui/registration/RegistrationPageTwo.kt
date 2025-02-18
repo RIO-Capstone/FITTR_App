@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -68,12 +69,9 @@ class RegistrationPageTwo : Fragment() {
                 // start a coroutine for the suspend function
                 Log.i("RegistrationPageTwo","Current product id = ${viewModel.product_id.value}")
                 viewLifecycleOwner.lifecycleScope.launch {
-                    completeRegistration()
+                    (requireActivity() as RegistrationActivity).navigateToFragment(RegistrationPageThree())
                 }
             }
-
-            // Navigate to the next fragment (optional)
-            // (requireActivity() as RegistrationActivity).navigateToFragment(FinalFragment())
         }
 
         return view
@@ -136,7 +134,7 @@ class RegistrationPageTwo : Fragment() {
         return date.matches(datePattern.toRegex())
     }
 
-    private fun setupDatePicker(editText: EditText) {
+    private fun setupDatePicker(editText: TextView) {
         val calendar = Calendar.getInstance()
 
         // When EditText is clicked, show DatePickerDialog
