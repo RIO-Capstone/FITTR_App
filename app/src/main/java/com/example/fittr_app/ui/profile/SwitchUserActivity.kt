@@ -10,8 +10,8 @@ import com.example.fittr_app.DashboardActivity
 import com.example.fittr_app.R
 
 class SwitchUserActivity: AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_switch_user)
 
         val recyclerView: RecyclerView = findViewById(R.id.viewProfiles)

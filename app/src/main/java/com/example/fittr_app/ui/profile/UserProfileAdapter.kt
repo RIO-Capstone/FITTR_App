@@ -14,18 +14,18 @@ class UserProfileAdapter(private val userList: List<UserProfile>, private val on
 
     // ViewHolder class
     class UserProfileViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val userName: TextView = itemView.findViewById(R.id.textProfileName)
-        val userImage: ImageView = itemView.findViewById(R.id.imageProfile)
+        val userName: TextView = itemView.findViewById(R.id.userName)
+        val userImage: ImageView = itemView.findViewById(R.id.userView)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserProfileViewHolder {
-        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_user_profile, parent, false)
+        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_user, parent, false)
         return UserProfileViewHolder(itemView)
     }
 
     override fun onBindViewHolder(holder: UserProfileViewHolder, position: Int) {
         val userProfile = userList[position]
-        holder.userName.text = userProfile.name
+        holder.userName.text = "TEST"
         holder.userImage.setImageResource(userProfile.imageResourceId)
 
         holder.itemView.setOnClickListener {
