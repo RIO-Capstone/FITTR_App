@@ -10,6 +10,7 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.Toast
@@ -19,6 +20,7 @@ import com.example.fittr_app.connections.ApiClient
 import com.example.fittr_app.connections.ApiPaths
 import com.example.fittr_app.connections.BluetoothHelper
 import com.example.fittr_app.databinding.ActivityDashboardBinding
+import com.example.fittr_app.ui.profile.SwitchUserActivity
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
@@ -96,8 +98,17 @@ class DashboardActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        val switchUserButton = findViewById<Button>(R.id.switch_user_button)
+        switchUserButton.setOnClickListener{
+            navigateToUserProfileActivity()
+        }
 
 
+    }
+
+    private fun navigateToUserProfileActivity() {
+        val intent = Intent(this, SwitchUserActivity::class.java)
+        startActivity(intent)
     }
 
     // Function responsible for starting the Exercise Session from the dashboard
