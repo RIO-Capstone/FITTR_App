@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.androidx.camera.view)
     implementation(libs.androidx.activity)
     testImplementation(libs.junit)
+    testImplementation(libs.junit.jupiter)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.mediapipe.tasks.vision)
@@ -62,4 +63,5 @@ dependencies {
     implementation(libs.moshi)
     implementation(libs.moshi.kotlin)
     implementation(libs.mpandroidchart)
+    implementation(libs.androidx.espresso.intents)
 }

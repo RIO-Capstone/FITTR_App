@@ -72,14 +72,10 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
                 getProductData(user.product_id)
             }
         }
-        /**
-         * Exercise Session logic
-         * Select exercise
-         * Start the camera fragment from the main activity
-         * Backend model should know which exercise was selected
-         * Send the landmark data to the exercise specific model
-         * Get the results from it and display the results on the screen
-         * **/
+        val backButton = findViewById<View>(R.id.dashboard_back_btn)
+        backButton.setOnClickListener{
+            finish()
+        }
         val squatStartButton = findViewById<View>(R.id.dashboard_exercise_squats)
         squatStartButton.setOnClickListener{
             navigateToMain(Exercise.SQUATS)

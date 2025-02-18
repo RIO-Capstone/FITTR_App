@@ -20,16 +20,17 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <!-- Back Button -->
+
+        <!-- Activity Dashboard Title -->
         <ImageButton
             android:id="@+id/dashboard_back_btn"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
             android:background="@android:color/transparent"
-            android:src="@drawable/chevron_left_24px"
-            android:contentDescription="Back Button" />
+            android:contentDescription="Back Button"
+            android:src="@drawable/chevron_left_24px" />
 
-        <!-- Activity Dashboard Title -->
         <TextView
             android:id="@+id/activity_dashboard_title"
             android:layout_width="0dp"
