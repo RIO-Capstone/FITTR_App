@@ -39,6 +39,10 @@ class RegistrationPageThree : Fragment() {
     private val personaList by lazy {
         listOf("Strength Seeker","Muscle Sculptor") // Lean Machine
     }
+    private val personaToDescription by lazy {
+        mapOf(personaList[0] to "Build upper body strength",
+            personaList[1] to "Focused on hypertrophy and strength")
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,14 +59,12 @@ class RegistrationPageThree : Fragment() {
         val adapter = ImagePagerAdapter(imageList)
         viewPager.adapter = adapter
 
-        updateImageIndexLabel(1)
-        updatePersonaText(1)
+        updatePage(1)
 
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                updateImageIndexLabel(position)
-                updatePersonaText(position)
+                updatePage(position)
             }
         })
 
@@ -80,14 +82,14 @@ class RegistrationPageThree : Fragment() {
         return view;
     }
 
-    fun updateImageIndexLabel(position: Int){
+    fun updatePage(position: Int){
         val imageIndexLabelText = binding.registrationThreeImageIndexLabel
         imageIndexLabelText.text = "${position+1}/${imageList.size}"
-    }
-    fun updatePersonaText(position: Int){
         val personaText = binding.registrationThreePersona
         personaText.text = personaList[position]
         viewModel.setFitnessGoal(personaList[position])
+        val personaDescriptionText = binding.registrationThreePersonaDescription
+        personaDescriptionText.text = personaToDescription[personaList[position]]
     }
 
     private suspend fun completeRegistration(){
