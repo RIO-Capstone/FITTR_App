@@ -77,23 +77,6 @@ class RegistrationPageTwo : Fragment() {
         return view
     }
 
-    private suspend fun completeRegistration(){
-        val userBackendData = viewModel.getRegistrationData()
-        // send to backend using a HTTP request
-        val result = apiClient.registerUser(ApiPaths.RegisterUser,userBackendData)
-        Log.i("RegistrationPageTwo","Registration result: ${result.isSuccess}")
-        if(result.isSuccess){
-            Toast.makeText(activity,"Registration Complete",Toast.LENGTH_LONG).show()
-            val userId = result.getOrNull()?.user_id
-            val navToDash = Intent(activity, DashboardActivity::class.java).apply{
-                putExtra("user_id", userId)
-            }
-            startActivity(navToDash)
-        }else{
-            Toast.makeText(activity,"Registration Unsuccessful. ${result.getOrNull()?.error}",Toast.LENGTH_LONG).show()
-        }
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null  // Clean up binding to avoid memory leaks
