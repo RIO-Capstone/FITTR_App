@@ -238,7 +238,7 @@
         android:contentDescription="exercise using a bar"
         android:elevation="1dp"
         android:scaleType="centerInside"
-        android:src="@drawable/ai_icon_background"
+        android:src="@mipmap/ai_icon_foreground"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
