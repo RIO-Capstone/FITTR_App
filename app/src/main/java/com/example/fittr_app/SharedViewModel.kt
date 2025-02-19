@@ -41,7 +41,7 @@ class SharedViewModel : ViewModel() {
         displayText.value = if (_isCalibrating.value == true) {
             "Calibrating..."
         } else {
-            "Rep Count: ${_repCount.value ?: 0}"
+            "${selectedExercise.value.toString()} Count: ${_repCount.value ?: 0}"
         }
     }
 

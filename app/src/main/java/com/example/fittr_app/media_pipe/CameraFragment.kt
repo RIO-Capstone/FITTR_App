@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.camera.core.Preview
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -22,6 +23,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import com.example.fittr_app.BluetoothReadCallback
 import com.example.fittr_app.MainViewModel
 import com.example.fittr_app.R
@@ -73,6 +75,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
     private var cameraFacing = CameraSelector.LENS_FACING_BACK
+    private var isPaused = false
 
     /** Blocking backend operations are performed using this executor */
     private lateinit var backgroundExecutor: ExecutorService
@@ -176,7 +179,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         }
 
         val updateFunction = exerciseToUpdateMap(sharedViewModel.selectedExercise.value!!)
-        // TODO: Implementing a drop down weight selector makes more sense (similar to gym machines)
+
         // When clicked, send a bluetooth message to FITTR to decrease resistance on the motors
         // once a successful response is received, then update the UI
         when(sharedViewModel.selectedExercise.value){
@@ -284,6 +287,14 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     }
 
     private fun initBottomSheetControls() {
+        val exerciseStopButton = fragmentCameraBinding.bottomSheetLayout.exerciseStopButton
+        val pauseAndPlayButton = fragmentCameraBinding.bottomSheetLayout.exercisePauseAndPlayButton
+        exerciseStopButton.setOnClickListener{
+            showStopConfirmationDialog()
+        }
+        pauseAndPlayButton.setOnClickListener{
+            togglePausePlay()
+        }
         // init bottom sheet settings (should not start without already establishing a bluetooth connection in the parent activity)
         BluetoothHelper.queueReadOperation(sharedViewModel.deviceStopUUID,
             object : BluetoothReadCallback {
@@ -428,6 +439,47 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         }
     }
 
+    private fun stopExercise() {
+        Log.i("CameraFragment", "Stopping exercise")
+        requireActivity().finish() // finish the main activity, onDestroyView called automatically
+    }
+
+    private fun showStopConfirmationDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Stop Exercise")
+            .setMessage("Are you sure you want to stop the exercise?")
+            .setPositiveButton("Yes") { _, _ ->
+                stopExercise()
+            }
+            .setNegativeButton("No", null)
+            .show()
+    }
+
+    private fun togglePausePlay() {
+        isPaused = !isPaused
+        if (isPaused) {
+            pauseCamera()
+            fragmentCameraBinding.bottomSheetLayout.exercisePauseAndPlayButton.setImageResource(R.drawable.play_button_foreground)
+        } else {
+            resumeCamera()
+            fragmentCameraBinding.bottomSheetLayout.exercisePauseAndPlayButton.setImageResource(R.drawable.pause_button_foreground)
+        }
+    }
+
+    private fun pauseCamera() {
+        imageAnalyzer?.clearAnalyzer() // Stop image analysis
+    }
+
+    private fun resumeCamera() {
+        imageAnalyzer?.setAnalyzer(backgroundExecutor) { image ->
+            detectPose(image) // Resume image analysis
+        }
+    }
+
+    private fun navigateToExerciseSuccess() {
+        findNavController().navigate(R.id.action_camera_to_exercise_success)
+    }
+
     // Initialize CameraX, and prepare to bind the camera use cases
     private fun setUpCamera() {
         val cameraProviderFuture =
@@ -537,6 +589,9 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         activity?.runOnUiThread {
             response.rep_count?.let { repCount ->
                 sharedViewModel.updateRepCount(repCount);
+                if (repCount >= 10) { // TODO: Change Hardcoded implementation!!
+                    navigateToExerciseSuccess()
+                }
             }
 
             response.error?.let { error ->
