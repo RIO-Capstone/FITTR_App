@@ -55,10 +55,10 @@ class AuthActivity:AppCompatActivity() {
             result.getOrNull()
         } else {
             // Show Toast when login is unsuccessful
-            runOnUiThread {
-                Toast.makeText(this@AuthActivity, "Login Unsuccessful. Try again later.", Toast.LENGTH_LONG).show()
-            }
-            null
+//            runOnUiThread {
+//                Toast.makeText(this@AuthActivity, "Login Unsuccessful. Try again later.", Toast.LENGTH_LONG).show()
+//            }
+            null // return null
         }
     }
 

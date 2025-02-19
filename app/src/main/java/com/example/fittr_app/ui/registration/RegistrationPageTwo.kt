@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -68,32 +69,12 @@ class RegistrationPageTwo : Fragment() {
                 // start a coroutine for the suspend function
                 Log.i("RegistrationPageTwo","Current product id = ${viewModel.product_id.value}")
                 viewLifecycleOwner.lifecycleScope.launch {
-                    completeRegistration()
+                    (requireActivity() as RegistrationActivity).navigateToFragment(RegistrationPageThree())
                 }
             }
-
-            // Navigate to the next fragment (optional)
-            // (requireActivity() as RegistrationActivity).navigateToFragment(FinalFragment())
         }
 
         return view
-    }
-
-    private suspend fun completeRegistration(){
-        val userBackendData = viewModel.getRegistrationData()
-        // send to backend using a HTTP request
-        val result = apiClient.registerUser(ApiPaths.RegisterUser,userBackendData)
-        Log.i("RegistrationPageTwo","Registration result: ${result.isSuccess}")
-        if(result.isSuccess){
-            Toast.makeText(activity,"Registration Complete",Toast.LENGTH_LONG).show()
-            val userId = result.getOrNull()?.user_id
-            val navToDash = Intent(activity, DashboardActivity::class.java).apply{
-                putExtra("user_id", userId)
-            }
-            startActivity(navToDash)
-        }else{
-            Toast.makeText(activity,"Registration Unsuccessful. ${result.getOrNull()?.error}",Toast.LENGTH_LONG).show()
-        }
     }
 
     override fun onDestroyView() {
@@ -136,7 +117,7 @@ class RegistrationPageTwo : Fragment() {
         return date.matches(datePattern.toRegex())
     }
 
-    private fun setupDatePicker(editText: EditText) {
+    private fun setupDatePicker(editText: TextView) {
         val calendar = Calendar.getInstance()
 
         // When EditText is clicked, show DatePickerDialog

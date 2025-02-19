@@ -33,6 +33,9 @@ class RegistrationViewModel : ViewModel() {
     private val _productId = MutableLiveData(0)
     val product_id: LiveData<Int> get() = _productId
 
+    private val _fitnessGoal = MutableLiveData("")
+    val fitness_goal: LiveData<String> get() = _fitnessGoal
+
     // Update methods for encapsulated properties
     fun setFirstName(value: String) {
         _firstName.value = value
@@ -74,6 +77,10 @@ class RegistrationViewModel : ViewModel() {
         _productId.value = value
     }
 
+    fun setFitnessGoal(value:String){
+        _fitnessGoal.value = value
+    }
+
     fun getRegistrationData(): Map<String, Any> {
         return mapOf(
             "first_name" to (_firstName.value ?: ""),
@@ -85,7 +92,8 @@ class RegistrationViewModel : ViewModel() {
             "phone_number" to (_phoneNumber.value ?: ""),
             "gender" to (_gender.value ?: ""),
             "date_of_birth" to (_dateOfBirth.value ?: ""),
-            "product_id" to (_productId.value ?: 0)
+            "product_id" to (_productId.value ?: 0),
+            "fitness_goal" to (_fitnessGoal.value ?: ""),
         )
     }
 

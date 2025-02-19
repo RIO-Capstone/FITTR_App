@@ -49,10 +49,11 @@
             android:focusable="true"
             android:focusableInTouchMode="true"
             android:minHeight="48dp"
-            android:padding="16dp" />
+            android:padding="16dp"
+            />
 
         <!-- Date of Birth -->
-        <EditText
+        <TextView
             android:id="@+id/et_date_of_birth"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -76,8 +77,9 @@
                 android:layout_weight="1"
                 android:hint="Your Weight"
                 android:inputType="numberDecimal"
-                android:background="@drawable/rounded_field"
-                android:padding="12dp" />
+                android:padding="12dp"
+                android:fontFamily="@font/poppins_regular"
+                />
 
             <TextView
                 android:id="@+id/tv_weight_unit"
@@ -103,8 +105,9 @@
                 android:layout_weight="1"
                 android:hint="Your Height"
                 android:inputType="numberDecimal"
-                android:background="@drawable/rounded_field"
-                android:padding="12dp" />
+                android:padding="12dp"
+                android:fontFamily="@font/poppins_regular"
+                />
 
             <TextView
                 android:id="@+id/tv_height_unit"
@@ -122,7 +125,7 @@
             android:id="@+id/nxt_btn_page_two"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Complete Registration"
+            android:text="Next"
             android:background="@drawable/rounded_button"
             android:textColor="@color/white"
             android:padding="12dp"

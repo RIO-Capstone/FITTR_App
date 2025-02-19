@@ -46,9 +46,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:hint="First Name"
-                android:drawableStart="@drawable/icons8_person_30"
+                android:fontFamily="@font/poppins_regular"
                 android:inputType="textPersonName"
-                android:background="@drawable/rounded_field"
                 android:padding="12dp"
                 android:layout_marginEnd="8dp" />  <!-- margin between first and last name -->
 
@@ -59,7 +58,7 @@
                 android:layout_weight="1"
                 android:hint="Last Name"
                 android:inputType="textPersonName"
-                android:background="@drawable/rounded_field"
+                android:fontFamily="@font/poppins_regular"
                 android:padding="12dp" />
 
         </LinearLayout>
@@ -70,9 +69,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Phone Number"
-            android:drawableStart="@drawable/icons8_phone_case_50"
+            android:fontFamily="@font/poppins_regular"
             android:inputType="phone"
-            android:background="@drawable/rounded_field"
             android:padding="12dp"
             android:layout_marginBottom="12dp" />
 
@@ -83,7 +81,7 @@
             android:layout_height="wrap_content"
             android:hint="Password"
             android:inputType="textPassword"
-            android:background="@drawable/rounded_field"
+            android:fontFamily="@font/poppins_regular"
             android:padding="12dp"
             android:layout_marginBottom="12dp" />
 
@@ -92,10 +90,10 @@
             android:id="@+id/et_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Email"
+            android:hint=" Email"
             android:drawableStart="@drawable/icons8_email_30"
             android:inputType="textEmailAddress"
-            android:background="@drawable/rounded_field"
+            android:fontFamily="@font/poppins_regular"
             android:padding="12dp"
             android:layout_marginBottom="12dp" />
 
@@ -108,7 +106,7 @@
             android:layout_height="wrap_content"
             android:hint="Product ID"
             android:inputType="number"
-            android:background="@drawable/rounded_field"
+            android:fontFamily="@font/poppins_regular"
             android:padding="12dp"
             android:layout_marginBottom="24dp" />
 
