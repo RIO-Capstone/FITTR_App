@@ -46,7 +46,7 @@
             android:id="@+id/action_camera_to_exercise_success"
             app:destination="@id/exercise_success_fragment"
             app:popUpTo="@id/camera_fragment"
-            app:popUpToInclusive="true"/>
+            app:popUpToInclusive="true" />
 
     </fragment>
 
