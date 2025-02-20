@@ -23,6 +23,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import com.example.fittr_app.BluetoothReadCallback
 import com.example.fittr_app.MainViewModel
@@ -74,7 +75,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     private var imageAnalyzer: ImageAnalysis? = null
     private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
-    private var cameraFacing = CameraSelector.LENS_FACING_BACK
+    private var cameraFacing = CameraSelector.LENS_FACING_FRONT
     private var isPaused = false
 
     /** Blocking backend operations are performed using this executor */
@@ -477,8 +478,18 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     }
 
     private fun navigateToExerciseSuccess() {
-        findNavController().navigate(R.id.action_camera_to_exercise_success)
+        activity?.runOnUiThread {
+            val navController = try {
+                NavHostFragment.findNavController(this)
+            } catch (e: IllegalStateException) {
+                Log.e("CameraFragment", "Navigation failed: ${e.message}")
+                return@runOnUiThread
+            }
+            requireActivity().findViewById<View>(R.id.rep_count).visibility = View.INVISIBLE
+            navController.navigate(R.id.action_camera_to_exercise_success)
+        }
     }
+
 
     // Initialize CameraX, and prepare to bind the camera use cases
     private fun setUpCamera() {

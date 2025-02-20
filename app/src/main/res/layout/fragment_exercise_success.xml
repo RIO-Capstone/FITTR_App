@@ -16,6 +16,7 @@
         android:layout_marginBottom="400dp"
         android:scaleType="fitXY"
         />
+
     <TextView
         android:id="@+id/exerciseSuccessLabel"
         android:layout_width="wrap_content"
