@@ -32,16 +32,18 @@ class RegistrationPageThree : Fragment() {
     private lateinit var apiClient: ApiClient
     private val imageList by lazy { // Use lazy initialization
         listOf(
-            requireContext().getDrawable(R.drawable.icons8_curls_with_dumbbells_48), // TODO: Replace with correct images
-            requireContext().getDrawable(R.drawable.icons8_squat_64),
+            requireContext().getDrawable(R.mipmap.improve_shape_foreground),
+            requireContext().getDrawable(R.mipmap.lean_and_tone_foreground),
+            requireContext().getDrawable(R.mipmap.lose_fat_foreground),
         )
     }
     private val personaList by lazy {
-        listOf("Strength Seeker","Muscle Sculptor") // Lean Machine
+        listOf("Strength Seeker","Muscle Sculptor","Lean Machine")
     }
     private val personaToDescription by lazy {
         mapOf(personaList[0] to "Build upper body strength",
-            personaList[1] to "Focused on hypertrophy and strength")
+            personaList[1] to "Focused on hypertrophy and strength",
+            personaList[2] to "Lose fat and gain muscle mass")
     }
 
     override fun onCreateView(

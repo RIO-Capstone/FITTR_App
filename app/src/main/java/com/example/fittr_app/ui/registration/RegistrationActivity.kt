@@ -1,6 +1,5 @@
 package com.example.fittr_app.ui.registration
 
-import android.R
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
