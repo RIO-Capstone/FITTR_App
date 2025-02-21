@@ -20,9 +20,7 @@ class SwitchUserActivity: AppCompatActivity() {
             UserProfile("User 1"),
             UserProfile("User 2"),
             UserProfile("User 3"),
-            UserProfile("User 4"),
-            UserProfile("User 5"),
-            UserProfile("User 6")
+            UserProfile("User 4")
         )
 
         // Set up RecyclerView with GridLayoutManager (2 columns)

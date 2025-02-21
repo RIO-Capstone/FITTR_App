@@ -15,7 +15,7 @@ class UserProfileAdapter(private val userList: List<UserProfile>, private val on
     // ViewHolder class
     class UserProfileViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val userName: TextView = itemView.findViewById(R.id.userName)
-        //val userImage: ImageView = itemView.findViewById(R.id.userView)
+        val userImage: ImageView = itemView.findViewById(R.id.imageView)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserProfileViewHolder {
@@ -26,11 +26,11 @@ class UserProfileAdapter(private val userList: List<UserProfile>, private val on
     override fun onBindViewHolder(holder: UserProfileViewHolder, position: Int) {
         val userProfile = userList[position]
         holder.userName.text = "TEST"
-        //holder.userImage.setImageResource(userProfile.imageResourceId)
+        holder.userImage.setImageResource(userProfile.imageResourceId)
 
-        //holder.itemView.setOnClickListener {
-          //  onClick(userProfile)
-        //}
+        holder.itemView.setOnClickListener {
+            onClick(userProfile)
+        }
     }
 
     override fun getItemCount(): Int = userList.size
