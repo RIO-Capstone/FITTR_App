@@ -8,4 +8,5 @@ sealed class ApiPaths(val path: String, val method: String) {
     data class GetUserHistory(val userId: Int) : ApiPaths("user/$userId/history", "GET")
     data class GetProduct(val productId:Int) : ApiPaths("product/$productId", "GET")
     data class GetAIReply(val userId: Int) : ApiPaths("user/$userId/ai_reply", "GET")
+    data class GetUserAIReply(val userId: Int) : ApiPaths("user/$userId/ai_feedback", "GET")
 }

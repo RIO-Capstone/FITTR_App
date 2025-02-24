@@ -1,5 +1,6 @@
 package com.example.fittr_app
 
+import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
@@ -8,10 +9,12 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -28,6 +31,8 @@ import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.utils.ColorTemplate
 import kotlinx.coroutines.launch
+import okhttp3.internal.concurrent.Task
+import android.os.Handler
 
 interface BluetoothReadCallback {
     fun onValueRead(value: String){}
@@ -58,6 +63,12 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         isBluetoothConnected = isConnected
     }
 
+    private var form_score: Int = 0
+    private var stability_score: Int = 0
+    private var range_of_motion_score: Int = 0
+    private var summary_analysis: String = ""
+    private var future_advice: String = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         DashboardBinding = ActivityDashboardBinding.inflate(layoutInflater)
@@ -68,6 +79,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             val user_id = intent.getIntExtra("user_id",0)
             lifecycleScope.launch {
                 getUserInformation(user_id)
+                getFITTRAIinformation(user_id)
                 getUserHistory()
                 getProductData(user.product_id)
             }
@@ -84,26 +96,25 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         rightBicepCurlStartButton.setOnClickListener {
             navigateToMain(Exercise.RIGHT_BICEP_CURLS)
         }
-        val leftBicepCurlStartButton = findViewById<View>(R.id.dashboard_exercises_left_bicep_curl)
-        leftBicepCurlStartButton.setOnClickListener{
-            navigateToMain(Exercise.LEFT_BICEP_CURLS)
-        }
-        val cableTricepExtensionStartButton = findViewById<View>(R.id.dashboard_exercises_cable_tricep_extension)
-        cableTricepExtensionStartButton.setOnClickListener{
-            // TODO: Implemented UI and backend logic first
-            //navigateToMain(Exercise.CABLE_TRICEP_EXTENSION)
-        }
+
 
         val bluetoothButton = findViewById<ImageButton>(R.id.dashboard_bluetooth_status_button)
         bluetoothButton.setOnClickListener{
             checkBluetoothConnection()
         }
 
-        val aiButton = findViewById<ImageButton>(R.id.dashboard_ai_button)
-        aiButton.setOnClickListener{
-            lifecycleScope.launch {
-                getAIReply()
-            }
+
+
+        val aiLayout = findViewById<View>(R.id.ai_layout)
+        aiLayout.setOnClickListener {
+            val intent = Intent(this, AIDashboardActivity::class.java)
+            intent.putExtra("user_id", user.user_id)
+            intent.putExtra("summary_analysis", summary_analysis)
+            intent.putExtra("future_advice", future_advice)
+            intent.putExtra("form_score", form_score)
+            intent.putExtra("stability_score", stability_score)
+            intent.putExtra("range_of_motion_score", range_of_motion_score)
+            startActivity(intent)
         }
     }
 
@@ -130,6 +141,93 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             Log.e("DashboardActivity", "Bluetooth connection not established")
         }
     }
+
+    data class Feedback(
+        val summary_advice: String,
+        val summary_analysis: String,
+        val future_advice: String,
+        val form_score: Int,
+        val stability_score: Int,
+        val range_of_motion_score: Int
+    )
+
+    data class ApiResponse(
+        val user_id: Int,
+        val feedback: Feedback
+    )
+
+    private suspend fun getFITTRAIinformation(user_id: Int) {
+        val aiMessageTextView: TextView = findViewById(R.id.ai_message)
+        Log.i("DashboardActivity", "Getting FITTR AI information")
+
+        // Start the strobing effect on the TextView
+        startEllipsisAnimation(aiMessageTextView)
+
+        // Call the API and get the result
+        val result = api_client.getUserAIReply(user_id)
+
+        // Check if the result is successful
+        result.onSuccess { aiReply ->
+            // Stop the strobing animation and set the solid text
+
+            stopEllipsisAnimation(aiMessageTextView, aiReply.message?.summary_analysis!!)
+
+            aiMessageTextView.alpha = 1f // Ensure it's fully visible before setting text
+            aiMessageTextView.setTextColor(android.graphics.Color.parseColor("#8C52FD")) // Set text color to purple
+            aiMessageTextView.text = aiReply.message.summary_analysis!!.substring(1)
+
+            form_score = aiReply.message.form_score.toInt()
+            stability_score = aiReply.message.stability_score.toInt()
+            range_of_motion_score = aiReply.message.range_of_motion_score.toInt()
+
+            summary_analysis = aiReply.message.summary_analysis
+            future_advice = aiReply.message.future_advice
+
+            Log.i("DashboardActivity", "Form Score: $form_score")
+            Log.i("DashboardActivity", "Stability Score: $stability_score")
+            Log.i("DashboardActivity", "Range of Motion Score: $range_of_motion_score")
+
+
+            // Make sure the TextView is fully visible after animation ends
+            aiMessageTextView.visibility = View.VISIBLE
+
+        }.onFailure { exception ->
+
+            aiMessageTextView.alpha = 1f // Ensure it's fully visible
+            aiMessageTextView.setTextColor(android.graphics.Color.RED) // Set color to red in case of failure
+            aiMessageTextView.text = "Failed to load AI information: ${exception.localizedMessage}"
+
+            // Make sure the TextView is fully visible after animation ends
+            aiMessageTextView.visibility = View.VISIBLE
+        }
+    }
+
+
+
+    private var aiAnimationHandler: Handler? = null
+    private var aiAnimationRunnable: Runnable? = null
+
+
+    private fun startEllipsisAnimation(aiMessageTextView: TextView) {
+        val loadingTexts = arrayOf("",".", "..", "...")
+        var index = 0
+
+        aiAnimationHandler = Handler(Looper.getMainLooper())
+        aiAnimationRunnable = object : Runnable {
+            override fun run() {
+                aiMessageTextView.text = "Loading feedback from FITTR AI${loadingTexts[index]}"
+                index = (index + 1) % loadingTexts.size
+                aiAnimationHandler?.postDelayed(this, 100) // Update every 500ms
+            }
+        }
+        aiAnimationHandler?.post(aiAnimationRunnable!!)
+    }
+
+    private fun stopEllipsisAnimation(aiMessageTextView: TextView, finalText: String) {
+        aiAnimationHandler?.removeCallbacks(aiAnimationRunnable!!)
+        aiMessageTextView.text = finalText // Set final AI response text
+    }
+
 
     private suspend fun getUserInformation(userId:Int){
         try {
@@ -170,68 +268,12 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
                     // Map the date to the x-axis (index-based for simplicity)
                     barEntries.add(BarEntry(index.toFloat(), duration))
                 }
-                runOnUiThread {
-                    DashboardBinding.streakNumber.text = streak.toString()
-                    updateBarChart(barEntries)
-                }
+
             }
         }catch (e:Exception){
             Log.e("DashboardActivity","Error getting user history: $e")
             e.printStackTrace()
         }
-    }
-    private fun updateBarChart(barEntries: ArrayList<BarEntry>) {
-        // Create a new BarDataSet with the updated data
-        val barDataSet = BarDataSet(barEntries, "Activity Progress")
-        barDataSet.setColors(*ColorTemplate.MATERIAL_COLORS) // Use color templates
-        barDataSet.valueTextSize = 14f
-        barDataSet.setDrawValues(true) // Show values on bars
-
-        // Create new BarData and set it to the BarChart
-        val barData = BarData(barDataSet)
-        val barChart = DashboardBinding.dashboardBarChart
-        val progressLayout = findViewById<FrameLayout>(R.id.dashboard_progress_layout)
-        barChart.data = barData
-
-        // Customize BarChart appearance (if needed)
-        barChart.description.isEnabled = false
-        barChart.setDrawGridBackground(false)
-        barChart.axisRight.isEnabled = false
-
-        // Refresh X-Axis labels if needed
-        val xAxis = barChart.xAxis
-        xAxis.position = XAxis.XAxisPosition.BOTTOM
-        xAxis.granularity = 1f
-        xAxis.setDrawGridLines(false)
-        xAxis.labelCount = barEntries.size
-        xAxis.textSize = 12f
-        xAxis.textColor = resources.getColor(android.R.color.black)
-
-        val maxYValue = barEntries.maxOf { it.y }
-        val minHeightInDp = 155 // Minimum height for FrameLayout
-        val dynamicHeightInDp = minHeightInDp + (maxYValue * 10).toInt() // Adjust height based on Y-value
-
-        // Convert dp to pixels for consistent size across devices
-        val displayMetrics = resources.displayMetrics
-        val dynamicHeightInPx = (dynamicHeightInDp * displayMetrics.density).toInt()
-
-        // Animate the height change of FrameLayout
-        val currentLayoutParams = progressLayout.layoutParams
-        val startHeight = currentLayoutParams.height
-        val endHeight = dynamicHeightInPx
-
-        val valueAnimator = ValueAnimator.ofInt(startHeight, endHeight)
-        valueAnimator.duration = 1000 // Match BarChart animation duration
-        valueAnimator.addUpdateListener { animation ->
-            val animatedValue = animation.animatedValue as Int
-            currentLayoutParams.height = animatedValue
-            progressLayout.layoutParams = currentLayoutParams
-        }
-        valueAnimator.start()
-
-        // Animate and refresh the chart
-        barChart.animateY(1000)
-        barChart.invalidate()
     }
 
     private suspend fun getProductData(productId:Int){
@@ -311,19 +353,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         return false
     }
 
-    private suspend fun getAIReply(){
-        if(!::user.isInitialized){
-            Log.e("DashboardActivity","User not initialised when calling get AI reply")
-            return
-        }
-        val response = api_client.getAIReply(ApiPaths.GetAIReply(user.user_id),data = null)
-        if(response.isSuccess){
-            Toast.makeText(this,response.getOrNull()?.message,Toast.LENGTH_LONG).show()
-            Log.i("DashboardActivity","AI reply retrieved successfully")
-        }else{
-            Log.e("DashboardActivity","Error getting AI reply: ${response.getOrNull()?.message}")
-        }
-    }
+
 
 
 }
