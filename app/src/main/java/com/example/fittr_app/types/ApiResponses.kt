@@ -39,7 +39,18 @@ data class ProductData(
     val error:String?,
     val message:String?
 )
+
 data class AIReply(
-    val message:String,
-    val error: String?
+    val user_id: Int,         // Matches the API response
+    val message: Feedback,    // Now maps "message" to the Feedback object
+    val error: String? = null // Keep for optional error handling
+)
+
+data class Feedback(
+    val summary_advice: String,
+    val summary_analysis: String,
+    val future_advice: String,
+    val range_of_motion_score: Int,
+    val form_score: Int,
+    val stability_score: Int
 )

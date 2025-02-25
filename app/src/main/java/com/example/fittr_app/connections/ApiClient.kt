@@ -1,7 +1,10 @@
 package com.example.fittr_app.connections
 
 import android.util.Log
+import java.util.concurrent.TimeUnit
+
 import com.example.fittr_app.types.AIReply
+import com.example.fittr_app.types.Feedback
 import com.example.fittr_app.types.GetUserBackendResponse
 import com.example.fittr_app.types.LoginUserBackendResponse
 import com.example.fittr_app.types.ProductData
@@ -18,12 +21,16 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 
 class ApiClient {
-    private val client = OkHttpClient()
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(120, TimeUnit.SECONDS)  // Increase connection timeout
+        .readTimeout(120, TimeUnit.SECONDS)     // Increase read timeout
+        .writeTimeout(120, TimeUnit.SECONDS)    // Increase write timeout
+        .build()
 
     private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
 
     companion object {
-        private const val BASE_URL = "http://GET FROM BACKEND:8000/"
+        private const val BASE_URL = "http://10.0.2.2:8000/"
     }
     // Get user
     suspend fun getUser(endpoint: ApiPaths,data:Any?): Result<GetUserBackendResponse>{
@@ -50,6 +57,10 @@ class ApiClient {
     // Get AI Feedback
     suspend fun getAIReply(endpoint: ApiPaths,data: Any?):Result<AIReply>{
         return makeApiRequest<AIReply>(endpoint,data)
+    }
+
+    suspend fun getUserAIReply(userId: Int): Result<com.example.fittr_app.types.AIReply> {
+        return makeApiRequest<com.example.fittr_app.types.AIReply>(ApiPaths.GetUserAIReply(userId))
     }
 
     private suspend inline fun <reified T> makeApiRequest(
