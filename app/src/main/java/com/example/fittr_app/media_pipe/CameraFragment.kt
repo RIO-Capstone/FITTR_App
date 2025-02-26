@@ -42,6 +42,8 @@ import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration
+import kotlin.time.TimeSource
 
 data class BackendResponse (
     val rep_count: Int? = null,
@@ -63,6 +65,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     private lateinit var sharedViewModel: SharedViewModel
     private val client = OkHttpClient()
     private val IP_ADDRESS = "GET FROM BACKEND";
+    private var startMark = TimeSource.Monotonic.markNow()
 
     private var _fragmentCameraBinding: FragmentCameraBinding? = null
 
@@ -118,6 +121,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     }
 
     override fun onDestroyView() {
+
         _fragmentCameraBinding = null
         BluetoothHelper.queueWriteOperation(message = "false",
             characteristicUUID = sharedViewModel.deviceExerciseInitializeUUID,
@@ -138,6 +142,8 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         )
         // close the web socket connection
         if (::webSocket.isInitialized) {
+            val duration = startMark.elapsedNow()
+            sharedViewModel.setDuration(duration)
             webSocket.close(1000, "Closing WebSocket connection")
         }
     }
@@ -157,6 +163,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     }
 
     private fun connectWebSocket() {
+        startMark = TimeSource.Monotonic.markNow()
         val backend_address = "ws://${IP_ADDRESS}:8000/ws/exercise/" +
                 "${sharedViewModel.user_id}/${sharedViewModel.product_id}/${sharedViewModel.selectedExercise.value}"
         val request = Request.Builder()
@@ -181,7 +188,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
 
         val updateFunction = exerciseToUpdateMap(sharedViewModel.selectedExercise.value!!)
 
-        // When clicked, send a bluetooth message to FITTR to decrease resistance on the motors
+        // When clicked, send a bluetooth feedback_message to FITTR to decrease resistance on the motors
         // once a successful response is received, then update the UI
         when(sharedViewModel.selectedExercise.value){
             Exercise.RIGHT_BICEP_CURLS -> initializeRightMotor(updateFunction)
@@ -600,7 +607,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         activity?.runOnUiThread {
             response.rep_count?.let { repCount ->
                 sharedViewModel.updateRepCount(repCount);
-                if (repCount >= 10) { // TODO: Change Hardcoded implementation!!
+                if (repCount >= 3) { // TODO: Change Hardcoded implementation!!
                     navigateToExerciseSuccess()
                 }
             }

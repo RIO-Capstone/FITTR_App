@@ -106,6 +106,7 @@ class RegistrationPageThree : Fragment() {
         }else{
             Toast.makeText(activity,"Registration Unsuccessful. ${result.getOrNull()?.error}",
                 Toast.LENGTH_LONG).show()
+            Log.e("RegistrationPageThree","Error response: ${result.getOrNull()}")
         }
     }
 

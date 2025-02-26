@@ -4,6 +4,7 @@ import android.util.Log
 import java.util.concurrent.TimeUnit
 
 import com.example.fittr_app.types.AIReply
+import com.example.fittr_app.types.AISessionReply
 import com.example.fittr_app.types.Feedback
 import com.example.fittr_app.types.GetUserBackendResponse
 import com.example.fittr_app.types.LoginUserBackendResponse
@@ -59,6 +60,10 @@ class ApiClient {
         return makeApiRequest<AIReply>(ApiPaths.GetUserAIReply(userId))
     }
 
+    suspend fun getUserExerciseSessionFeedback(data: Any): Result<AISessionReply>{
+        return makeApiRequest<AISessionReply>(ApiPaths.ExerciseSessionFeedback,data)
+    }
+
     private suspend inline fun <reified T> makeApiRequest(
         endpoint: ApiPaths,
         data: Any? = null
@@ -89,7 +94,7 @@ class ApiClient {
 
                 // Execute the HTTP request
                 val response = client.newCall(request).execute()
-                Log.d("ApiClient", "Response code: ${response.code}, message: ${response.message}")
+                Log.d("ApiClient", "Response code: ${response.code}, feedback_message: ${response.message}")
 
                 if (response.isSuccessful) {
                     response.body?.let {

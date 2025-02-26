@@ -42,8 +42,13 @@ data class ProductData(
 
 data class AIReply(
     val user_id: Int,         // Matches the API response
-    val message: Feedback,    // Now maps "message" to the Feedback object
+    val feedback_message: Feedback,    // Now maps "feedback_message" to the Feedback object
     val error: String? = null // Keep for optional error handling
+)
+
+data class AISessionReply(
+    val feedback_message : String,
+    val error: String?
 )
 
 data class Feedback(

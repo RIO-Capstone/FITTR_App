@@ -76,7 +76,7 @@
         android:background="@drawable/rounded_white_view"
         android:elevation="1dp"
         android:layout_marginTop="10dp"
-        app:layout_constraintBottom_toTopOf="@id/dashboard_recycle_view_container"
+        app:layout_constraintBottom_toTopOf="@id/top_dashboard_recycle_view_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.528"
         app:layout_constraintStart_toStartOf="parent"
@@ -152,7 +152,7 @@
 
 
     <LinearLayout
-        android:id="@+id/dashboard_recycle_view_container"
+        android:id="@+id/top_dashboard_recycle_view_container"
         android:layout_width="357dp"
         android:layout_height="154dp"
         android:layout_marginStart="28dp"
@@ -230,36 +230,84 @@
 
     </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/dashboard_ai_button"
-        android:layout_width="66dp"
-        android:layout_height="66dp"
-        android:background="@drawable/circular_background"
-        android:contentDescription="exercise using a bar"
-        android:elevation="1dp"
-        android:scaleType="centerInside"
-        android:src="@mipmap/ai_icon_foreground"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+    <LinearLayout
+        android:id="@+id/bottom_dashboard_recycle_view_container"
+        android:layout_width="357dp"
+        android:layout_height="154dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="24dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.953" />
-    <!-- Start Workout Text -->
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/poppins_bold"
-        android:text="Ask FITTR what's up"
-        app:layout_constraintBottom_toTopOf="@+id/dashboard_ai_button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.998" />
+        app:layout_constraintTop_toBottomOf="@id/top_dashboard_recycle_view_container">
+        <!-- Left Card -->
+        <FrameLayout
+            android:id="@+id/dashboard_exercises_bicep_curl_left"
+            android:layout_width="170dp"
+            android:layout_height="149dp"
+            android:layout_marginEnd="15dp"
+            android:background="@drawable/rounded_white_view"
+            android:elevation="1dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.112"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.415">
 
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/icons8_curls_with_dumbbells_48"
+                android:scaleX="-1"/>
 
+            <!-- TextView positioned at the top-center -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="12dp"
+                android:fontFamily="@font/poppins_bold"
+                android:text="Left Bicep Curls"
 
+                android:textColor="@android:color/black"
+                android:textSize="15sp" />
+        </FrameLayout>
+
+        <!-- Right Card -->
+        <FrameLayout
+            android:id="@+id/dashboard_exercise_tricep_extensions"
+            android:layout_width="170dp"
+            android:layout_height="149dp"
+            android:background="@drawable/rounded_white_view"
+            android:contentDescription="exercise selection"
+            android:elevation="1dp"
+            android:src="@drawable/icn_chevron_up"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/chevron_left_24px"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="12dp"
+                android:fontFamily="@font/poppins_bold"
+                android:text="Tricep extensions"
+                android:textColor="@android:color/black"
+                android:textSize="15sp" />
+        </FrameLayout>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
