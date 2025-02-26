@@ -9,8 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.fittr_app.R
 
 
-class UserProfileAdapter(private val userList: List<UserProfile>, private val onClick: (UserProfile) -> Unit) :
-    RecyclerView.Adapter<UserProfileAdapter.UserProfileViewHolder>() {
+class UserProfileAdapter(private val userList: List<UserProfile>, private val onClick: (UserProfile) -> Unit) : RecyclerView.Adapter<UserProfileAdapter.UserProfileViewHolder>() {
 
     // ViewHolder class
     class UserProfileViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -25,7 +24,7 @@ class UserProfileAdapter(private val userList: List<UserProfile>, private val on
 
     override fun onBindViewHolder(holder: UserProfileViewHolder, position: Int) {
         val userProfile = userList[position]
-        holder.userName.text = "TEST"
+        holder.userName.text = userProfile.name
         holder.userImage.setImageResource(userProfile.imageResourceId)
 
         holder.itemView.setOnClickListener {
