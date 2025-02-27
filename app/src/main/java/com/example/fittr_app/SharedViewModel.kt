@@ -1,6 +1,8 @@
 package com.example.fittr_app
 
 import android.os.Build
+import android.os.CountDownTimer
+import android.os.SystemClock
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
@@ -24,7 +26,11 @@ class SharedViewModel : ViewModel() {
     private val _deviceStopUUID = MutableLiveData<String>()
     private var _userId = 0;
     private var _productId = 0;
-    private var _duration: Duration = Duration.ZERO
+    private val _timerValue = MutableLiveData<Long>().apply { value = 0L }
+    val timerValue: LiveData<Long> get() = _timerValue
+    private var countDownTimer: CountDownTimer? = null
+    private var isTimerRunning = false
+    private var startTimeMillis: Long = 0L
 
     val isCalibrating: LiveData<Boolean> get() = _isCalibrating
     val selectedExercise: LiveData<Exercise> get() = _selectedExercise
@@ -35,7 +41,6 @@ class SharedViewModel : ViewModel() {
     val deviceStopUUID: String get() = _deviceStopUUID.value.toString()
     val user_id: Int get() = _userId
     val product_id: Int get() = _productId
-    val duration: Duration get() = _duration
     private val _repCount = MutableLiveData<Int>()
     val repCount: LiveData<Int> = _repCount
 
@@ -87,14 +92,6 @@ class SharedViewModel : ViewModel() {
         _deviceExerciseInitializeUUID = uuid
     }
 
-    fun updateCalibration(calibrating:Boolean){
-        _isCalibrating.postValue(calibrating)
-    }
-
-    fun setDuration(duration:Duration){
-        _duration = duration
-    }
-
     @RequiresApi(Build.VERSION_CODES.O)
     fun getExerciseSessionData():Map<String, Any>{
         val now = LocalDateTime.now(ZoneOffset.UTC) // Get current UTC time
@@ -104,9 +101,33 @@ class SharedViewModel : ViewModel() {
             "exercise_type" to (selectedExercise.value?.toString() ?: ""),
             "rep_count" to (repCount.value ?: 0),
             "created_at" to formattedDateTime, // following the same format as the Django model created_at field
-            "duration" to (duration.inWholeMilliseconds/1000).toString(), // In seconds
+            "duration" to (timerValue.value?.div(1000)).toString(), // In seconds
             "errors" to 0, // TODO: Fix this hardcoded implementation
             "user_id" to (user_id),
         )
     }
+
+    fun startTimer() {
+        if (isTimerRunning) return // Avoid multiple starts
+
+        startTimeMillis = SystemClock.elapsedRealtime() // Record start time
+        isTimerRunning = true
+
+        countDownTimer = object : CountDownTimer(Long.MAX_VALUE, 100) { // 100ms interval
+            override fun onTick(millisUntilFinished: Long) {
+                val elapsedTime = SystemClock.elapsedRealtime() - startTimeMillis
+                _timerValue.postValue(elapsedTime)
+            }
+
+            override fun onFinish() {
+                // Should never finish since it's running indefinitely
+            }
+        }.start()
+    }
+
+    fun stopTimer() {
+        countDownTimer?.cancel()
+        isTimerRunning = false
+    }
+
 }

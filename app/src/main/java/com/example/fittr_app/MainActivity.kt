@@ -2,6 +2,7 @@ package com.example.fittr_app
 
 import android.os.Build
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.view.Window
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -19,7 +20,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var activityMainBinding: ActivityMainBinding
     private lateinit var sharedViewModel: SharedViewModel
-    private val viewModel : MainViewModel by viewModels()
     private lateinit var navController:NavController
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -55,18 +55,20 @@ class MainActivity : AppCompatActivity() {
         sharedViewModel.displayText.observe(this) { displayText ->
             repCountTextView.text = displayText
         }
+        val timerTextView = findViewById<TextView>(R.id.timer_text)
+        sharedViewModel.timerValue.observe(this) { timeInMillis ->
+            val totalSeconds = timeInMillis / 1000
+            val minutes = totalSeconds / 60
+            val seconds = totalSeconds % 60
+            val milliseconds = (timeInMillis % 1000) / 100 // Get tenths of a second
+
+            timerTextView.text = String.format("%02d:%02d.%d", minutes, seconds, milliseconds)
+        }
 
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.fragment_container) as NavHostFragment
         navController = navHostFragment.navController
-        // VERY IMPORTANT!
-        // entry fragment is the permissions fragment, which automatically navigates to the camera fragment
-        // camera fragment is the one where HTTP and WebSocket connections are made
-//        activityMainBinding.navigation.setupWithNavController(navController)
-//        activityMainBinding.navigation.setOnNavigationItemReselectedListener {
-//            // ignore the reselection
-//        }
-
+        sharedViewModel.startTimer()
     }
 
     @Deprecated("onBackPressed deprecated in Java")
@@ -78,10 +80,5 @@ class MainActivity : AppCompatActivity() {
     private fun navigateToCameraFragment() {
         navController.navigate(R.id.action_permissions_to_camera)
     }
-
-    private fun navigateToGalleryFragment() {
-        //navController.navigate(R.id.) // Assuming you have an action defined for this
-    }
-
 
 }

@@ -85,4 +85,16 @@
         app:layout_anchor="@+id/relativeLayout"
         app:layout_anchorGravity="top|center" />
 
+    <TextView
+        android:id="@+id/timer_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="24sp"
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
+        android:background="@drawable/timer_background"
+        android:padding="8dp"
+        android:layout_gravity="bottom|end"
+        android:layout_marginTop="16dp"/>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
