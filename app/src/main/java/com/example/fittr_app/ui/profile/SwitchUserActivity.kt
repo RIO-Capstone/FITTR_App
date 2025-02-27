@@ -24,6 +24,8 @@ class SwitchUserActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_switch_user)
 
+        apiClient = ApiClient()
+
         val recyclerView: RecyclerView = findViewById(R.id.viewProfiles)
         /*
 
@@ -59,14 +61,13 @@ class SwitchUserActivity: AppCompatActivity() {
         val result = apiClient.getUsers(ApiPaths.GetUsers(productId), data = null)
 
         return if (result.isSuccess) {
-            // If successful, extract the response (List<GetUserBackendResponse>)
+            // If successful, extract the response (GetUsersBackendResponse)
             val response = result.getOrNull()
 
             // If the response is not null, map it to a list of UserProfiles
-            response?.map { backendUser ->
+            response?.users?.map { backendUser ->
                 // Map backend data to UserProfile
-                UserProfile(backendUser.user.first_name + " " + backendUser.user.last_name)
-                // Adjust this mapping as per your actual data fields
+                UserProfile(backendUser.full_name) // Adjust this if necessary
             } ?: emptyList()
         } else {
             // On failure, show a Toast and return an empty list
@@ -80,4 +81,5 @@ class SwitchUserActivity: AppCompatActivity() {
             emptyList()
         }
     }
+
 }

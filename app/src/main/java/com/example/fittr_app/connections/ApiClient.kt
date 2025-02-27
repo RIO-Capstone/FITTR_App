@@ -49,8 +49,8 @@ class ApiClient {
     }
 
     // Get all Users using a product
-    suspend fun getUsers(endpoint: ApiPaths.GetUsers, data: Any?): Result<List<GetUserBackendResponse>> {
-        return makeApiRequest<List<GetUserBackendResponse>>(endpoint, data)
+    suspend fun getUsers(endpoint: ApiPaths.GetUsers, data: Any?): Result<GetUsersBackendResponse> {
+        return makeApiRequest<GetUsersBackendResponse>(endpoint, data)
     }
 
 
@@ -156,6 +156,15 @@ class ApiClient {
     data class AIReply(
         val message:String,
         val error: String?
+    )
+
+    data class GetUsersBackendResponse(
+        val users: List<UserSimple>
+    )
+
+    data class UserSimple(
+        val id: Int,
+        val full_name: String
     )
 
 }
