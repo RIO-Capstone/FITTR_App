@@ -3,18 +3,29 @@ package com.example.fittr_app.ui.profile
 import android.content.Intent
 import android.os.Bundle
 import android.os.PersistableBundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.fittr_app.DashboardActivity
 import com.example.fittr_app.R
+import com.example.fittr_app.connections.ApiClient
+import com.example.fittr_app.connections.ApiPaths
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class SwitchUserActivity: AppCompatActivity() {
+
+    private lateinit var apiClient: ApiClient
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_switch_user)
 
         val recyclerView: RecyclerView = findViewById(R.id.viewProfiles)
+        /*
 
         val userList = listOf(
             UserProfile("User 1"),
@@ -24,15 +35,49 @@ class SwitchUserActivity: AppCompatActivity() {
             UserProfile("User 5"),
             UserProfile("User 6")
         )
+*/
 
-        // Set up RecyclerView with GridLayoutManager (2 columns)
-        recyclerView.layoutManager = GridLayoutManager(this, 2)
-        recyclerView.adapter = UserProfileAdapter(userList) { selectedUser ->
-            val intent = Intent(this, DashboardActivity::class.java).apply {
-                putExtra("User_Name", selectedUser.name)
+        val productId = 1
+
+        // Launch the coroutine within the lifecycle scope
+        lifecycleScope.launch {
+            val userList = fetchUserProfiles(productId)
+            // Now set the adapter after the data is fetched
+            recyclerView.layoutManager = GridLayoutManager(this@SwitchUserActivity, 2)
+            recyclerView.adapter = UserProfileAdapter(userList) { selectedUser ->
+                val intent = Intent(this@SwitchUserActivity, DashboardActivity::class.java).apply {
+                    putExtra("User_Name", selectedUser.name)
+                }
+                startActivity(intent)
+                finish()
             }
-            startActivity(intent)
-            finish()
+        }
+    }
+
+    private suspend fun fetchUserProfiles(productId: Int): List<UserProfile> {
+        // Make the API call using the productId
+        val result = apiClient.getUsers(ApiPaths.GetUsers(productId), data = null)
+
+        return if (result.isSuccess) {
+            // If successful, extract the response (List<GetUserBackendResponse>)
+            val response = result.getOrNull()
+
+            // If the response is not null, map it to a list of UserProfiles
+            response?.map { backendUser ->
+                // Map backend data to UserProfile
+                UserProfile(backendUser.user.first_name + " " + backendUser.user.last_name)
+                // Adjust this mapping as per your actual data fields
+            } ?: emptyList()
+        } else {
+            // On failure, show a Toast and return an empty list
+            runOnUiThread {
+                Toast.makeText(
+                    this@SwitchUserActivity,
+                    "Failed to load users",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            emptyList()
         }
     }
 }

@@ -2,6 +2,7 @@ package com.example.fittr_app.connections
 
 import android.util.Log
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -47,6 +48,12 @@ class ApiClient {
         return makeApiRequest<AIReply>(endpoint,data)
     }
 
+    // Get all Users using a product
+    suspend fun getUsers(endpoint: ApiPaths.GetUsers, data: Any?): Result<List<GetUserBackendResponse>> {
+        return makeApiRequest<List<GetUserBackendResponse>>(endpoint, data)
+    }
+
+
     private suspend inline fun <reified T> makeApiRequest(
         endpoint: ApiPaths,
         data: Any? = null
@@ -84,7 +91,13 @@ class ApiClient {
                         val responseBody = it.string()
                         Log.d("ApiClient", "Response body: $responseBody")
 
-                        val jsonAdapter = moshi.adapter(T::class.java)
+                        // For lists, use Types.newParameterizedType
+                        val jsonAdapter = if (T::class.java == List::class.java) {
+                            val listType = Types.newParameterizedType(List::class.java, T::class.java)
+                            moshi.adapter<T>(listType)
+                        } else {
+                            moshi.adapter(T::class.java)
+                        }
                         val apiResponse = jsonAdapter.fromJson(responseBody)
 
                         if (apiResponse != null) {
