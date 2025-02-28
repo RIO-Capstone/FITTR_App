@@ -57,7 +57,7 @@ data class ClientMessage(
 class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
 
     companion object {
-        private const val TAG = "Pose Landmarker"
+        private const val TAG = "CameraFragment"
     }
 
     private lateinit var webSocket: WebSocket
@@ -124,10 +124,10 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
             characteristicUUID = sharedViewModel.deviceExerciseInitializeUUID,
             object : BluetoothReadCallback  {
                 override fun onValueRead(value: String) {
-                    Log.i("CameraFragment","Successfully disabled exercise initialization characteristic")
+                    Log.i(TAG,"Successfully disabled exercise initialization characteristic")
                 }
                 override fun onError(message: String) {
-                    Log.e("CameraFragment","Error disabling exercise initialization characteristic: $message")
+                    Log.e(TAG,"Error disabling exercise initialization characteristic: $message")
                 }
             })
         sharedViewModel.stopTimer()
@@ -154,7 +154,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
             FragmentCameraBinding.inflate(inflater, container, false)
         // initialise the shared view model to get the exercise being performed
         sharedViewModel = ViewModelProvider(requireActivity())[SharedViewModel::class.java]
-        Log.i("Camera Fragment","Currently performing exercise: ${sharedViewModel.selectedExercise.value}")
+        Log.i(TAG,"Currently performing exercise: ${sharedViewModel.selectedExercise.value}")
         connectWebSocket() // start the web socket connection now
         return fragmentCameraBinding.root
     }
@@ -165,7 +165,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         val request = Request.Builder()
             .url(backend_address)  // IP and Port using secure websocket connection
             .build()
-        Log.i("WebSocket","Connecting to $backend_address")
+        Log.i(TAG,"Connecting to $backend_address")
         val listener = WebSocketClient(this)
         webSocket = client.newWebSocket(request, listener)
 
@@ -229,7 +229,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
                     handleRightUIUpdateResistance(value.toFloat())
                 }
                 override fun onError(message: String) {
-                    Log.e("CameraFragment", "Error reading right resistance value from Bluetooth: $message")
+                    Log.e(TAG, "Error reading right resistance value from Bluetooth: $message")
                 }
             }
         )
@@ -239,7 +239,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
                 val newResistance = currentResistance - 1
                 updateFunction(newResistance)
             } else {
-                Log.w("CameraFragment", "Cannot set resistance value lower than the minimum")
+                Log.w(TAG, "Cannot set resistance value lower than the minimum")
             }
         }
 
@@ -249,7 +249,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
                 val newResistance = currentResistance + 1
                 updateFunction(newResistance)
             } else {
-                Log.w("CameraFragment", "Cannot set left resistance value greater than the maximum")
+                Log.w(TAG, "Cannot set left resistance value greater than the maximum")
             }
         }
 
@@ -266,7 +266,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
                     handleLeftUIUpdateResistance(value.toFloat())
                 }
                 override fun onError(message: String) {
-                    Log.e("CameraFragment", "Error reading left resistance value from Bluetooth: $message")
+                    Log.e(TAG, "Error reading left resistance value from Bluetooth: $message")
                 }})
 
         fragmentCameraBinding.bottomSheetLayout.resistanceMinus.setOnClickListener {
@@ -275,7 +275,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
                 val newResistance = currentResistance - 1
                 updateFunction(newResistance)
             } else {
-                Log.w("CameraFragment", "Cannot set resistance value lower than the minimum")
+                Log.w(TAG, "Cannot set resistance value lower than the minimum")
             }
         }
 
@@ -285,7 +285,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
                 val newResistance = currentResistance + 1
                 updateFunction(newResistance)
             } else {
-                Log.w("CameraFragment", "Cannot set left resistance value greater than the maximum")
+                Log.w(TAG, "Cannot set left resistance value greater than the maximum")
             }
         }
     }
@@ -306,7 +306,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
                 handleUpdateMotorState(value.toBoolean())
             }
             override fun onError(message: String) {
-                Log.e("CameraFragment", "Error reading motor value from Bluetooth: $message")
+                Log.e(TAG, "Error reading motor value from Bluetooth: $message")
             }
         })
 
@@ -336,7 +336,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
                 }
 
                 override fun onError(message: String) {
-                    Log.e("CameraFragment", "Error updating the right resistance value $message")
+                    Log.e(TAG, "Error updating the right resistance value $message")
                 }
             }
         )
@@ -352,7 +352,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
                 }
 
                 override fun onError(message: String) {
-                    Log.e("CameraFragment", "Error updating the right resistance value $message")
+                    Log.e(TAG, "Error updating the right resistance value $message")
                 }
             }
         )
@@ -369,7 +369,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
                 }
 
                 override fun onError(message: String) {
-                    Log.e("CameraFragment", "Error updating right resistance: $message")
+                    Log.e(TAG, "Error updating right resistance: $message")
                 }
             }
         )
@@ -384,7 +384,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
                 }
 
                 override fun onError(message: String) {
-                    Log.e("CameraFragment", "Error updating left resistance: $message")
+                    Log.e(TAG, "Error updating left resistance: $message")
                 }
             }
         )
@@ -406,45 +406,45 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
 
     private fun handleLeftUIUpdateResistance(value:Float){
         try{
-            Log.i("CameraFragment","Handling left resistance value: $value")
+            Log.i(TAG,"Handling left resistance value: $value")
             activity?.runOnUiThread{
                 viewModel.setLeftResistanceValue(value)
             }
         }catch (e:NumberFormatException){
-            Log.e("CameraFragment", "Invalid resistance value: $value")
+            Log.e(TAG, "Invalid resistance value: $value")
         }catch (e:Exception){
-            Log.e("CameraFragment", "Error updating resistance: $e")
+            Log.e(TAG, "Error updating resistance: $e")
         }
     }
 
     private fun handleRightUIUpdateResistance(value:Float){
         try {
-            Log.i("CameraFragment", "Handling right resistance value: $value")
+            Log.i(TAG, "Handling right resistance value: $value")
             activity?.runOnUiThread {
                 viewModel.setRightResistanceValue(value)
             }
         }catch (e:NumberFormatException){
-            Log.e("CameraFragment", "Invalid resistance value: $value")
+            Log.e(TAG, "Invalid resistance value: $value")
         }catch (e:Exception){
-            Log.e("CameraFragment", "Error updating resistance: $e")
+            Log.e(TAG, "Error updating resistance: $e")
         }
     }
 
     private fun handleUpdateMotorState(value:Boolean){
         try{
-            Log.i("CameraFragment","Handling motor state value: $value")
+            Log.i(TAG,"Handling motor state value: $value")
             activity?.runOnUiThread{
                 viewModel.setMotorStateValue(value)
             }
         }catch (e:NumberFormatException){
-            Log.e("CameraFragment", "Invalid resistance value: $value")
+            Log.e(TAG, "Invalid resistance value: $value")
         }catch (e:Exception){
-            Log.e("CameraFragment", "Error updating resistance: $e")
+            Log.e(TAG, "Error updating resistance: $e")
         }
     }
 
     private fun stopExercise() {
-        Log.i("CameraFragment", "Stopping exercise")
+        Log.i(TAG, "Stopping exercise")
         requireActivity().finish() // finish the main activity, onDestroyView called automatically
     }
 
@@ -485,7 +485,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
             val navController = try {
                 NavHostFragment.findNavController(this)
             } catch (e: IllegalStateException) {
-                Log.e("CameraFragment", "Navigation failed: ${e.message}")
+                Log.e(TAG, "Navigation failed: ${e.message}")
                 return@runOnUiThread
             }
             requireActivity().findViewById<View>(R.id.rep_count).visibility = View.INVISIBLE
