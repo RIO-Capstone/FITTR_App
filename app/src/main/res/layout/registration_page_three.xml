@@ -5,6 +5,7 @@
     android:layout_height="match_parent">
 
     <TextView
+        android:id="@+id/registrationThreeTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
@@ -25,17 +26,18 @@
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@+id/viewPagerContainer"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/viewPagerContainer" />
+        app:layout_constraintTop_toTopOf="@+id/viewPagerContainer"
+        />
 
     <RelativeLayout
         android:id="@+id/viewPagerContainer"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="200dp"
+        android:layout_height="300dp"
         app:layout_constraintEnd_toStartOf="@id/registrationThreeRightArrow"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/registrationThreeTitle"
         app:layout_constraintStart_toEndOf="@id/registrationThreeLeftArrow"
-        android:layout_marginBottom="250sp">
+        app:layout_constraintBottom_toTopOf="@id/registrationThreeImageIndexLabel"
+        android:layout_marginBottom="10sp">
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/imageViewPager"
@@ -95,27 +97,17 @@
 
     <Button
         android:id="@+id/registrationThreeCompleteRegistration"
-        android:layout_width="350sp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/registrationThreePersona"
-        android:layout_marginTop="50sp"
+        android:layout_marginTop="50dp"
         app:layout_constraintEnd_toEndOf="parent"
         android:background="@drawable/rounded_button"
         android:text="Complete Registration"
         android:textColor="@color/white"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         />
-
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/imageTabLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/viewPagerContainer"
-        app:tabBackground="@drawable/rounded_white_view"
-        app:tabGravity="center"
-        app:tabIndicatorHeight="0dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

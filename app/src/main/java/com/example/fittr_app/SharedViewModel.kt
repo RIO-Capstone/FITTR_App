@@ -1,10 +1,18 @@
 package com.example.fittr_app
 
+import android.os.Build
+import android.os.CountDownTimer
+import android.os.SystemClock
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.fittr_app.types.Exercise
+import kotlin.time.Duration
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 // TODO: Refactor the class to get rid of calibration and to UUIDS do not need to be Mutable
 
@@ -18,6 +26,11 @@ class SharedViewModel : ViewModel() {
     private val _deviceStopUUID = MutableLiveData<String>()
     private var _userId = 0;
     private var _productId = 0;
+    private val _timerValue = MutableLiveData<Long>().apply { value = 0L }
+    val timerValue: LiveData<Long> get() = _timerValue
+    private var countDownTimer: CountDownTimer? = null
+    private var isTimerRunning = false
+    private var startTimeMillis: Long = 0L
 
     val isCalibrating: LiveData<Boolean> get() = _isCalibrating
     val selectedExercise: LiveData<Exercise> get() = _selectedExercise
@@ -28,7 +41,6 @@ class SharedViewModel : ViewModel() {
     val deviceStopUUID: String get() = _deviceStopUUID.value.toString()
     val user_id: Int get() = _userId
     val product_id: Int get() = _productId
-
     private val _repCount = MutableLiveData<Int>()
     val repCount: LiveData<Int> = _repCount
 
@@ -41,7 +53,7 @@ class SharedViewModel : ViewModel() {
         displayText.value = if (_isCalibrating.value == true) {
             "Calibrating..."
         } else {
-            "Rep Count: ${_repCount.value ?: 0}"
+            "${selectedExercise.value.toString()} Count: ${_repCount.value ?: 0}"
         }
     }
 
@@ -80,7 +92,42 @@ class SharedViewModel : ViewModel() {
         _deviceExerciseInitializeUUID = uuid
     }
 
-    fun updateCalibration(calibrating:Boolean){
-        _isCalibrating.postValue(calibrating)
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getExerciseSessionData():Map<String, Any>{
+        val now = LocalDateTime.now(ZoneOffset.UTC) // Get current UTC time
+        val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
+        val formattedDateTime = now.format(formatter) + "Z"
+        return mapOf(
+            "exercise_type" to (selectedExercise.value?.toString() ?: ""),
+            "rep_count" to (repCount.value ?: 0),
+            "created_at" to formattedDateTime, // following the same format as the Django model created_at field
+            "duration" to (timerValue.value?.div(1000)).toString(), // In seconds
+            "errors" to 0, // TODO: Fix this hardcoded implementation
+            "user_id" to (user_id),
+        )
     }
+
+    fun startTimer() {
+        if (isTimerRunning) return // Avoid multiple starts
+
+        startTimeMillis = SystemClock.elapsedRealtime() // Record start time
+        isTimerRunning = true
+
+        countDownTimer = object : CountDownTimer(Long.MAX_VALUE, 100) { // 100ms interval
+            override fun onTick(millisUntilFinished: Long) {
+                val elapsedTime = SystemClock.elapsedRealtime() - startTimeMillis
+                _timerValue.postValue(elapsedTime)
+            }
+
+            override fun onFinish() {
+                // Should never finish since it's running indefinitely
+            }
+        }.start()
+    }
+
+    fun stopTimer() {
+        countDownTimer?.cancel()
+        isTimerRunning = false
+    }
+
 }

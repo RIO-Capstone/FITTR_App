@@ -4,6 +4,7 @@ import android.util.Log
 import java.util.concurrent.TimeUnit
 
 import com.example.fittr_app.types.AIReply
+import com.example.fittr_app.types.AISessionReply
 import com.example.fittr_app.types.Feedback
 import com.example.fittr_app.types.GetUserBackendResponse
 import com.example.fittr_app.types.LoginUserBackendResponse
@@ -30,7 +31,7 @@ class ApiClient {
     private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
 
     companion object {
-        private const val BASE_URL = "http://10.0.2.2:8000/"
+        private const val BASE_URL = "http://GET FROM BACKEND:8000/"
     }
     // Get user
     suspend fun getUser(endpoint: ApiPaths,data:Any?): Result<GetUserBackendResponse>{
@@ -54,13 +55,13 @@ class ApiClient {
     suspend fun getProductData(endpoint: ApiPaths, data: Any?): Result<ProductData> {
         return makeApiRequest<ProductData>(endpoint,data)
     }
-    // Get AI Feedback
-    suspend fun getAIReply(endpoint: ApiPaths,data: Any?):Result<AIReply>{
-        return makeApiRequest<AIReply>(endpoint,data)
+
+    suspend fun getUserAIReply(userId: Int): Result<AIReply> {
+        return makeApiRequest<AIReply>(ApiPaths.GetUserAIReply(userId))
     }
 
-    suspend fun getUserAIReply(userId: Int): Result<com.example.fittr_app.types.AIReply> {
-        return makeApiRequest<com.example.fittr_app.types.AIReply>(ApiPaths.GetUserAIReply(userId))
+    suspend fun getUserExerciseSessionFeedback(data: Any): Result<AISessionReply>{
+        return makeApiRequest<AISessionReply>(ApiPaths.ExerciseSessionFeedback,data)
     }
 
     private suspend inline fun <reified T> makeApiRequest(
@@ -93,7 +94,7 @@ class ApiClient {
 
                 // Execute the HTTP request
                 val response = client.newCall(request).execute()
-                Log.d("ApiClient", "Response code: ${response.code}, message: ${response.message}")
+                Log.d("ApiClient", "Response code: ${response.code}, feedback_message: ${response.message}")
 
                 if (response.isSuccessful) {
                     response.body?.let {

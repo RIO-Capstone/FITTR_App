@@ -1,7 +1,5 @@
 package com.example.fittr_app
 
-import android.animation.ObjectAnimator
-import android.animation.ValueAnimator
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.content.Context
@@ -12,7 +10,6 @@ import android.os.Bundle
 import android.os.Looper
 import android.util.Log
 import android.view.View
-import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
@@ -25,14 +22,10 @@ import com.example.fittr_app.databinding.ActivityDashboardBinding
 import com.example.fittr_app.types.Exercise
 import com.example.fittr_app.types.ProductData
 import com.example.fittr_app.types.User
-import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.data.BarData
-import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
-import com.github.mikephil.charting.utils.ColorTemplate
 import kotlinx.coroutines.launch
-import okhttp3.internal.concurrent.Task
 import android.os.Handler
+import com.example.fittr_app.ui.auth.AuthActivity
 
 interface BluetoothReadCallback {
     fun onValueRead(value: String){}
@@ -86,7 +79,9 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         }
         val backButton = findViewById<View>(R.id.dashboard_back_btn)
         backButton.setOnClickListener{
-            finish()
+            // navigate back to the Login page
+            val authIntent = Intent(this,AuthActivity::class.java)
+            startActivity(authIntent)
         }
         val squatStartButton = findViewById<View>(R.id.dashboard_exercise_squats)
         squatStartButton.setOnClickListener{
@@ -97,13 +92,15 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             navigateToMain(Exercise.RIGHT_BICEP_CURLS)
         }
 
+        val leftBicepCurlStartButton = findViewById<View>(R.id.dashboard_exercises_bicep_curl_left)
+        leftBicepCurlStartButton.setOnClickListener{
+            navigateToMain(Exercise.LEFT_BICEP_CURLS)
+        }
 
         val bluetoothButton = findViewById<ImageButton>(R.id.dashboard_bluetooth_status_button)
         bluetoothButton.setOnClickListener{
             checkBluetoothConnection()
         }
-
-
 
         val aiLayout = findViewById<View>(R.id.ai_layout)
         aiLayout.setOnClickListener {
@@ -120,7 +117,6 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
 
     // Function responsible for starting the Exercise Session from the dashboard
     private fun navigateToMain(selectedExercise:Exercise){
-        // Disabled bluetooth check for testing purposes
         if(isBluetoothConnected){
             val intent = Intent(this, MainActivity::class.java)
             intent.putExtra("selectedExercise", selectedExercise)
@@ -170,18 +166,18 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         result.onSuccess { aiReply ->
             // Stop the strobing animation and set the solid text
 
-            stopEllipsisAnimation(aiMessageTextView, aiReply.message?.summary_analysis!!)
+            stopEllipsisAnimation(aiMessageTextView, aiReply.feedback_message?.summary_analysis!!)
 
             aiMessageTextView.alpha = 1f // Ensure it's fully visible before setting text
             aiMessageTextView.setTextColor(android.graphics.Color.parseColor("#8C52FD")) // Set text color to purple
-            aiMessageTextView.text = aiReply.message.summary_analysis!!.substring(1)
+            aiMessageTextView.text = aiReply.feedback_message.summary_analysis!!.substring(1)
 
-            form_score = aiReply.message.form_score.toInt()
-            stability_score = aiReply.message.stability_score.toInt()
-            range_of_motion_score = aiReply.message.range_of_motion_score.toInt()
+            form_score = aiReply.feedback_message.form_score.toInt()
+            stability_score = aiReply.feedback_message.stability_score.toInt()
+            range_of_motion_score = aiReply.feedback_message.range_of_motion_score.toInt()
 
-            summary_analysis = aiReply.message.summary_analysis
-            future_advice = aiReply.message.future_advice
+            summary_analysis = aiReply.feedback_message.summary_analysis
+            future_advice = aiReply.feedback_message.future_advice
 
             Log.i("DashboardActivity", "Form Score: $form_score")
             Log.i("DashboardActivity", "Stability Score: $stability_score")
@@ -352,8 +348,5 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         Toast.makeText(this,"None of the connected devices passed the state check",Toast.LENGTH_LONG).show()
         return false
     }
-
-
-
 
 }

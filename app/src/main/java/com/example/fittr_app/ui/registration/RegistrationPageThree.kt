@@ -2,6 +2,8 @@ package com.example.fittr_app.ui.registration
 
 import RegistrationViewModel
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
@@ -10,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -28,20 +31,21 @@ class RegistrationPageThree : Fragment() {
     private var _binding: RegistrationPageThreeBinding? = null
     private val binding get() = _binding!!
     private lateinit var viewPager: ViewPager2
-    private lateinit var tabLayout: TabLayout
     private lateinit var apiClient: ApiClient
     private val imageList by lazy { // Use lazy initialization
         listOf(
-            requireContext().getDrawable(R.drawable.icons8_curls_with_dumbbells_48), // TODO: Replace with correct images
-            requireContext().getDrawable(R.drawable.icons8_squat_64),
+            R.mipmap.improve_shape_foreground,
+            R.mipmap.lean_and_tone_foreground,
+            R.mipmap.lose_fat_foreground,
         )
     }
     private val personaList by lazy {
-        listOf("Strength Seeker","Muscle Sculptor") // Lean Machine
+        listOf("Strength Seeker","Muscle Sculptor","Lean Machine")
     }
     private val personaToDescription by lazy {
         mapOf(personaList[0] to "Build upper body strength",
-            personaList[1] to "Focused on hypertrophy and strength")
+            personaList[1] to "Focused on hypertrophy and strength",
+            personaList[2] to "Lose fat and gain muscle mass")
     }
 
     override fun onCreateView(
@@ -55,8 +59,8 @@ class RegistrationPageThree : Fragment() {
         apiClient = ApiClient()
         val completeRegistrationButton = binding.registrationThreeCompleteRegistration
         viewPager = binding.imageViewPager
-        tabLayout = binding.imageTabLayout
-        val adapter = ImagePagerAdapter(imageList)
+        val resizedDrawables = getResizedDrawables()
+        val adapter = ImagePagerAdapter(resizedDrawables)
         viewPager.adapter = adapter
 
         updatePage(1)
@@ -67,11 +71,6 @@ class RegistrationPageThree : Fragment() {
                 updatePage(position)
             }
         })
-
-        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            // You can customize the tabs here if needed (e.g., set icons)
-            // tab.setIcon(R.drawable.your_icon)
-        }.attach()
 
         completeRegistrationButton.setOnClickListener{
             viewLifecycleOwner.lifecycleScope.launch {
@@ -107,7 +106,32 @@ class RegistrationPageThree : Fragment() {
         }else{
             Toast.makeText(activity,"Registration Unsuccessful. ${result.getOrNull()?.error}",
                 Toast.LENGTH_LONG).show()
+            Log.e("RegistrationPageThree","Error response: ${result.getOrNull()}")
         }
+    }
+
+    private fun getResizedDrawables(): List<Drawable> {
+        val resizedDrawables = mutableListOf<Drawable>()
+
+        for (imageId in imageList) {
+            val drawable = ContextCompat.getDrawable(requireContext(), imageId)
+            val resizedDrawable = resizeDrawable(drawable)
+            resizedDrawables.add(resizedDrawable)
+        }
+
+        return resizedDrawables
+    }
+
+    private fun resizeDrawable(drawable: Drawable?): Drawable {
+        if (drawable == null) return drawable!!
+
+        val bitmap = (drawable as BitmapDrawable).bitmap
+
+        val newWidth = bitmap.width * 3
+        val newHeight = bitmap.height * 3
+
+        val resizedBitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
+        return BitmapDrawable(resources, resizedBitmap)
     }
 
     private inner class ImagePagerAdapter(private val images: List<Drawable?>) :
@@ -119,7 +143,7 @@ class RegistrationPageThree : Fragment() {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
-            imageView.scaleType = ImageView.ScaleType.FIT_CENTER
+            imageView.scaleType = ImageView.ScaleType.CENTER_INSIDE
             return ImageViewHolder(imageView)
         }
 

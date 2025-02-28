@@ -125,12 +125,12 @@
             </LinearLayout>
         </RelativeLayout>
 
-<!--        <RelativeLayout-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginTop="@dimen/bottom_sheet_default_row_margin"-->
-<!--            android:gravity="center"-->
-<!--            android:orientation="horizontal">-->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/bottom_sheet_default_row_margin"
+            android:gravity="center"
+            android:orientation="horizontal">
 
 <!--            <TextView-->
 <!--                android:layout_width="wrap_content"-->
@@ -140,12 +140,33 @@
 <!--                android:textColor="@color/bottom_sheet_text_color"-->
 <!--                android:textSize="@dimen/bottom_sheet_text_size" />-->
 
-<!--            <LinearLayout-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_alignParentRight="true"-->
-<!--                android:gravity="center_vertical"-->
-<!--                android:orientation="horizontal">-->
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/exercise_stop_button"
+                    android:layout_width="0dp"
+                    android:layout_height="60sp"
+                    android:layout_weight="1"
+                    android:layout_margin="8dp"
+                    android:src="@drawable/stop_button_foreground"
+                    android:background="@drawable/circular_background"
+                    android:scaleType="centerInside" />
+
+                <ImageButton
+                    android:id="@+id/exercise_pause_and_play_button"
+                    android:layout_width="0dp"
+                    android:layout_height="60sp"
+                    android:layout_weight="1"
+                    android:layout_margin="8dp"
+                    android:src="@drawable/pause_button_foreground"
+                    android:background="@drawable/circular_background"
+                    android:scaleType="centerInside" />
 
 <!--                <androidx.appcompat.widget.AppCompatImageButton-->
 <!--                    android:id="@+id/right_resistance_minus"-->
@@ -171,8 +192,8 @@
 <!--                    android:layout_height="@dimen/bottom_sheet_control_btn_size"-->
 <!--                    android:contentDescription="@string/alt_bottom_sheet_threshold_button_plus"-->
 <!--                    android:src="@drawable/ic_plus" />-->
-<!--            </LinearLayout>-->
-<!--        </RelativeLayout>-->
+            </LinearLayout>
+        </RelativeLayout>
 
 <!--        <RelativeLayout-->
 <!--            android:layout_width="match_parent"-->
