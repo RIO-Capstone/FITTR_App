@@ -39,8 +39,10 @@ import android.widget.EditText
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
 import com.example.fittr_app.ui.auth.AuthActivity
+import com.example.fittr_app.utils.TextToSpeechHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.withContext
 
 interface BluetoothReadCallback {
@@ -61,6 +63,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
     private lateinit var productData: ProductData
     private var isBluetoothConnected = false
     private val exerciseReps: MutableMap<Exercise, Int> = mutableMapOf()
+    private lateinit var textToSpeech:TextToSpeechHelper
 
     override fun onError(message: String) {
         Log.e(TAG,"Bluetooth error : $message")
@@ -89,7 +92,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         DashboardBinding = ActivityDashboardBinding.inflate(layoutInflater)
         setContentView(DashboardBinding.root)
         api_client = ApiClient()
-
+        textToSpeech = TextToSpeechHelper.initialize(this) // Singleton object initialization
         if(intent.hasExtra("user_id")){ // getting the user_id from the login session
             val user_id = intent.getIntExtra("user_id",0)
             lifecycleScope.launch {
@@ -138,7 +141,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
                 getAIExercisePlan()
                 loadingComponent.visibility = View.GONE
                 aiExercisePlanButton.visibility = View.VISIBLE
-            }
+            }.invokeOnCompletion { updateUIWithExerciseReps() }
         }
 
         val aiLayout = findViewById<View>(R.id.ai_layout)
@@ -156,6 +159,9 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
 
     // Function responsible for starting the Exercise Session from the dashboard
     private fun navigateToMain(selectedExercise:Exercise){
+        if(::textToSpeech.isInitialized){
+            textToSpeech.speak("Start")
+        }
         if(isBluetoothConnected){
             val intent = Intent(this, MainActivity::class.java)
             intent.putExtra("selectedExercise", selectedExercise)
@@ -232,12 +238,12 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
                 return
             }
             Log.i(TAG, "Exercise Plan: $exercisePlan")
-            val planMap = exercisePlan.feedback_message
-            for(plan in planMap) {
-                triggerLayoutAnimation(plan.key)
-                exerciseReps[plan.key] = plan.value ?: 0
+            val animationJobs = exercisePlan.feedback_message.map { (exercise:Exercise, reps:Int?) ->
+                exerciseReps[exercise] = reps ?: 0 // Store reps immediately
+                lifecycleScope.launch { triggerLayoutAnimation(exercise) } // Launch animation
             }
-            updateUIWithExerciseReps()
+
+            animationJobs.joinAll()
         }.onFailure { exception ->
             Log.e(TAG, "Exception to load AI exercise plan: ${exception}")
         }
@@ -388,17 +394,15 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         })
     }
 
-    private fun triggerLayoutAnimation(exercise: Exercise) {
+    private suspend fun triggerLayoutAnimation(exercise: Exercise) {
         val frameLayout = when (exercise) {
             Exercise.SQUATS -> findViewById<FrameLayout>(R.id.dashboard_squats_frame)
             Exercise.RIGHT_BICEP_CURLS -> findViewById<FrameLayout>(R.id.dashboard_bicep_curl_right_frame)
             Exercise.LEFT_BICEP_CURLS -> findViewById<FrameLayout>(R.id.dashboard_bicep_curl_left_frame)
             else -> return // no animation required
         }
-        if(frameLayout != null){
-            lifecycleScope.launch {
-                animateBackgroundChange(frameLayout)
-            }
+        withContext(Dispatchers.Main) {
+            animateBackgroundChange(frameLayout) // Ensures this animation completes before proceeding
         }
     }
 
