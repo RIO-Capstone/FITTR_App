@@ -1,10 +1,17 @@
 package com.example.fittr_app
 
+import android.animation.Animator
+import android.animation.ArgbEvaluator
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.Looper
@@ -27,9 +34,14 @@ import kotlinx.coroutines.launch
 import android.os.Handler
 import android.text.InputFilter
 import android.text.TextWatcher
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.EditText
+import android.widget.FrameLayout
+import androidx.core.content.ContextCompat
 import com.example.fittr_app.ui.auth.AuthActivity
-import java.io.Serializable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 
 interface BluetoothReadCallback {
     fun onValueRead(value: String){}
@@ -78,7 +90,6 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             lifecycleScope.launch {
                 getUserInformation(user_id)
                 //getFITTRAIinformation(user_id)
-                getUserHistory()
                 getProductData(user.product_id)
             }
         }
@@ -93,25 +104,36 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         squatStartButton.setOnClickListener{
             navigateToMain(Exercise.SQUATS)
         }
-        applyPositiveIntegerFilter(squatExerciseRep,Exercise.SQUATS)
+        applyIntegerFilterAndTypeMapping(squatExerciseRep,Exercise.SQUATS)
 
         val rightBicepCurlStartButton = findViewById<View>(R.id.dashboard_exercises_bicep_curl_right)
         val rightBicepCurlExerciseRep: EditText = findViewById(R.id.right_bicep_curl_exercise_rep)
         rightBicepCurlStartButton.setOnClickListener {
             navigateToMain(Exercise.RIGHT_BICEP_CURLS)
         }
-        applyPositiveIntegerFilter(rightBicepCurlExerciseRep,Exercise.RIGHT_BICEP_CURLS)
+        applyIntegerFilterAndTypeMapping(rightBicepCurlExerciseRep,Exercise.RIGHT_BICEP_CURLS)
 
         val leftBicepCurlStartButton = findViewById<View>(R.id.dashboard_exercises_bicep_curl_left)
         val leftBicepCurlExerciseRep: EditText = findViewById(R.id.left_bicep_curl_exercise_rep)
         leftBicepCurlStartButton.setOnClickListener{
             navigateToMain(Exercise.LEFT_BICEP_CURLS)
         }
-        applyPositiveIntegerFilter(leftBicepCurlExerciseRep,Exercise.LEFT_BICEP_CURLS)
+        applyIntegerFilterAndTypeMapping(leftBicepCurlExerciseRep,Exercise.LEFT_BICEP_CURLS)
 
         val bluetoothButton = findViewById<ImageButton>(R.id.dashboard_bluetooth_status_button)
         bluetoothButton.setOnClickListener{
             checkBluetoothConnection()
+        }
+        val aiExercisePlanButton = findViewById<View>(R.id.dashboard_ai_button)
+        val loadingComponent = findViewById<View>(R.id.dashboard_loading_progress)
+        aiExercisePlanButton.setOnClickListener{
+            aiExercisePlanButton.visibility = View.GONE
+            loadingComponent.visibility = View.VISIBLE
+            lifecycleScope.launch {
+                getAIExercisePlan()
+                loadingComponent.visibility = View.GONE
+                aiExercisePlanButton.visibility = View.VISIBLE
+            }
         }
 
         val aiLayout = findViewById<View>(R.id.ai_layout)
@@ -198,7 +220,30 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         }
     }
 
+    suspend fun getAIExercisePlan(){
+        val result = api_client.getUserAIExercisePlan(userId = user.user_id)
+        result.onSuccess { exercisePlan ->
+            if(!exercisePlan.error.isNullOrEmpty()){
+                Log.e("DashboardActivity","Error from backend failing to load AI exercise plan: ${exercisePlan.error}")
+                return
+            }
+            Log.i("DashboardActivity", "Exercise Plan: $exercisePlan")
+            val planMap = exercisePlan.feedback_message
+            for(plan in planMap) {
+                triggerLayoutAnimation(plan.key)
+                exerciseReps[plan.key] = plan.value ?: 0
+            }
+            updateUIWithExerciseReps()
+        }.onFailure { exception ->
+            Log.e("DashboardActivity", "Exception to load AI exercise plan: ${exception}")
+        }
+    }
 
+    private fun updateUIWithExerciseReps() {
+        exerciseReps[Exercise.SQUATS]?.let { this.findViewById<EditText>(R.id.squat_exercise_rep).setText(it.toString()) }
+        exerciseReps[Exercise.RIGHT_BICEP_CURLS]?.let { this.findViewById<EditText>(R.id.right_bicep_curl_exercise_rep).setText(it.toString()) }
+        exerciseReps[Exercise.LEFT_BICEP_CURLS]?.let { this.findViewById<EditText>(R.id.left_bicep_curl_exercise_rep).setText(it.toString()) }
+    }
 
     private var aiAnimationHandler: Handler? = null
     private var aiAnimationRunnable: Runnable? = null
@@ -242,36 +287,6 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         }
     }
 
-    private suspend fun getUserHistory(){
-        try {
-            if (!::user.isInitialized) {
-                Log.e("DashboardActivity", "User not initialised when calling get history")
-                return
-            }
-            val response = api_client.getUserHistory(ApiPaths.GetUserHistory(user.user_id),null)
-            if(response.isSuccess){
-                Log.i("DashboardActivity","User history retrieved successfully")
-                val history = response.getOrNull()?.session_data // history will have max length of 5 from backend
-                val streak = response.getOrNull()?.streak
-                val barEntries = ArrayList<BarEntry>()
-                if(history.isNullOrEmpty()){
-                    return
-                }
-                history.forEachIndexed{index,session->
-                    val duration = session.duration.toFloat() // y-axis value in minutes
-                    val date = session.date // x-axis value (e.g., "4th July")
-
-                    // Map the date to the x-axis (index-based for simplicity)
-                    barEntries.add(BarEntry(index.toFloat(), duration))
-                }
-
-            }
-        }catch (e:Exception){
-            Log.e("DashboardActivity","Error getting user history: $e")
-            e.printStackTrace()
-        }
-    }
-
     private suspend fun getProductData(productId:Int){
         if (!::user.isInitialized) {
             Log.e("DashboardActivity", "User not initialised when calling get product")
@@ -289,19 +304,6 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         }
     }
 
-    private fun styliseButton(btn:ImageButton){
-        val gradientDrawable = GradientDrawable(
-            GradientDrawable.Orientation.LEFT_RIGHT, // Direction of the gradient
-            intArrayOf(0xFFE91E63.toInt(), 0xFFFFC107.toInt()) // Colors (Pink to Yellow)
-        )
-        gradientDrawable.cornerRadius = 1000f // Optional: Rounded corners
-        btn.background = gradientDrawable
-        val size = resources.getDimensionPixelSize(R.dimen.round_button_medium) // e.g., 48dp or any value you prefer
-        val layoutParams = btn.layoutParams
-        layoutParams.width = size
-        layoutParams.height = size
-        btn.layoutParams = layoutParams
-    }
     private fun checkBluetoothConnection(): Boolean {
         // Check if the app has the BLUETOOTH_CONNECT permission (required for Android 12+)
         Log.d("DashboardActivity", "Checking Bluetooth connection")
@@ -349,7 +351,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         return false
     }
 
-    private fun applyPositiveIntegerFilter(editText: EditText, exercise: Exercise) {
+    private fun applyIntegerFilterAndTypeMapping(editText: EditText, exercise: Exercise) {
         editText.filters = arrayOf(InputFilter { source, start, end, dest, dstart, dend ->
             for (i in start until end) {
                 if (!Character.isDigit(source[i])) {
@@ -381,4 +383,88 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             }
         })
     }
+
+    private fun triggerLayoutAnimation(exercise: Exercise) {
+        val frameLayout = when (exercise) {
+            Exercise.SQUATS -> findViewById<FrameLayout>(R.id.dashboard_squats_frame)
+            Exercise.RIGHT_BICEP_CURLS -> findViewById<FrameLayout>(R.id.dashboard_bicep_curl_right_frame)
+            Exercise.LEFT_BICEP_CURLS -> findViewById<FrameLayout>(R.id.dashboard_bicep_curl_left_frame)
+            else -> return // no animation required
+        }
+        if(frameLayout != null){
+            lifecycleScope.launch {
+                animateBackgroundChange(frameLayout)
+            }
+        }
+    }
+
+    private suspend fun animateBackgroundChange(frameLayout: FrameLayout) {
+        withContext(Dispatchers.Main) {
+            val startColor = Color.parseColor("#8C52FD") // Purple
+            val endColor = Color.parseColor("#FFFFFF")   // White
+
+            // Create a GradientDrawable with the same rounded corners
+            val originalDrawable = ContextCompat.getDrawable(this@DashboardActivity, R.drawable.rounded_white_view) as GradientDrawable
+            val cornerRadius = originalDrawable.cornerRadius
+
+            val gradientDrawable = GradientDrawable(
+                GradientDrawable.Orientation.BL_TR,
+                intArrayOf(startColor, endColor)
+            )
+            gradientDrawable.cornerRadius = cornerRadius
+
+            frameLayout.background = gradientDrawable
+
+            // Create a ValueAnimator for gradient transition
+            val animator = ValueAnimator.ofFloat(0f, 1f)
+            animator.duration = 1000
+            animator.interpolator = AccelerateDecelerateInterpolator()
+
+            animator.addUpdateListener { animation ->
+                val progress = animation.animatedFraction
+                val newStartColor = blendColors(startColor, endColor, progress)
+                val newEndColor = blendColors(endColor, startColor, progress)
+
+                gradientDrawable.colors = intArrayOf(newStartColor, newEndColor)
+                frameLayout.background = gradientDrawable
+            }
+
+            animator.start()
+
+            // Wait before transitioning back
+            delay(1500)
+
+            // Start fade-out animation to transition back to rounded_white_view
+            val fadeOutAnimator = ObjectAnimator.ofFloat(frameLayout, "alpha", 1f, 0f)
+            fadeOutAnimator.duration = 500
+            fadeOutAnimator.interpolator = AccelerateDecelerateInterpolator()
+            fadeOutAnimator.addListener(object : Animator.AnimatorListener {
+                override fun onAnimationEnd(animation: Animator) {
+                    // Reset the background when fade-out completes
+                    frameLayout.setBackgroundResource(R.drawable.rounded_white_view)
+
+                    // Start fade-in animation
+                    val fadeInAnimator = ObjectAnimator.ofFloat(frameLayout, "alpha", 0f, 1f)
+                    fadeInAnimator.duration = 500
+                    fadeInAnimator.interpolator = AccelerateDecelerateInterpolator()
+                    fadeInAnimator.start()
+                }
+                override fun onAnimationStart(animation: Animator) {}
+                override fun onAnimationCancel(animation: Animator) {}
+                override fun onAnimationRepeat(animation: Animator) {}
+            })
+
+            fadeOutAnimator.start()
+        }
+    }
+
+    private fun blendColors(color1: Int, color2: Int, ratio: Float): Int {
+        val inverseRatio = 1f - ratio
+        val r = (Color.red(color1) * inverseRatio + Color.red(color2) * ratio).toInt()
+        val g = (Color.green(color1) * inverseRatio + Color.green(color2) * ratio).toInt()
+        val b = (Color.blue(color1) * inverseRatio + Color.blue(color2) * ratio).toInt()
+        return Color.rgb(r, g, b)
+    }
+
+
 }
