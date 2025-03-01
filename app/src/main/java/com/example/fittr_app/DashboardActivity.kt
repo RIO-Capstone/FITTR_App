@@ -25,7 +25,11 @@ import com.example.fittr_app.types.User
 import com.github.mikephil.charting.data.BarEntry
 import kotlinx.coroutines.launch
 import android.os.Handler
+import android.text.InputFilter
+import android.text.TextWatcher
+import android.widget.EditText
 import com.example.fittr_app.ui.auth.AuthActivity
+import java.io.Serializable
 
 interface BluetoothReadCallback {
     fun onValueRead(value: String){}
@@ -39,6 +43,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
     private lateinit var user: User
     private lateinit var productData: ProductData
     private var isBluetoothConnected = false
+    private val exerciseReps: MutableMap<Exercise, Int> = mutableMapOf()
 
     override fun onError(message: String) {
         Log.e("DashboardActivity","Bluetooth error : $message")
@@ -72,7 +77,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             val user_id = intent.getIntExtra("user_id",0)
             lifecycleScope.launch {
                 getUserInformation(user_id)
-                getFITTRAIinformation(user_id)
+                //getFITTRAIinformation(user_id)
                 getUserHistory()
                 getProductData(user.product_id)
             }
@@ -84,18 +89,25 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             startActivity(authIntent)
         }
         val squatStartButton = findViewById<View>(R.id.dashboard_exercise_squats)
+        val squatExerciseRep: EditText = findViewById(R.id.squat_exercise_rep)
         squatStartButton.setOnClickListener{
             navigateToMain(Exercise.SQUATS)
         }
+        applyPositiveIntegerFilter(squatExerciseRep,Exercise.SQUATS)
+
         val rightBicepCurlStartButton = findViewById<View>(R.id.dashboard_exercises_bicep_curl_right)
+        val rightBicepCurlExerciseRep: EditText = findViewById(R.id.right_bicep_curl_exercise_rep)
         rightBicepCurlStartButton.setOnClickListener {
             navigateToMain(Exercise.RIGHT_BICEP_CURLS)
         }
+        applyPositiveIntegerFilter(rightBicepCurlExerciseRep,Exercise.RIGHT_BICEP_CURLS)
 
         val leftBicepCurlStartButton = findViewById<View>(R.id.dashboard_exercises_bicep_curl_left)
+        val leftBicepCurlExerciseRep: EditText = findViewById(R.id.left_bicep_curl_exercise_rep)
         leftBicepCurlStartButton.setOnClickListener{
             navigateToMain(Exercise.LEFT_BICEP_CURLS)
         }
+        applyPositiveIntegerFilter(leftBicepCurlExerciseRep,Exercise.LEFT_BICEP_CURLS)
 
         val bluetoothButton = findViewById<ImageButton>(R.id.dashboard_bluetooth_status_button)
         bluetoothButton.setOnClickListener{
@@ -117,40 +129,28 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
 
     // Function responsible for starting the Exercise Session from the dashboard
     private fun navigateToMain(selectedExercise:Exercise){
-        if(isBluetoothConnected){
-            val intent = Intent(this, MainActivity::class.java)
-            intent.putExtra("selectedExercise", selectedExercise)
-            intent.putExtra("deviceServiceUUID",productData.service_uuid)
-            intent.putExtra("deviceStopUUID",productData.stop_uuid)
-            intent.putExtra("leftResistanceUUID",productData.left_resistance_uuid)
-            intent.putExtra("rightResistanceUUID",productData.right_resistance_uuid)
-            intent.putExtra("exercise_initialize_uuid",productData.exercise_initialize_uuid)
-            intent.putExtra("user_id",user.user_id)
-            intent.putExtra("product_id",user.product_id)
-            BluetoothHelper.queueWriteOperation(
-                message = "true",
-                characteristicUUID = productData.exercise_initialize_uuid,
-                callback = this)
-            startActivity(intent)
-        } else {
-            Toast.makeText(this,"Establish Bluetooth connection first",Toast.LENGTH_LONG).show()
-            Log.e("DashboardActivity", "Bluetooth connection not established")
-        }
+        val intent = Intent(this, MainActivity::class.java)
+        intent.putExtra("selectedExercise", selectedExercise)
+        intent.putExtra("deviceServiceUUID",productData.service_uuid)
+        intent.putExtra("deviceStopUUID",productData.stop_uuid)
+        intent.putExtra("leftResistanceUUID",productData.left_resistance_uuid)
+        intent.putExtra("rightResistanceUUID",productData.right_resistance_uuid)
+        intent.putExtra("exercise_initialize_uuid",productData.exercise_initialize_uuid)
+        intent.putExtra("user_id",user.user_id)
+        intent.putExtra("product_id",user.product_id)
+        intent.putExtra("total_session_reps", exerciseReps[selectedExercise])
+//        BluetoothHelper.queueWriteOperation(
+//            message = "true",
+//            characteristicUUID = productData.exercise_initialize_uuid,
+//            callback = this)
+        startActivity(intent)
+//        if(isBluetoothConnected){
+//
+//        } else {
+//            Toast.makeText(this,"Establish Bluetooth connection first",Toast.LENGTH_LONG).show()
+//            Log.e("DashboardActivity", "Bluetooth connection not established")
+//        }
     }
-
-    data class Feedback(
-        val summary_advice: String,
-        val summary_analysis: String,
-        val future_advice: String,
-        val form_score: Int,
-        val stability_score: Int,
-        val range_of_motion_score: Int
-    )
-
-    data class ApiResponse(
-        val user_id: Int,
-        val feedback: Feedback
-    )
 
     private suspend fun getFITTRAIinformation(user_id: Int) {
         val aiMessageTextView: TextView = findViewById(R.id.ai_message)
@@ -166,11 +166,11 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         result.onSuccess { aiReply ->
             // Stop the strobing animation and set the solid text
 
-            stopEllipsisAnimation(aiMessageTextView, aiReply.feedback_message?.summary_analysis!!)
+            stopEllipsisAnimation(aiMessageTextView, aiReply.feedback_message.summary_analysis)
 
             aiMessageTextView.alpha = 1f // Ensure it's fully visible before setting text
             aiMessageTextView.setTextColor(android.graphics.Color.parseColor("#8C52FD")) // Set text color to purple
-            aiMessageTextView.text = aiReply.feedback_message.summary_analysis!!.substring(1)
+            aiMessageTextView.text = aiReply.feedback_message.summary_analysis.substring(1)
 
             form_score = aiReply.feedback_message.form_score.toInt()
             stability_score = aiReply.feedback_message.stability_score.toInt()
@@ -349,4 +349,36 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         return false
     }
 
+    private fun applyPositiveIntegerFilter(editText: EditText, exercise: Exercise) {
+        editText.filters = arrayOf(InputFilter { source, start, end, dest, dstart, dend ->
+            for (i in start until end) {
+                if (!Character.isDigit(source[i])) {
+                    Toast.makeText(this, "Only whole numbers are allowed.", Toast.LENGTH_SHORT).show()
+                    return@InputFilter ""
+                }
+            }
+            null
+        })
+        editText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: android.text.Editable?) {
+                val input = s.toString()
+                if (input.isNotEmpty()) {
+                    val value = input.toInt()
+                    if (value > 0) {
+                        exerciseReps[exercise] = value
+                    } else {
+                        editText.setText("")
+                        exerciseReps.remove(exercise) // remove the exercise if value is not > 0
+                        Toast.makeText(this@DashboardActivity, "Value must be greater than 0.", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    exerciseReps.remove(exercise) // remove the exercise if input is empty
+                }
+            }
+        })
+    }
 }

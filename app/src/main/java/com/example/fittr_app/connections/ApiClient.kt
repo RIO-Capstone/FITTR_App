@@ -1,6 +1,7 @@
 package com.example.fittr_app.connections
 
 import android.util.Log
+import com.example.fittr_app.types.AIExercisePlan
 import java.util.concurrent.TimeUnit
 
 import com.example.fittr_app.types.AIReply
@@ -62,6 +63,10 @@ class ApiClient {
 
     suspend fun getUserExerciseSessionFeedback(data: Any): Result<AISessionReply>{
         return makeApiRequest<AISessionReply>(ApiPaths.ExerciseSessionFeedback,data)
+    }
+
+    suspend fun getUserAIExercisePlan(userId: Int) : Result<AIExercisePlan>{
+        return makeApiRequest<AIExercisePlan>(ApiPaths.GetUserExercisePlan(userId))
     }
 
     private suspend inline fun <reified T> makeApiRequest(

@@ -51,6 +51,11 @@ data class AISessionReply(
     val error: String?
 )
 
+data class AIExercisePlan(
+    val feedback_message : Map<Exercise,Int?>,
+    val error: String?
+)
+
 data class Feedback(
     val summary_advice: String,
     val summary_analysis: String,
