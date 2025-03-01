@@ -50,6 +50,11 @@ interface BluetoothReadCallback {
 }
 
 class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
+
+    companion object {
+       private const val TAG = "DashboardActivity"
+    }
+
     private lateinit var DashboardBinding : ActivityDashboardBinding
     private lateinit var api_client : ApiClient
     private lateinit var user: User
@@ -58,7 +63,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
     private val exerciseReps: MutableMap<Exercise, Int> = mutableMapOf()
 
     override fun onError(message: String) {
-        Log.e("DashboardActivity","Bluetooth error : $message")
+        Log.e(TAG,"Bluetooth error : $message")
         Toast.makeText(this,"Unstable bluetooth connection",Toast.LENGTH_LONG).show()
         this.onResume()
     }
@@ -89,7 +94,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             val user_id = intent.getIntExtra("user_id",0)
             lifecycleScope.launch {
                 getUserInformation(user_id)
-                //getFITTRAIinformation(user_id)
+                getFITTRAIinformation(user_id)
                 getProductData(user.product_id)
             }
         }
@@ -151,32 +156,31 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
 
     // Function responsible for starting the Exercise Session from the dashboard
     private fun navigateToMain(selectedExercise:Exercise){
-        val intent = Intent(this, MainActivity::class.java)
-        intent.putExtra("selectedExercise", selectedExercise)
-        intent.putExtra("deviceServiceUUID",productData.service_uuid)
-        intent.putExtra("deviceStopUUID",productData.stop_uuid)
-        intent.putExtra("leftResistanceUUID",productData.left_resistance_uuid)
-        intent.putExtra("rightResistanceUUID",productData.right_resistance_uuid)
-        intent.putExtra("exercise_initialize_uuid",productData.exercise_initialize_uuid)
-        intent.putExtra("user_id",user.user_id)
-        intent.putExtra("product_id",user.product_id)
-        intent.putExtra("total_session_reps", exerciseReps[selectedExercise])
-//        BluetoothHelper.queueWriteOperation(
-//            message = "true",
-//            characteristicUUID = productData.exercise_initialize_uuid,
-//            callback = this)
-        startActivity(intent)
-//        if(isBluetoothConnected){
-//
-//        } else {
-//            Toast.makeText(this,"Establish Bluetooth connection first",Toast.LENGTH_LONG).show()
-//            Log.e("DashboardActivity", "Bluetooth connection not established")
-//        }
+        if(isBluetoothConnected){
+            val intent = Intent(this, MainActivity::class.java)
+            intent.putExtra("selectedExercise", selectedExercise)
+            intent.putExtra("deviceServiceUUID",productData.service_uuid)
+            intent.putExtra("deviceStopUUID",productData.stop_uuid)
+            intent.putExtra("leftResistanceUUID",productData.left_resistance_uuid)
+            intent.putExtra("rightResistanceUUID",productData.right_resistance_uuid)
+            intent.putExtra("exercise_initialize_uuid",productData.exercise_initialize_uuid)
+            intent.putExtra("user_id",user.user_id)
+            intent.putExtra("product_id",user.product_id)
+            intent.putExtra("total_session_reps", exerciseReps[selectedExercise])
+            BluetoothHelper.queueWriteOperation(
+            message = "true",
+            characteristicUUID = productData.exercise_initialize_uuid,
+            callback = this)
+            startActivity(intent)
+        } else {
+            Toast.makeText(this,"Establish Bluetooth connection first",Toast.LENGTH_LONG).show()
+            Log.e(TAG, "Bluetooth connection not established")
+        }
     }
 
     private suspend fun getFITTRAIinformation(user_id: Int) {
         val aiMessageTextView: TextView = findViewById(R.id.ai_message)
-        Log.i("DashboardActivity", "Getting FITTR AI information")
+        Log.i(TAG, "Getting FITTR AI information")
 
         // Start the strobing effect on the TextView
         startEllipsisAnimation(aiMessageTextView)
@@ -201,9 +205,9 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             summary_analysis = aiReply.feedback_message.summary_analysis
             future_advice = aiReply.feedback_message.future_advice
 
-            Log.i("DashboardActivity", "Form Score: $form_score")
-            Log.i("DashboardActivity", "Stability Score: $stability_score")
-            Log.i("DashboardActivity", "Range of Motion Score: $range_of_motion_score")
+            Log.i(TAG, "Form Score: $form_score")
+            Log.i(TAG, "Stability Score: $stability_score")
+            Log.i(TAG, "Range of Motion Score: $range_of_motion_score")
 
 
             // Make sure the TextView is fully visible after animation ends
@@ -224,10 +228,10 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         val result = api_client.getUserAIExercisePlan(userId = user.user_id)
         result.onSuccess { exercisePlan ->
             if(!exercisePlan.error.isNullOrEmpty()){
-                Log.e("DashboardActivity","Error from backend failing to load AI exercise plan: ${exercisePlan.error}")
+                Log.e(TAG,"Error from backend failing to load AI exercise plan: ${exercisePlan.error}")
                 return
             }
-            Log.i("DashboardActivity", "Exercise Plan: $exercisePlan")
+            Log.i(TAG, "Exercise Plan: $exercisePlan")
             val planMap = exercisePlan.feedback_message
             for(plan in planMap) {
                 triggerLayoutAnimation(plan.key)
@@ -235,7 +239,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             }
             updateUIWithExerciseReps()
         }.onFailure { exception ->
-            Log.e("DashboardActivity", "Exception to load AI exercise plan: ${exception}")
+            Log.e(TAG, "Exception to load AI exercise plan: ${exception}")
         }
     }
 
@@ -274,7 +278,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         try {
             val response = api_client.getUser(ApiPaths.GetUser(userId),null)
             if(response.isSuccess){
-                Log.i("DashboardActivity","User information retrieved successfully")
+                Log.i(TAG,"User information retrieved successfully")
                 user = response.getOrNull()?.user!!
                 runOnUiThread {
                     DashboardBinding.dashboardUserNameText.text =
@@ -283,13 +287,13 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
                 }
             }
         }catch (e:Exception){
-            Log.e("DashboardActivity","Error getting user information: $e")
+            Log.e(TAG,"Error getting user information: $e")
         }
     }
 
     private suspend fun getProductData(productId:Int){
         if (!::user.isInitialized) {
-            Log.e("DashboardActivity", "User not initialised when calling get product")
+            Log.e(TAG, "User not initialised when calling get product")
             return
         }
         try{
@@ -297,16 +301,16 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             if(response.isSuccess){
                 productData = response.getOrNull()!!
             }else{
-                Log.e("DashboardActivity","Error getting product data: ${response.getOrNull()?.message}")
+                Log.e(TAG,"Error getting product data: ${response.getOrNull()?.message}")
             }
         }catch (e:Exception) {
-            Log.e("DashboardActivity", "Error getting product data: $e")
+            Log.e(TAG, "Error getting product data: $e")
         }
     }
 
     private fun checkBluetoothConnection(): Boolean {
         // Check if the app has the BLUETOOTH_CONNECT permission (required for Android 12+)
-        Log.d("DashboardActivity", "Checking Bluetooth connection")
+        Log.d(TAG, "Checking Bluetooth connection")
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
             if (checkSelfPermission(android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                 // Request the permission if it hasn't been granted
