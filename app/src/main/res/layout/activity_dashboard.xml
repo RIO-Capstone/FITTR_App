@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -164,9 +170,9 @@
         app:layout_constraintTop_toBottomOf="@id/dashboard_progress_layout">
         <!-- Left Card -->
         <FrameLayout
-            android:id="@+id/dashboard_exercise_squats"
+            android:id="@+id/dashboard_squats_frame"
             android:layout_width="170dp"
-            android:layout_height="149dp"
+            android:layout_height="150dp"
             android:layout_marginEnd="15dp"
             android:background="@drawable/rounded_white_view"
             android:elevation="1dp"
@@ -175,12 +181,15 @@
             app:layout_constraintHorizontal_bias="0.112"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.415">
+            app:layout_constraintVertical_bias="0.415"
+            >
 
             <ImageView
+                android:id="@+id/dashboard_exercise_squats"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_marginBottom="5dp"
                 android:src="@drawable/icons8_squat_64" />
 
             <!-- TextView positioned at the top-center -->
@@ -194,16 +203,33 @@
 
                 android:textColor="@android:color/black"
                 android:textSize="15sp" />
+
+            <EditText
+                android:id="@+id/squat_exercise_rep"
+                android:layout_width="60dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="52dp"
+                android:autofillHints="0"
+                android:hint="0"
+                android:inputType="number"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:textAlignment="center"
+                android:textColor="@android:color/black"
+                android:textColorHint="@android:color/darker_gray"
+                android:textSize="10sp"
+                android:imeOptions="actionDone"
+                />
         </FrameLayout>
 
 
         <!-- Right Card -->
         <FrameLayout
-            android:id="@+id/dashboard_exercises_bicep_curl_right"
+            android:id="@+id/dashboard_bicep_curl_right_frame"
             android:layout_width="170dp"
-            android:layout_height="149dp"
+            android:layout_height="150dp"
             android:background="@drawable/rounded_white_view"
-            android:contentDescription="exercise selection"
             android:elevation="1dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -211,6 +237,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
+                android:id="@+id/dashboard_exercises_bicep_curl_right"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -225,6 +252,24 @@
                 android:text="Right Bicep Curls"
                 android:textColor="@android:color/black"
                 android:textSize="15sp" />
+
+            <EditText
+                android:id="@+id/right_bicep_curl_exercise_rep"
+                android:layout_width="60dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="52dp"
+                android:autofillHints="0"
+                android:hint="0"
+                android:inputType="number"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:textAlignment="center"
+                android:textColor="@android:color/black"
+                android:textColorHint="@android:color/darker_gray"
+                android:imeOptions="actionDone"
+                android:textSize="10sp" />
+
         </FrameLayout>
 
     </LinearLayout>
@@ -242,9 +287,9 @@
         app:layout_constraintTop_toBottomOf="@id/top_dashboard_recycle_view_container">
         <!-- Left Card -->
         <FrameLayout
-            android:id="@+id/dashboard_exercises_bicep_curl_left"
+            android:id="@+id/dashboard_bicep_curl_left_frame"
             android:layout_width="170dp"
-            android:layout_height="149dp"
+            android:layout_height="150dp"
             android:layout_marginEnd="15dp"
             android:background="@drawable/rounded_white_view"
             android:elevation="1dp"
@@ -256,6 +301,7 @@
             app:layout_constraintVertical_bias="0.415">
 
             <ImageView
+                android:id="@+id/dashboard_exercises_bicep_curl_left"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -270,16 +316,32 @@
                 android:layout_marginTop="12dp"
                 android:fontFamily="@font/poppins_bold"
                 android:text="Left Bicep Curls"
-
                 android:textColor="@android:color/black"
                 android:textSize="15sp" />
+
+            <EditText
+                android:id="@+id/left_bicep_curl_exercise_rep"
+                android:layout_width="60dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="52dp"
+                android:autofillHints="0"
+                android:hint="0"
+                android:inputType="number"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:textAlignment="center"
+                android:textColor="@android:color/black"
+                android:textColorHint="@android:color/darker_gray"
+                android:imeOptions="actionDone"
+                android:textSize="10sp" />
         </FrameLayout>
 
         <!-- Right Card -->
         <FrameLayout
             android:id="@+id/dashboard_exercise_tricep_extensions"
             android:layout_width="170dp"
-            android:layout_height="149dp"
+            android:layout_height="150dp"
             android:background="@drawable/rounded_white_view"
             android:contentDescription="exercise selection"
             android:elevation="1dp"
@@ -301,11 +363,50 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="12dp"
                 android:fontFamily="@font/poppins_bold"
-                android:text="Tricep extensions"
+                android:text="Coming Soon"
                 android:textColor="@android:color/black"
                 android:textSize="15sp" />
         </FrameLayout>
 
     </LinearLayout>
 
+    <!-- AI Exercise plan text -->
+    <TextView
+        android:id="@+id/dashboard_ai_button_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins_bold"
+        android:text="Generate AI Exercise Plan"
+        app:layout_constraintTop_toBottomOf="@id/bottom_dashboard_recycle_view_container"
+        app:layout_constraintBottom_toTopOf="@+id/dashboard_ai_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+
+    <ImageButton
+        android:id="@+id/dashboard_ai_button"
+        android:layout_width="66dp"
+        android:layout_height="66dp"
+        android:background="@drawable/circular_background"
+        android:contentDescription="Generate rep count values"
+        android:elevation="1dp"
+        android:scaleType="centerInside"
+        android:src="@mipmap/ai_icon_foreground"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dashboard_ai_button_text" />
+
+    <ProgressBar
+        android:id="@+id/dashboard_loading_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:layout_marginTop="10dp"
+        app:layout_constraintTop_toBottomOf="@id/dashboard_ai_button_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

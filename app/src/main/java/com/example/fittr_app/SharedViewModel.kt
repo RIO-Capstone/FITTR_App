@@ -31,6 +31,7 @@ class SharedViewModel : ViewModel() {
     private var countDownTimer: CountDownTimer? = null
     private var isTimerRunning = false
     private var startTimeMillis: Long = 0L
+    private var _totalRepCount: Int = 0;
 
     val isCalibrating: LiveData<Boolean> get() = _isCalibrating
     val selectedExercise: LiveData<Exercise> get() = _selectedExercise
@@ -43,18 +44,14 @@ class SharedViewModel : ViewModel() {
     val product_id: Int get() = _productId
     private val _repCount = MutableLiveData<Int>()
     val repCount: LiveData<Int> = _repCount
+    val totalRepCount: Int get() = _totalRepCount
 
     val displayText: MediatorLiveData<String> = MediatorLiveData<String>().apply {
         addSource(_repCount) { updateDisplayText() }
-        addSource(_isCalibrating) { updateDisplayText() }
     }
 
-    private fun updateDisplayText() {
-        displayText.value = if (_isCalibrating.value == true) {
-            "Calibrating..."
-        } else {
-            "${selectedExercise.value.toString()} Count: ${_repCount.value ?: 0}"
-        }
+    fun updateDisplayText() {
+        displayText.value = "${selectedExercise.value.toString()} Count: ${_repCount.value ?: 0} \n Target: $totalRepCount"
     }
 
     fun setSelectedExercise(exercise: Exercise) {
@@ -90,6 +87,10 @@ class SharedViewModel : ViewModel() {
 
     fun setDeviceExerciseInitializeUUID(uuid: String) {
         _deviceExerciseInitializeUUID = uuid
+    }
+
+    fun setTotalRepCount(count: Int) {
+        _totalRepCount = count
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

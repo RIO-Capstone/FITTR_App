@@ -1,10 +1,17 @@
 package com.example.fittr_app
 
+import android.animation.Animator
+import android.animation.ArgbEvaluator
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.Looper
@@ -25,7 +32,18 @@ import com.example.fittr_app.types.User
 import com.github.mikephil.charting.data.BarEntry
 import kotlinx.coroutines.launch
 import android.os.Handler
+import android.text.InputFilter
+import android.text.TextWatcher
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.widget.EditText
+import android.widget.FrameLayout
+import androidx.core.content.ContextCompat
 import com.example.fittr_app.ui.auth.AuthActivity
+import com.example.fittr_app.utils.TextToSpeechHelper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.withContext
 
 interface BluetoothReadCallback {
     fun onValueRead(value: String){}
@@ -34,14 +52,21 @@ interface BluetoothReadCallback {
 }
 
 class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
+
+    companion object {
+       private const val TAG = "DashboardActivity"
+    }
+
     private lateinit var DashboardBinding : ActivityDashboardBinding
     private lateinit var api_client : ApiClient
     private lateinit var user: User
     private lateinit var productData: ProductData
     private var isBluetoothConnected = false
+    private val exerciseReps: MutableMap<Exercise, Int> = mutableMapOf()
+    private lateinit var textToSpeech:TextToSpeechHelper
 
     override fun onError(message: String) {
-        Log.e("DashboardActivity","Bluetooth error : $message")
+        Log.e(TAG,"Bluetooth error : $message")
         Toast.makeText(this,"Unstable bluetooth connection",Toast.LENGTH_LONG).show()
         this.onResume()
     }
@@ -67,13 +92,12 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         DashboardBinding = ActivityDashboardBinding.inflate(layoutInflater)
         setContentView(DashboardBinding.root)
         api_client = ApiClient()
-
+        textToSpeech = TextToSpeechHelper.initialize(this) // Singleton object initialization
         if(intent.hasExtra("user_id")){ // getting the user_id from the login session
             val user_id = intent.getIntExtra("user_id",0)
             lifecycleScope.launch {
                 getUserInformation(user_id)
                 getFITTRAIinformation(user_id)
-                getUserHistory()
                 getProductData(user.product_id)
             }
         }
@@ -84,22 +108,40 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             startActivity(authIntent)
         }
         val squatStartButton = findViewById<View>(R.id.dashboard_exercise_squats)
+        val squatExerciseRep: EditText = findViewById(R.id.squat_exercise_rep)
         squatStartButton.setOnClickListener{
             navigateToMain(Exercise.SQUATS)
         }
+        applyIntegerFilterAndTypeMapping(squatExerciseRep,Exercise.SQUATS)
+
         val rightBicepCurlStartButton = findViewById<View>(R.id.dashboard_exercises_bicep_curl_right)
+        val rightBicepCurlExerciseRep: EditText = findViewById(R.id.right_bicep_curl_exercise_rep)
         rightBicepCurlStartButton.setOnClickListener {
             navigateToMain(Exercise.RIGHT_BICEP_CURLS)
         }
+        applyIntegerFilterAndTypeMapping(rightBicepCurlExerciseRep,Exercise.RIGHT_BICEP_CURLS)
 
         val leftBicepCurlStartButton = findViewById<View>(R.id.dashboard_exercises_bicep_curl_left)
+        val leftBicepCurlExerciseRep: EditText = findViewById(R.id.left_bicep_curl_exercise_rep)
         leftBicepCurlStartButton.setOnClickListener{
             navigateToMain(Exercise.LEFT_BICEP_CURLS)
         }
+        applyIntegerFilterAndTypeMapping(leftBicepCurlExerciseRep,Exercise.LEFT_BICEP_CURLS)
 
         val bluetoothButton = findViewById<ImageButton>(R.id.dashboard_bluetooth_status_button)
         bluetoothButton.setOnClickListener{
             checkBluetoothConnection()
+        }
+        val aiExercisePlanButton = findViewById<View>(R.id.dashboard_ai_button)
+        val loadingComponent = findViewById<View>(R.id.dashboard_loading_progress)
+        aiExercisePlanButton.setOnClickListener{
+            aiExercisePlanButton.visibility = View.GONE
+            loadingComponent.visibility = View.VISIBLE
+            lifecycleScope.launch {
+                getAIExercisePlan()
+                loadingComponent.visibility = View.GONE
+                aiExercisePlanButton.visibility = View.VISIBLE
+            }.invokeOnCompletion { updateUIWithExerciseReps() }
         }
 
         val aiLayout = findViewById<View>(R.id.ai_layout)
@@ -117,6 +159,9 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
 
     // Function responsible for starting the Exercise Session from the dashboard
     private fun navigateToMain(selectedExercise:Exercise){
+        if(::textToSpeech.isInitialized){
+            textToSpeech.speak("Start")
+        }
         if(isBluetoothConnected){
             val intent = Intent(this, MainActivity::class.java)
             intent.putExtra("selectedExercise", selectedExercise)
@@ -127,34 +172,21 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             intent.putExtra("exercise_initialize_uuid",productData.exercise_initialize_uuid)
             intent.putExtra("user_id",user.user_id)
             intent.putExtra("product_id",user.product_id)
+            intent.putExtra("total_session_reps", exerciseReps[selectedExercise])
             BluetoothHelper.queueWriteOperation(
-                message = "true",
-                characteristicUUID = productData.exercise_initialize_uuid,
-                callback = this)
+            message = "true",
+            characteristicUUID = productData.exercise_initialize_uuid,
+            callback = this)
             startActivity(intent)
         } else {
             Toast.makeText(this,"Establish Bluetooth connection first",Toast.LENGTH_LONG).show()
-            Log.e("DashboardActivity", "Bluetooth connection not established")
+            Log.e(TAG, "Bluetooth connection not established")
         }
     }
 
-    data class Feedback(
-        val summary_advice: String,
-        val summary_analysis: String,
-        val future_advice: String,
-        val form_score: Int,
-        val stability_score: Int,
-        val range_of_motion_score: Int
-    )
-
-    data class ApiResponse(
-        val user_id: Int,
-        val feedback: Feedback
-    )
-
     private suspend fun getFITTRAIinformation(user_id: Int) {
         val aiMessageTextView: TextView = findViewById(R.id.ai_message)
-        Log.i("DashboardActivity", "Getting FITTR AI information")
+        Log.i(TAG, "Getting FITTR AI information")
 
         // Start the strobing effect on the TextView
         startEllipsisAnimation(aiMessageTextView)
@@ -166,11 +198,11 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         result.onSuccess { aiReply ->
             // Stop the strobing animation and set the solid text
 
-            stopEllipsisAnimation(aiMessageTextView, aiReply.feedback_message?.summary_analysis!!)
+            stopEllipsisAnimation(aiMessageTextView, aiReply.feedback_message.summary_analysis)
 
             aiMessageTextView.alpha = 1f // Ensure it's fully visible before setting text
             aiMessageTextView.setTextColor(android.graphics.Color.parseColor("#8C52FD")) // Set text color to purple
-            aiMessageTextView.text = aiReply.feedback_message.summary_analysis!!.substring(1)
+            aiMessageTextView.text = aiReply.feedback_message.summary_analysis.substring(1)
 
             form_score = aiReply.feedback_message.form_score.toInt()
             stability_score = aiReply.feedback_message.stability_score.toInt()
@@ -179,9 +211,9 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             summary_analysis = aiReply.feedback_message.summary_analysis
             future_advice = aiReply.feedback_message.future_advice
 
-            Log.i("DashboardActivity", "Form Score: $form_score")
-            Log.i("DashboardActivity", "Stability Score: $stability_score")
-            Log.i("DashboardActivity", "Range of Motion Score: $range_of_motion_score")
+            Log.i(TAG, "Form Score: $form_score")
+            Log.i(TAG, "Stability Score: $stability_score")
+            Log.i(TAG, "Range of Motion Score: $range_of_motion_score")
 
 
             // Make sure the TextView is fully visible after animation ends
@@ -198,7 +230,30 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         }
     }
 
+    suspend fun getAIExercisePlan(){
+        val result = api_client.getUserAIExercisePlan(userId = user.user_id)
+        result.onSuccess { exercisePlan ->
+            if(!exercisePlan.error.isNullOrEmpty()){
+                Log.e(TAG,"Error from backend failing to load AI exercise plan: ${exercisePlan.error}")
+                return
+            }
+            Log.i(TAG, "Exercise Plan: $exercisePlan")
+            val animationJobs = exercisePlan.feedback_message.map { (exercise:Exercise, reps:Int?) ->
+                exerciseReps[exercise] = reps ?: 0 // Store reps immediately
+                lifecycleScope.launch { triggerLayoutAnimation(exercise) } // Launch animation
+            }
 
+            animationJobs.joinAll()
+        }.onFailure { exception ->
+            Log.e(TAG, "Exception to load AI exercise plan: ${exception}")
+        }
+    }
+
+    private fun updateUIWithExerciseReps() {
+        exerciseReps[Exercise.SQUATS]?.let { this.findViewById<EditText>(R.id.squat_exercise_rep).setText(it.toString()) }
+        exerciseReps[Exercise.RIGHT_BICEP_CURLS]?.let { this.findViewById<EditText>(R.id.right_bicep_curl_exercise_rep).setText(it.toString()) }
+        exerciseReps[Exercise.LEFT_BICEP_CURLS]?.let { this.findViewById<EditText>(R.id.left_bicep_curl_exercise_rep).setText(it.toString()) }
+    }
 
     private var aiAnimationHandler: Handler? = null
     private var aiAnimationRunnable: Runnable? = null
@@ -229,7 +284,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         try {
             val response = api_client.getUser(ApiPaths.GetUser(userId),null)
             if(response.isSuccess){
-                Log.i("DashboardActivity","User information retrieved successfully")
+                Log.i(TAG,"User information retrieved successfully")
                 user = response.getOrNull()?.user!!
                 runOnUiThread {
                     DashboardBinding.dashboardUserNameText.text =
@@ -238,43 +293,13 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
                 }
             }
         }catch (e:Exception){
-            Log.e("DashboardActivity","Error getting user information: $e")
-        }
-    }
-
-    private suspend fun getUserHistory(){
-        try {
-            if (!::user.isInitialized) {
-                Log.e("DashboardActivity", "User not initialised when calling get history")
-                return
-            }
-            val response = api_client.getUserHistory(ApiPaths.GetUserHistory(user.user_id),null)
-            if(response.isSuccess){
-                Log.i("DashboardActivity","User history retrieved successfully")
-                val history = response.getOrNull()?.session_data // history will have max length of 5 from backend
-                val streak = response.getOrNull()?.streak
-                val barEntries = ArrayList<BarEntry>()
-                if(history.isNullOrEmpty()){
-                    return
-                }
-                history.forEachIndexed{index,session->
-                    val duration = session.duration.toFloat() // y-axis value in minutes
-                    val date = session.date // x-axis value (e.g., "4th July")
-
-                    // Map the date to the x-axis (index-based for simplicity)
-                    barEntries.add(BarEntry(index.toFloat(), duration))
-                }
-
-            }
-        }catch (e:Exception){
-            Log.e("DashboardActivity","Error getting user history: $e")
-            e.printStackTrace()
+            Log.e(TAG,"Error getting user information: $e")
         }
     }
 
     private suspend fun getProductData(productId:Int){
         if (!::user.isInitialized) {
-            Log.e("DashboardActivity", "User not initialised when calling get product")
+            Log.e(TAG, "User not initialised when calling get product")
             return
         }
         try{
@@ -282,29 +307,16 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             if(response.isSuccess){
                 productData = response.getOrNull()!!
             }else{
-                Log.e("DashboardActivity","Error getting product data: ${response.getOrNull()?.message}")
+                Log.e(TAG,"Error getting product data: ${response.getOrNull()?.message}")
             }
         }catch (e:Exception) {
-            Log.e("DashboardActivity", "Error getting product data: $e")
+            Log.e(TAG, "Error getting product data: $e")
         }
     }
 
-    private fun styliseButton(btn:ImageButton){
-        val gradientDrawable = GradientDrawable(
-            GradientDrawable.Orientation.LEFT_RIGHT, // Direction of the gradient
-            intArrayOf(0xFFE91E63.toInt(), 0xFFFFC107.toInt()) // Colors (Pink to Yellow)
-        )
-        gradientDrawable.cornerRadius = 1000f // Optional: Rounded corners
-        btn.background = gradientDrawable
-        val size = resources.getDimensionPixelSize(R.dimen.round_button_medium) // e.g., 48dp or any value you prefer
-        val layoutParams = btn.layoutParams
-        layoutParams.width = size
-        layoutParams.height = size
-        btn.layoutParams = layoutParams
-    }
     private fun checkBluetoothConnection(): Boolean {
         // Check if the app has the BLUETOOTH_CONNECT permission (required for Android 12+)
-        Log.d("DashboardActivity", "Checking Bluetooth connection")
+        Log.d(TAG, "Checking Bluetooth connection")
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
             if (checkSelfPermission(android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                 // Request the permission if it hasn't been granted
@@ -348,5 +360,119 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         Toast.makeText(this,"None of the connected devices passed the state check",Toast.LENGTH_LONG).show()
         return false
     }
+
+    private fun applyIntegerFilterAndTypeMapping(editText: EditText, exercise: Exercise) {
+        editText.filters = arrayOf(InputFilter { source, start, end, dest, dstart, dend ->
+            for (i in start until end) {
+                if (!Character.isDigit(source[i])) {
+                    Toast.makeText(this, "Only whole numbers are allowed.", Toast.LENGTH_SHORT).show()
+                    return@InputFilter ""
+                }
+            }
+            null
+        })
+        editText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: android.text.Editable?) {
+                val input = s.toString()
+                if (input.isNotEmpty()) {
+                    val value = input.toInt()
+                    if (value > 0) {
+                        exerciseReps[exercise] = value
+                    } else {
+                        editText.setText("")
+                        exerciseReps.remove(exercise) // remove the exercise if value is not > 0
+                        Toast.makeText(this@DashboardActivity, "Value must be greater than 0.", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    exerciseReps.remove(exercise) // remove the exercise if input is empty
+                }
+            }
+        })
+    }
+
+    private suspend fun triggerLayoutAnimation(exercise: Exercise) {
+        val frameLayout = when (exercise) {
+            Exercise.SQUATS -> findViewById<FrameLayout>(R.id.dashboard_squats_frame)
+            Exercise.RIGHT_BICEP_CURLS -> findViewById<FrameLayout>(R.id.dashboard_bicep_curl_right_frame)
+            Exercise.LEFT_BICEP_CURLS -> findViewById<FrameLayout>(R.id.dashboard_bicep_curl_left_frame)
+            else -> return // no animation required
+        }
+        withContext(Dispatchers.Main) {
+            animateBackgroundChange(frameLayout) // Ensures this animation completes before proceeding
+        }
+    }
+
+    private suspend fun animateBackgroundChange(frameLayout: FrameLayout) {
+        withContext(Dispatchers.Main) {
+            val startColor = Color.parseColor("#8C52FD") // Purple
+            val endColor = Color.parseColor("#FFFFFF")   // White
+
+            // Create a GradientDrawable with the same rounded corners
+            val originalDrawable = ContextCompat.getDrawable(this@DashboardActivity, R.drawable.rounded_white_view) as GradientDrawable
+            val cornerRadius = originalDrawable.cornerRadius
+
+            val gradientDrawable = GradientDrawable(
+                GradientDrawable.Orientation.BL_TR,
+                intArrayOf(startColor, endColor)
+            )
+            gradientDrawable.cornerRadius = cornerRadius
+
+            frameLayout.background = gradientDrawable
+
+            // Create a ValueAnimator for gradient transition
+            val animator = ValueAnimator.ofFloat(0f, 1f)
+            animator.duration = 1000
+            animator.interpolator = AccelerateDecelerateInterpolator()
+
+            animator.addUpdateListener { animation ->
+                val progress = animation.animatedFraction
+                val newStartColor = blendColors(startColor, endColor, progress)
+                val newEndColor = blendColors(endColor, startColor, progress)
+
+                gradientDrawable.colors = intArrayOf(newStartColor, newEndColor)
+                frameLayout.background = gradientDrawable
+            }
+
+            animator.start()
+
+            // Wait before transitioning back
+            delay(1500)
+
+            // Start fade-out animation to transition back to rounded_white_view
+            val fadeOutAnimator = ObjectAnimator.ofFloat(frameLayout, "alpha", 1f, 0f)
+            fadeOutAnimator.duration = 500
+            fadeOutAnimator.interpolator = AccelerateDecelerateInterpolator()
+            fadeOutAnimator.addListener(object : Animator.AnimatorListener {
+                override fun onAnimationEnd(animation: Animator) {
+                    // Reset the background when fade-out completes
+                    frameLayout.setBackgroundResource(R.drawable.rounded_white_view)
+
+                    // Start fade-in animation
+                    val fadeInAnimator = ObjectAnimator.ofFloat(frameLayout, "alpha", 0f, 1f)
+                    fadeInAnimator.duration = 500
+                    fadeInAnimator.interpolator = AccelerateDecelerateInterpolator()
+                    fadeInAnimator.start()
+                }
+                override fun onAnimationStart(animation: Animator) {}
+                override fun onAnimationCancel(animation: Animator) {}
+                override fun onAnimationRepeat(animation: Animator) {}
+            })
+
+            fadeOutAnimator.start()
+        }
+    }
+
+    private fun blendColors(color1: Int, color2: Int, ratio: Float): Int {
+        val inverseRatio = 1f - ratio
+        val r = (Color.red(color1) * inverseRatio + Color.red(color2) * ratio).toInt()
+        val g = (Color.green(color1) * inverseRatio + Color.green(color2) * ratio).toInt()
+        val b = (Color.blue(color1) * inverseRatio + Color.blue(color2) * ratio).toInt()
+        return Color.rgb(r, g, b)
+    }
+
 
 }

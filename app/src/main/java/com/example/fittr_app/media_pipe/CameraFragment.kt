@@ -603,7 +603,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         activity?.runOnUiThread {
             response.rep_count?.let { repCount ->
                 sharedViewModel.updateRepCount(repCount);
-                if (repCount >= 5) { // TODO: Change Hardcoded implementation!!
+                if (repCount >= sharedViewModel.totalRepCount) {
                     navigateToExerciseSuccess()
                 }
             }
