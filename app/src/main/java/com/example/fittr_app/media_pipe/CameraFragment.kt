@@ -33,6 +33,7 @@ import com.example.fittr_app.connections.BluetoothHelper
 import com.example.fittr_app.databinding.FragmentCameraBinding
 import com.example.fittr_app.connections.WebSocketClient
 import com.example.fittr_app.types.Exercise
+import com.example.fittr_app.utils.TextToSpeechHelper
 import com.google.gson.Gson
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import okhttp3.OkHttpClient
@@ -62,6 +63,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
 
     private lateinit var webSocket: WebSocket
     private lateinit var sharedViewModel: SharedViewModel
+    private var textToSpeech = TextToSpeechHelper
     private val client = OkHttpClient()
     private val IP_ADDRESS = "GET FROM BACKEND";
 
@@ -482,6 +484,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
 
     private fun navigateToExerciseSuccess() {
         activity?.runOnUiThread {
+            textToSpeech.speak("Congratulations")
             val navController = try {
                 NavHostFragment.findNavController(this)
             } catch (e: IllegalStateException) {

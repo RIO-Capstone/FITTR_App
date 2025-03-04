@@ -48,10 +48,7 @@ class ApiClient {
     suspend fun registerUser(endpoint: ApiPaths, data: Any): Result<RegisterUserBackendResponse> {
         return makeApiRequest<RegisterUserBackendResponse>(endpoint, data)
     }
-    // Get user history
-    suspend fun getUserHistory(endpoint: ApiPaths, data: Any?): Result<UserHistoryBackendResponse> {
-        return makeApiRequest<UserHistoryBackendResponse>(endpoint, data)
-    }
+
     // Get product data
     suspend fun getProductData(endpoint: ApiPaths, data: Any?): Result<ProductData> {
         return makeApiRequest<ProductData>(endpoint,data)

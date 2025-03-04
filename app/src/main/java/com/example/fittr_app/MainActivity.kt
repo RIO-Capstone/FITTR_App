@@ -1,5 +1,6 @@
 package com.example.fittr_app
 
+import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -21,6 +22,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var activityMainBinding: ActivityMainBinding
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var navController:NavController
+    private var mediaPlayer: MediaPlayer? = null
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,11 +69,25 @@ class MainActivity : AppCompatActivity() {
 
             timerTextView.text = String.format("%02d:%02d.%d", minutes, seconds, milliseconds)
         }
+        // rep count observer to play a sound whenever repCount changes
+//        sharedViewModel.repCount.observe(this){_->
+//            playRepSound()
+//        }
 
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.fragment_container) as NavHostFragment
         navController = navHostFragment.navController
         sharedViewModel.startTimer()
+    }
+
+    private fun playRepSound() {
+        mediaPlayer?.release() // Release previous instance to prevent overlap
+        mediaPlayer = MediaPlayer.create(this,R.raw.very_proud_fart) // Load sound from res/raw
+        mediaPlayer?.start()
+
+        mediaPlayer?.setOnCompletionListener {
+            it.release() // Release MediaPlayer after sound plays
+        }
     }
 
     @Deprecated("onBackPressed deprecated in Java")
@@ -80,8 +96,11 @@ class MainActivity : AppCompatActivity() {
         finish();
     }
 
-    private fun navigateToCameraFragment() {
-        navController.navigate(R.id.action_permissions_to_camera)
-    }
+//    override fun onDestroy() {
+//        super.onDestroy()
+//        super.onDestroy()
+//        mediaPlayer?.release() // Prevent memory leaks
+//        mediaPlayer = null
+//    }
 
 }
