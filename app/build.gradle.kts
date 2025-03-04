@@ -64,4 +64,6 @@ dependencies {
     implementation(libs.moshi.kotlin)
     implementation(libs.mpandroidchart)
     implementation(libs.androidx.espresso.intents)
+    implementation(libs.mockwebserver)
+    testImplementation(libs.robolectric)
 }
