@@ -43,7 +43,8 @@ class SwitchUserActivity: AppCompatActivity() {
 
         // Launch the coroutine within the lifecycle scope
         lifecycleScope.launch {
-            val userList = fetchUserProfiles(productId)
+            val userList = fetchUserProfiles(productId).toMutableList()
+            userList.add(UserProfile("Add User", R.drawable.ic_add_user, isAddUserButton = true))
             // Now set the adapter after the data is fetched
             recyclerView.layoutManager = GridLayoutManager(this@SwitchUserActivity, 2)
             recyclerView.adapter = UserProfileAdapter(userList) { selectedUser ->

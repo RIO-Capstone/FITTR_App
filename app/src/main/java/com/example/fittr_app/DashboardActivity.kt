@@ -111,6 +111,7 @@ class DashboardActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
+
     // Function responsible for starting the Exercise Session from the dashboard
     private fun navigateToMain(selectedExercise:String){
         // Disabled bluetooth check for testing purposes

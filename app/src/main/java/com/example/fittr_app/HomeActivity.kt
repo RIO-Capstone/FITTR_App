@@ -9,7 +9,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.fittr_app.databinding.ActivityHomeBinding
 import com.example.fittr_app.ui.auth.AuthActivity
-
+import com.example.fittr_app.ui.profile.SwitchUserActivity
 
 
 class HomeActivity : AppCompatActivity() {
@@ -27,7 +27,7 @@ class HomeActivity : AppCompatActivity() {
 
         homeActivityBinding.homeNextButton.setOnClickListener {
             // Navigate to login
-            navigateToAuth()
+            navigateToUserProfileActivity()
         }
     }
 
@@ -49,6 +49,7 @@ class HomeActivity : AppCompatActivity() {
         )
         textView.paint.shader = shader
     }
+/*
 
     private fun navigateToAuth() {
         val intent = Intent(this, AuthActivity::class.java) // Navigate to AuthActivity
@@ -56,4 +57,11 @@ class HomeActivity : AppCompatActivity() {
 
         //Navigates to AuthActivity
     }
+*/
+
+    private fun navigateToUserProfileActivity() {
+        val intent = Intent(this, SwitchUserActivity::class.java)
+        startActivity(intent)
+    }
+
 }
