@@ -31,7 +31,7 @@ class RegistrationPageThree : Fragment() {
     private var _binding: RegistrationPageThreeBinding? = null
     private val binding get() = _binding!!
     private lateinit var viewPager: ViewPager2
-    private lateinit var apiClient: ApiClient
+    private var apiClient = ApiClient
     private val imageList by lazy { // Use lazy initialization
         listOf(
             R.mipmap.improve_shape_foreground,
@@ -56,7 +56,6 @@ class RegistrationPageThree : Fragment() {
         _binding = RegistrationPageThreeBinding.inflate(inflater, container, false)
         val view = binding.root
         viewModel = ViewModelProvider(requireActivity())[RegistrationViewModel::class.java]
-        apiClient = ApiClient()
         val completeRegistrationButton = binding.registrationThreeCompleteRegistration
         viewPager = binding.imageViewPager
         val resizedDrawables = getResizedDrawables()

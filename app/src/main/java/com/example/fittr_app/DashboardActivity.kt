@@ -60,7 +60,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
     }
 
     private lateinit var DashboardBinding : ActivityDashboardBinding
-    private lateinit var api_client : ApiClient
+    private var api_client = ApiClient
     private lateinit var user: User
     private lateinit var productData: ProductData
     private var isBluetoothConnected = false
@@ -93,13 +93,12 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         super.onCreate(savedInstanceState)
         DashboardBinding = ActivityDashboardBinding.inflate(layoutInflater)
         setContentView(DashboardBinding.root)
-        api_client = ApiClient()
         textToSpeech = TextToSpeechHelper.initialize(this) // Singleton object initialization
         if(intent.hasExtra("user_id")){ // getting the user_id from the login session
             val user_id = intent.getIntExtra("user_id",0)
             lifecycleScope.launch {
                 getUserInformation(user_id)
-//                getFITTRAIinformation(user_id)
+                getFITTRAIinformation(user_id)
                 getProductData(user.product_id)
             }
         }
@@ -186,9 +185,9 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             intent.putExtra("product_id",user.product_id)
             intent.putExtra("total_session_reps", exerciseReps[selectedExercise])
             BluetoothHelper.queueWriteOperation(
-            message = "true",
-            characteristicUUID = productData.exercise_initialize_uuid,
-            callback = this)
+                message = "true",
+                characteristicUUID = productData.exercise_initialize_uuid,
+                callback = this)
             startActivity(intent)
         } else {
             Toast.makeText(this,"Establish Bluetooth connection first",Toast.LENGTH_LONG).show()
@@ -234,7 +233,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         }.onFailure { exception ->
 
             aiMessageTextView.alpha = 1f // Ensure it's fully visible
-            aiMessageTextView.setTextColor(android.graphics.Color.RED) // Set color to red in case of failure
+            aiMessageTextView.setTextColor(Color.RED) // Set color to red in case of failure
             aiMessageTextView.text = "Failed to load AI information: ${exception.localizedMessage}"
 
             // Make sure the TextView is fully visible after animation ends
@@ -413,8 +412,10 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             Exercise.LEFT_BICEP_CURLS -> findViewById<FrameLayout>(R.id.dashboard_bicep_curl_left_frame)
             else -> return // no animation required
         }
-        withContext(Dispatchers.Main) {
-            animateBackgroundChange(frameLayout) // Ensures this animation completes before proceeding
+        if(frameLayout != null){
+            withContext(Dispatchers.Main) {
+                animateBackgroundChange(frameLayout) // Ensures this animation completes before proceeding
+            }
         }
     }
 

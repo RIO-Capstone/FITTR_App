@@ -22,7 +22,7 @@ class ExerciseSuccessFragment : Fragment() {
     private var _binding: FragmentExerciseSuccessBinding? = null
     private val binding get() = _binding!!
     private lateinit var sharedViewModel: SharedViewModel
-    private lateinit var apiClient: ApiClient
+    private var apiClient = ApiClient
     private var exerciseFeedback = "No feedback at the moment"
 
     override fun onCreateView(
@@ -32,7 +32,6 @@ class ExerciseSuccessFragment : Fragment() {
     ): View {
         _binding = FragmentExerciseSuccessBinding.inflate(inflater, container, false)
         sharedViewModel = ViewModelProvider(requireActivity())[SharedViewModel::class.java]
-        apiClient = ApiClient()
         return binding.root
     }
 

@@ -23,7 +23,8 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 
-class ApiClient {
+object ApiClient {
+
     private val client = OkHttpClient.Builder()
         .connectTimeout(120, TimeUnit.SECONDS)  // Increase connection timeout
         .readTimeout(120, TimeUnit.SECONDS)     // Increase read timeout
@@ -32,9 +33,7 @@ class ApiClient {
 
     private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
 
-    companion object {
-        private const val BASE_URL = "http://192.168.50.147:8000/"
-    }
+    var BASE_URL = "http://GET FROM BACKEND:8000/"
     // Get user
     suspend fun getUser(endpoint: ApiPaths,data:Any?): Result<GetUserBackendResponse>{
         return makeApiRequest<GetUserBackendResponse>(endpoint,data)
