@@ -28,7 +28,6 @@ class RegistrationPageTwo : Fragment() {
     private lateinit var viewModel: RegistrationViewModel
     private var _binding: RegistrationPageTwoBinding? = null
     private val binding get() = _binding!!
-    private lateinit var apiClient: ApiClient
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,7 +39,6 @@ class RegistrationPageTwo : Fragment() {
 
         viewModel = ViewModelProvider(requireActivity())[RegistrationViewModel::class.java]
         // initialise api client
-        apiClient = ApiClient()
         // Access views using binding instead of findViewById
         val genderField = binding.spinnerGender
         ArrayAdapter.createFromResource(

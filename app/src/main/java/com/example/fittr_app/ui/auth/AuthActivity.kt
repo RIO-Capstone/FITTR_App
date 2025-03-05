@@ -15,14 +15,12 @@ import kotlinx.coroutines.launch
 
 class AuthActivity:AppCompatActivity() {
     private lateinit var _binding: ActivityAuthBinding
-    private lateinit var apiClient: ApiClient
+    private var apiClient = ApiClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = ActivityAuthBinding.inflate(layoutInflater)
         setContentView(_binding.root)
-
-        apiClient = ApiClient()
 
         val userNameField = _binding.authIdField
         val passwordField = _binding.authPasswordField

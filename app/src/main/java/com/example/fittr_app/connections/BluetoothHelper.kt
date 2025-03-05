@@ -17,15 +17,17 @@ import java.util.UUID
 object BluetoothHelper {
     private var bluetoothGatt: BluetoothGatt? = null
     private var serviceUUID: String = "4c72c9a7-69af-4a0b-8630-fab8f513fb9e" // Can be set dynamically
-    private var characteristicUUID: String = ""
-    private var readMode = false
-    private var writeMode = false
-    private var messageToSend: String? = null
+    private var heartbeatTimer: Handler? = null
+    private val heartbeatRunnable: Runnable = Runnable { sendHeartbeat() }
+    private const val heartbeatInterval: Long = 5000
     private var currentCallback: BluetoothReadCallback? = null
     private val connectionTimeoutHandler = Handler(Looper.getMainLooper())
     private var device: BluetoothDevice? = null
+    private var HEARTBEAT_CHARACTERISTIC_UUID = "e429a327-c1a4-4a25-956e-f3d632bdd63a"
     private var operationInProgress = false
     private var operationsQueue = LinkedList<BluetoothOperation>()
+    private var heartbeatRetryCount = 0
+    private var MAX_HEARTBEAT_RETRY = 2
 
     private val connectionTimeoutRunnable = Runnable {
         Log.e("BluetoothHelper", "Connection timed out")
@@ -48,21 +50,40 @@ object BluetoothHelper {
         connectionTimeoutHandler.removeCallbacks(connectionTimeoutRunnable)
     }
 
-    fun connectAndRead(context: Context, characteristicUUID: String, callback: BluetoothReadCallback): Boolean {
-        this.characteristicUUID = characteristicUUID
-        this.currentCallback = callback
-        readMode = true
-        writeMode = false
-        return handleConnection(context)
+    private fun startHeartbeat() {
+        if(heartbeatTimer == null){
+            heartbeatTimer = Handler(Looper.getMainLooper())
+        }
+        heartbeatTimer?.postDelayed(heartbeatRunnable, heartbeatInterval)
+
     }
 
-    fun connectAndSendMessage(context: Context, message: String, characteristicUUID: String, callback: BluetoothReadCallback): Boolean {
-        this.messageToSend = message
-        this.characteristicUUID = characteristicUUID
-        this.currentCallback = callback
-        readMode = false
-        writeMode = true
-        return handleConnection(context)
+    private fun sendHeartbeat() {
+        Log.d("BluetoothHelper", "Sending heartbeat message")
+        queueWriteOperation("HB", HEARTBEAT_CHARACTERISTIC_UUID, object : BluetoothReadCallback {
+            override fun onValueRead(value: String) {
+                Log.d("BluetoothHelper", "Heartbeat acknowledged: $value")
+                heartbeatTimer?.postDelayed(heartbeatRunnable, heartbeatInterval) // Reschedule
+            }
+
+            override fun onError(message: String) {
+                Log.e("BluetoothHelper", "Heartbeat failed: $message")
+                heartbeatRetryCount++
+                if(heartbeatRetryCount == MAX_HEARTBEAT_RETRY){
+                    heartbeatTimer?.postDelayed(heartbeatRunnable, heartbeatInterval) // Retry
+                }else{
+                    Log.d("BluetoothHelper", "Max Heartbeat retry limit reached ... disconnecting")
+                    disconnect() // Disconnect on heartbeat failure
+                }
+
+            }
+
+            override fun onBluetoothConnectionChange(isConnected: Boolean) = Unit
+        })
+    }
+
+    private fun stopHeartbeat() {
+        heartbeatTimer?.removeCallbacks(heartbeatRunnable)
     }
 
     private fun handleConnection(context: Context): Boolean {
@@ -88,6 +109,7 @@ object BluetoothHelper {
             Log.d("BluetoothHelper", "Device onConnectionStateChange: status: $status, newState: $newState")
             if (newState == BluetoothGatt.STATE_CONNECTED) {
                 Log.d("BluetoothHelper", "Successfully connected to GATT server")
+                startHeartbeat()
                 currentCallback?.onBluetoothConnectionChange(true)
                 gatt.discoverServices()
             } else{
@@ -202,6 +224,7 @@ object BluetoothHelper {
     }
 
     fun disconnect() {
+        stopHeartbeat()
         bluetoothGatt?.disconnect()
         bluetoothGatt?.close()
         bluetoothGatt = null
