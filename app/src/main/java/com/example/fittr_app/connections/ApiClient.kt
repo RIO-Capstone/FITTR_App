@@ -13,6 +13,7 @@ import com.example.fittr_app.types.ProductData
 import com.example.fittr_app.types.RegisterUserBackendResponse
 import com.example.fittr_app.types.UserHistoryBackendResponse
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -32,7 +33,7 @@ class ApiClient {
     private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
 
     companion object {
-        private const val BASE_URL = "http://GET FROM BACKEND:8000/"
+        private const val BASE_URL = "http://192.168.50.147:8000/"
     }
     // Get user
     suspend fun getUser(endpoint: ApiPaths,data:Any?): Result<GetUserBackendResponse>{
@@ -67,6 +68,11 @@ class ApiClient {
 
     suspend fun getUserAIExercisePlan(userId: Int) : Result<AIExercisePlan>{
         return makeApiRequest<AIExercisePlan>(ApiPaths.GetUserExercisePlan(userId))
+    }
+
+    // Get all Users using a product
+    suspend fun getUsers(endpoint: ApiPaths.GetUsers, data: Any?): Result<GetUsersBackendResponse> {
+        return makeApiRequest<GetUsersBackendResponse>(endpoint, data)
     }
 
     private suspend inline fun <reified T> makeApiRequest(
@@ -106,7 +112,12 @@ class ApiClient {
                         val responseBody = it.string()
                         Log.d("ApiClient", "Response body: $responseBody")
 
-                        val jsonAdapter = moshi.adapter(T::class.java)
+                        val jsonAdapter = if (T::class.java == List::class.java) {
+                            val listType = Types.newParameterizedType(List::class.java, T::class.java)
+                            moshi.adapter<T>(listType)
+                        } else {
+                            moshi.adapter(T::class.java)
+                        }
                         val apiResponse = jsonAdapter.fromJson(responseBody)
 
                         if (apiResponse != null) {
@@ -125,4 +136,12 @@ class ApiClient {
         }
     }
 
+    data class GetUsersBackendResponse(
+        val users: List<UserSimple>
+    )
+
+    data class UserSimple(
+        val id: Int,
+        val full_name: String
+    )
 }
