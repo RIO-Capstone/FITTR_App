@@ -96,7 +96,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             val user_id = intent.getIntExtra("user_id",0)
             lifecycleScope.launch {
                 getUserInformation(user_id)
-                //getFITTRAIinformation(user_id)
+                getFITTRAIinformation(user_id)
                 getProductData(user.product_id)
             }
         }
