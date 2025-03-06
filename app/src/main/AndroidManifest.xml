@@ -50,6 +50,7 @@
 
         <activity android:name=".ui.auth.AuthActivity" />
         <activity android:name=".ui.registration.RegistrationActivity"/>
+        <activity android:name=".ui.profile.SwitchUserActivity"/>
     </application>
 
 </manifest>

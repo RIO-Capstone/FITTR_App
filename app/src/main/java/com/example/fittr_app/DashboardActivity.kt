@@ -35,10 +35,12 @@ import android.os.Handler
 import android.text.InputFilter
 import android.text.TextWatcher
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
 import com.example.fittr_app.ui.auth.AuthActivity
+import com.example.fittr_app.ui.profile.SwitchUserActivity
 import com.example.fittr_app.utils.TextToSpeechHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -97,7 +99,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             val user_id = intent.getIntExtra("user_id",0)
             lifecycleScope.launch {
                 getUserInformation(user_id)
-                getFITTRAIinformation(user_id)
+//                getFITTRAIinformation(user_id)
                 getProductData(user.product_id)
             }
         }
@@ -155,6 +157,16 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             intent.putExtra("range_of_motion_score", range_of_motion_score)
             startActivity(intent)
         }
+
+        val switchUserButton = findViewById<Button>(R.id.switch_user_button)
+        switchUserButton.setOnClickListener{
+            navigateToUserProfileActivity()
+        }
+    }
+
+    private fun navigateToUserProfileActivity() {
+        val intent = Intent(this, SwitchUserActivity::class.java)
+        startActivity(intent)
     }
 
     // Function responsible for starting the Exercise Session from the dashboard
