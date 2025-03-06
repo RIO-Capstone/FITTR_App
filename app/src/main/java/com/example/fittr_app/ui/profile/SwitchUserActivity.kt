@@ -12,6 +12,7 @@ import com.example.fittr_app.DashboardActivity
 import com.example.fittr_app.R
 import com.example.fittr_app.connections.ApiClient
 import com.example.fittr_app.connections.ApiPaths
+import com.example.fittr_app.ui.auth.AuthActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -48,7 +49,7 @@ class SwitchUserActivity: AppCompatActivity() {
             // Now set the adapter after the data is fetched
             recyclerView.layoutManager = GridLayoutManager(this@SwitchUserActivity, 2)
             recyclerView.adapter = UserProfileAdapter(userList) { selectedUser ->
-                val intent = Intent(this@SwitchUserActivity, DashboardActivity::class.java).apply {
+                val intent = Intent(this@SwitchUserActivity, AuthActivity::class.java).apply {
                     putExtra("User_Name", selectedUser.name)
                 }
                 startActivity(intent)
@@ -82,5 +83,7 @@ class SwitchUserActivity: AppCompatActivity() {
             emptyList()
         }
     }
+
+
 
 }
