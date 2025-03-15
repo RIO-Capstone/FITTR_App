@@ -141,3 +141,7 @@ object ApiClient {
         val full_name: String
     )
 }
+
+object ApiClientProvider {
+    var apiClient: ApiClient = ApiClient
+}

@@ -39,6 +39,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
+import com.example.fittr_app.connections.ApiClientProvider
 import com.example.fittr_app.ui.auth.AuthActivity
 import com.example.fittr_app.ui.profile.SwitchUserActivity
 import com.example.fittr_app.utils.TextToSpeechHelper
@@ -60,7 +61,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
     }
 
     private lateinit var DashboardBinding : ActivityDashboardBinding
-    private var api_client = ApiClient
+    private val api_client: ApiClient by lazy { ApiClientProvider.apiClient }
     private lateinit var user: User
     private lateinit var productData: ProductData
     private var isBluetoothConnected = false

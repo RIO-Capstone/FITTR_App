@@ -27,6 +27,9 @@ espressoIntents = "3.6.1"
 junitJupiter = "5.8.1"
 mockwebserver = "4.9.1"
 robolectric = "4.10.3"
+mockito = "5.0.0"
+mockitoInline = "5.0.0"
+mockitoKotlin = "5.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -58,6 +61,9 @@ androidx-espresso-intents = { group = "androidx.test.espresso", name = "espresso
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }
 mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "mockwebserver" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "mockitoInline" }
+mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
