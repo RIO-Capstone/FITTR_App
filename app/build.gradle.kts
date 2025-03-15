@@ -75,4 +75,7 @@ dependencies {
     implementation(libs.androidx.espresso.intents)
     implementation(libs.mockwebserver)
     testImplementation(libs.robolectric)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.inline)  // Needed for mocking final classes & singletons
+    testImplementation(libs.mockito.kotlin)
 }

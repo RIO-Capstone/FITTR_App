@@ -122,3 +122,7 @@ object ApiClient {
     }
 
 }
+
+object ApiClientProvider {
+    var apiClient: ApiClient = ApiClient
+}
