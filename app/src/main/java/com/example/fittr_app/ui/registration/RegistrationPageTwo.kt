@@ -84,10 +84,16 @@ class RegistrationPageTwo : Fragment() {
         val dobField = binding.etDateOfBirth
         val weightField = binding.etWeight
         val heightField = binding.etHeight
+        val genderField = binding.spinnerGender
 
+        if(genderField.selectedItem == resources.getStringArray(R.array.gender_options).first()){
+            Toast.makeText(requireContext(), "Please select a gender", Toast.LENGTH_SHORT).show()
+            return false
+        }
         // Validate Date of Birth
-        if (dobField.text.isEmpty()) {
+        if (dobField.text.isNullOrEmpty()) {
             dobField.error = "Date of birth is required"
+            Toast.makeText(requireContext(),"Date of birth is required",Toast.LENGTH_SHORT).show()
             return false
         } else if (!isValidDate(dobField.text.toString())) {
             dobField.error = "Please enter a valid date of birth (YYYY-MM-DD)"

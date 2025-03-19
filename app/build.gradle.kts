@@ -1,6 +1,97 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.jacoco)
+}
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn("testDebugUnitTest") // Ensure tests run before report generation
+
+    reports {
+        xml.required.set(true)
+        xml.outputLocation.set(file("${project.buildDir}/reports/jacoco/jacocoTestReport.xml"))
+        html.required.set(true)
+        html.outputLocation.set(file("${project.buildDir}/reports/jacoco/unitTest/html"))
+        csv.required.set(false)
+    }
+
+    val fileFilter = listOf(
+        "**/R.class", "**/R\$*.class", "**/BuildConfig.*",
+        "**/Manifest*.*", "android/**/*.*"
+    )
+
+    val javaClasses = fileTree("${project.buildDir}/intermediates/javac/debug") {
+        exclude(fileFilter)
+    }
+
+    val kotlinClasses = fileTree("${project.buildDir}/tmp/kotlin-classes/debug") {
+        exclude(fileFilter)
+    }
+
+    sourceDirectories.setFrom(files("$projectDir/src/main/java"))
+    classDirectories.setFrom(files(javaClasses, kotlinClasses))
+    executionData.setFrom(fileTree(baseDir = project.buildDir) {
+        include(
+            "outputs/unit_test_code_coverage/debugUnitTest/*.exec",
+            "jacoco/testDebugUnitTest.exec",
+            "jacoco/*.exec"
+        )
+    })
+
+}
+
+tasks.register<JacocoReport>("jacocoAndroidTestReport") {
+    dependsOn("connectedDebugAndroidTest") // This ensures instrumented tests run first
+
+    reports {
+        xml.required.set(true)
+        xml.outputLocation.set(file("${project.buildDir}/reports/jacoco/androidTest/jacocoAndroidTestReport.xml"))
+        html.required.set(true)
+        html.outputLocation.set(file("${project.buildDir}/reports/jacoco/androidTest/html"))
+    }
+
+    val fileFilter = listOf(
+        "**/R.class", "**/R\$*.class", "**/BuildConfig.*",
+        "**/Manifest*.*", "**/*Test*.*", "android/**/*.*"
+    )
+
+    val javaClasses = fileTree("${project.buildDir}/intermediates/javac/debug") {
+        exclude(fileFilter)
+    }
+
+    val kotlinClasses = fileTree("${project.buildDir}/tmp/kotlin-classes/debug") {
+        exclude(fileFilter)
+    }
+
+    sourceDirectories.setFrom(files("$projectDir/src/main/java"))
+    classDirectories.setFrom(files(javaClasses, kotlinClasses))
+
+    // The path for instrumented test coverage is different
+    executionData.setFrom(fileTree(baseDir = project.buildDir) {
+        include("outputs/code_coverage/debugAndroidTest/connected/**/*.ec")
+    })
+}
+
+tasks.register<JacocoReport>("jacocoFullReport") {
+    dependsOn("jacocoTestReport", "jacocoAndroidTestReport")
+
+    reports {
+        xml.required.set(true)
+        xml.outputLocation.set(file("${project.buildDir}/reports/jacoco/full/jacocoFullReport.xml"))
+        html.required.set(true)
+        html.outputLocation.set(file("${project.buildDir}/reports/jacoco/full/html"))
+    }
+
+    // Use the same file filters and class directories as in your other tasks
+
+    // Combine execution data from both unit tests and instrumented tests
+    executionData.setFrom(fileTree(baseDir = project.buildDir) {
+        include(
+            "outputs/unit_test_code_coverage/debugUnitTest/*.exec",
+            "jacoco/testDebugUnitTest.exec",
+            "outputs/code_coverage/debugAndroidTest/connected/**/*.ec"
+        )
+    })
 }
 
 android {
@@ -24,6 +115,11 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            enableUnitTestCoverage = true
+        }
+        debug {
+            enableUnitTestCoverage = true
+            enableAndroidTestCoverage = true
         }
     }
     compileOptions {
@@ -40,10 +136,23 @@ android {
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
+            all {
+                it.systemProperty("robolectric.enabledSdks", "30")
+                it.jvmArgs("-noverify") // May help with certain Robolectric issues
+            }
+        }
+        unitTests.all {
+            testCoverage {
+                (this as? JacocoTaskExtension)?.apply {
+                    isIncludeNoLocationClasses = true
+                    excludes = listOf("jdk.internal.*")
+                }
+            }
         }
     }
     tasks.withType<Test>().configureEach {
         useJUnit()
+        finalizedBy(tasks.named("jacocoTestReport"))
     }
 }
 
@@ -78,4 +187,5 @@ dependencies {
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.inline)  // Needed for mocking final classes & singletons
     testImplementation(libs.mockito.kotlin)
+    androidTestImplementation(libs.androidx.espresso.contrib.v361)
 }
