@@ -126,7 +126,7 @@ object ApiClient {
                     return@withContext Result.failure(IOException("Unexpected response code: ${response.code}"))
                 }
             } catch (e: Exception) {
-                Log.e("ApiClient", "Error during API request", e)
+                Log.e("ApiClient", "Error during API request")
                 return@withContext Result.failure(e)
             }
         }

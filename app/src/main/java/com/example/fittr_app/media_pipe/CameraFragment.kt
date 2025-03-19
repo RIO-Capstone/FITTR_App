@@ -45,6 +45,10 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.time.TimeSource
 
+interface BackendResponseHandler {
+    fun handleBackendResponse(response: BackendResponse)
+}
+
 data class BackendResponse (
     val rep_count: Int? = null,
     val error: String? = null,
@@ -55,7 +59,7 @@ data class ClientMessage(
     val is_calibrated: Boolean? = false
  )
 
-class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
+class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, BackendResponseHandler {
 
     companion object {
         private const val TAG = "CameraFragment"
@@ -235,8 +239,22 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
                 }
             }
         )
+
+        // Setting the left motor resistance to 0, using only right motor for now
+        BluetoothHelper.queueWriteOperation(
+            "0",
+            sharedViewModel.deviceLeftResistanceUUID,
+            object : BluetoothReadCallback{
+                override fun onValueRead(value: String) = Unit // no UI update required
+
+                override fun onError(message: String) {
+                    Log.e(TAG, "Error updating the left resistance value $message")
+                }
+            }
+        )
+
         fragmentCameraBinding.bottomSheetLayout.resistanceMinus.setOnClickListener {
-            val currentResistance = viewModel.rightCurrentResistance.value ?: PoseLandmarkerHelper.MIN_RESISTANCE_VALUE
+            val currentResistance = viewModel.rightCurrentResistance.value ?: PoseLandmarkerHelper.DEFAULT_RESISTANCE_VALUE
             if (currentResistance > PoseLandmarkerHelper.MIN_RESISTANCE_VALUE) {
                 val newResistance = currentResistance - 1
                 updateFunction(newResistance)
@@ -246,7 +264,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         }
 
         fragmentCameraBinding.bottomSheetLayout.resistancePlus.setOnClickListener {
-            val currentResistance = viewModel.rightCurrentResistance.value ?: PoseLandmarkerHelper.MIN_RESISTANCE_VALUE
+            val currentResistance = viewModel.rightCurrentResistance.value ?: PoseLandmarkerHelper.DEFAULT_RESISTANCE_VALUE
             if (currentResistance < PoseLandmarkerHelper.MAX_RESISTANCE_VALUE) {
                 val newResistance = currentResistance + 1
                 updateFunction(newResistance)
@@ -270,7 +288,18 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
                 override fun onError(message: String) {
                     Log.e(TAG, "Error reading left resistance value from Bluetooth: $message")
                 }})
+        // Setting the right motor resistance to 0, using only left motor for now
+        BluetoothHelper.queueWriteOperation(
+            "0",
+            sharedViewModel.deviceRightResistanceUUID,
+            object : BluetoothReadCallback{
+                override fun onValueRead(value: String) = Unit
 
+                override fun onError(message: String) {
+                    Log.e(TAG, "Error updating the right resistance value $message")
+                }
+            }
+        )
         fragmentCameraBinding.bottomSheetLayout.resistanceMinus.setOnClickListener {
             val currentResistance = viewModel.leftCurrentResistance.value ?: PoseLandmarkerHelper.MIN_RESISTANCE_VALUE
             if (currentResistance > PoseLandmarkerHelper.MIN_RESISTANCE_VALUE) {
@@ -602,7 +631,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         }
     }
 
-    fun handleBackendResponse(response: BackendResponse) {
+    override fun handleBackendResponse(response: BackendResponse) {
         activity?.runOnUiThread {
             response.rep_count?.let { repCount ->
                 sharedViewModel.updateRepCount(repCount);

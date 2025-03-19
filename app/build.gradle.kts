@@ -82,7 +82,21 @@ tasks.register<JacocoReport>("jacocoFullReport") {
         html.outputLocation.set(file("${project.buildDir}/reports/jacoco/full/html"))
     }
 
-    // Use the same file filters and class directories as in your other tasks
+    val fileFilter = listOf(
+        "**/R.class", "**/R\$*.class", "**/BuildConfig.*",
+        "**/Manifest*.*", "**/*Test*.*", "android/**/*.*"
+    )
+
+    val javaClasses = fileTree("${project.buildDir}/intermediates/javac/debug") {
+        exclude(fileFilter)
+    }
+
+    val kotlinClasses = fileTree("${project.buildDir}/tmp/kotlin-classes/debug") {
+        exclude(fileFilter)
+    }
+
+    sourceDirectories.setFrom(files("$projectDir/src/main/java"))
+    classDirectories.setFrom(files(javaClasses, kotlinClasses))
 
     // Combine execution data from both unit tests and instrumented tests
     executionData.setFrom(fileTree(baseDir = project.buildDir) {
@@ -134,11 +148,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = JavaVersion.VERSION_11.toString()
     }
     buildFeatures {
         viewBinding = true
@@ -199,4 +213,5 @@ dependencies {
     testImplementation(libs.mockito.inline)  // Needed for mocking final classes & singletons
     testImplementation(libs.mockito.kotlin)
     androidTestImplementation(libs.androidx.espresso.contrib.v361)
+    androidTestImplementation(libs.mockito.core)
 }

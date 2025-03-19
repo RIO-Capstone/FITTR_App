@@ -26,7 +26,6 @@ class DashboardActivityUITest {
     @JvmField
     val activityRule = ActivityScenarioRule(DashboardActivity::class.java)
     private lateinit var decorView: View
-    //private var mockApiClient = mockk<ApiClient>()
 
     @Before
     fun setUp(){

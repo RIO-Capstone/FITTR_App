@@ -1,8 +1,10 @@
 package com.example.fittr_app.connections
 
 import com.example.fittr_app.types.GetUserBackendResponse
+import com.example.fittr_app.types.ProductData
 import com.example.fittr_app.types.User
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.adapter
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -19,7 +21,6 @@ import org.mockito.junit.MockitoJUnitRunner
 import org.robolectric.annotation.Config
 
 @RunWith(MockitoJUnitRunner::class)
-@Config(sdk = [30])
 class ApiClientUnitTest {
 
     private lateinit var mockWebServer: MockWebServer
@@ -28,7 +29,6 @@ class ApiClientUnitTest {
 
     @Before
     fun setUp() {
-        MockitoAnnotations.openMocks(this)
         mockWebServer = MockWebServer()
         mockWebServer.start()
         apiClient.BASE_URL = mockWebServer.url("/").toString()
@@ -100,5 +100,22 @@ class ApiClientUnitTest {
         // Then
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull() is IOException)
+    }
+
+    @Test
+    fun `get product returns a valid response`() = runBlocking {
+        val testProduct = ProductData(
+            service_uuid = "",
+            left_resistance_uuid = "",
+            right_resistance_uuid = "",
+            stop_uuid = "",
+            exercise_initialize_uuid = "",
+            message = "",
+            error = "")
+        val validResponse = moshi.adapter(ProductData::class.java).toJson(testProduct)
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody(validResponse))
+        val result = apiClient.getProductData(ApiPaths.GetProduct(1),null)
+        assertTrue(result.isSuccess)
+        assertEquals(testProduct, result.getOrNull())
     }
 }

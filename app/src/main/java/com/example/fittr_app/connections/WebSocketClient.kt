@@ -6,11 +6,12 @@ import okhttp3.WebSocketListener
 import okio.ByteString
 import android.util.Log
 import com.example.fittr_app.media_pipe.BackendResponse
+import com.example.fittr_app.media_pipe.BackendResponseHandler
 import com.example.fittr_app.media_pipe.CameraFragment
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 
-class WebSocketClient(private val cameraFragment: CameraFragment) : WebSocketListener() {
+class WebSocketClient(private val responseHandler: BackendResponseHandler, private val gson: Gson = Gson()) : WebSocketListener() {
     override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
         super.onMessage(webSocket, bytes)
     }
@@ -19,10 +20,10 @@ class WebSocketClient(private val cameraFragment: CameraFragment) : WebSocketLis
 
         // Parse the JSON response
         try {
-            val backendResponse = Gson().fromJson(text, BackendResponse::class.java)
+            val backendResponse = gson.fromJson(text, BackendResponse::class.java)
 
             // Pass the response to the CameraFragment
-            (cameraFragment as? CameraFragment)?.handleBackendResponse(backendResponse)
+            responseHandler.handleBackendResponse(backendResponse)
         } catch (e: JsonSyntaxException) {
             Log.e("WebSocket", "Error parsing backend response: ${e.message}")
         }
