@@ -1,7 +1,6 @@
 package com.example.fittr_app
 
 import android.animation.Animator
-import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.bluetooth.BluetoothDevice
@@ -10,8 +9,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.Looper
@@ -29,7 +26,6 @@ import com.example.fittr_app.databinding.ActivityDashboardBinding
 import com.example.fittr_app.types.Exercise
 import com.example.fittr_app.types.ProductData
 import com.example.fittr_app.types.User
-import com.github.mikephil.charting.data.BarEntry
 import kotlinx.coroutines.launch
 import android.os.Handler
 import android.text.InputFilter
@@ -61,7 +57,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
     }
 
     private lateinit var DashboardBinding : ActivityDashboardBinding
-    private val api_client: ApiClient by lazy { ApiClientProvider.apiClient }
+    private val apiClient: ApiClient by lazy { ApiClientProvider.apiClient }
     private lateinit var user: User
     private lateinit var productData: ProductData
     private var isBluetoothConnected = false
@@ -204,7 +200,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         startEllipsisAnimation(aiMessageTextView)
 
         // Call the API and get the result
-        val result = api_client.getUserAIReply(user_id)
+        val result = apiClient.getUserAIReply(user_id)
 
         // Check if the result is successful
         result.onSuccess { aiReply ->
@@ -243,7 +239,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
     }
 
     suspend fun getAIExercisePlan(){
-        val result = api_client.getUserAIExercisePlan(userId = user.user_id)
+        val result = apiClient.getUserAIExercisePlan(userId = user.user_id)
         result.onSuccess { exercisePlan ->
             if(!exercisePlan.error.isNullOrEmpty()){
                 Log.e(TAG,"Error from backend failing to load AI exercise plan: ${exercisePlan.error}")
@@ -294,7 +290,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
 
     private suspend fun getUserInformation(userId:Int){
         try {
-            val response = api_client.getUser(ApiPaths.GetUser(userId),null)
+            val response = apiClient.getUser(ApiPaths.GetUser(userId),null)
             if(response.isSuccess){
                 Log.i(TAG,"User information retrieved successfully")
                 user = response.getOrNull()?.user!!
@@ -315,7 +311,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             return
         }
         try{
-            val response = api_client.getProductData(ApiPaths.GetProduct(productId),null)
+            val response = apiClient.getProductData(ApiPaths.GetProduct(productId),null)
             if(response.isSuccess){
                 productData = response.getOrNull()!!
             }else{
