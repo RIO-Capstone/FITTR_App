@@ -58,7 +58,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
 
     private lateinit var DashboardBinding : ActivityDashboardBinding
     private val apiClient: ApiClient by lazy { ApiClientProvider.apiClient }
-    private lateinit var user: User
+    lateinit var user: User // public user object for testing purposes
     private lateinit var productData: ProductData
     private var isBluetoothConnected = false
     private val exerciseReps: MutableMap<Exercise, Int> = mutableMapOf()

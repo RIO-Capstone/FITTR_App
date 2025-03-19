@@ -2,7 +2,6 @@ package com.example.fittr_app
 
 import android.view.View
 import android.widget.DatePicker
-import androidx.navigation.fragment.NavHostFragment.Companion.findNavController
 import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
@@ -62,7 +61,7 @@ class RegistrationActivityUITest {
         populateRegistrationPageTwoFields(RegistrationPageTwoFields())
         onView(withId(R.id.nxt_btn_page_two)).perform(click())
         // page three check
-
+        onView(withId(R.id.viewPagerContainer)).check(matches(isDisplayed()))
         onView(withId(R.id.registrationThreeCompleteRegistration)).check(matches(isDisplayed()))
     }
 

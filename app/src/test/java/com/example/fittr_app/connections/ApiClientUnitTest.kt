@@ -1,7 +1,5 @@
-package com.example.fittr_app
+package com.example.fittr_app.connections
 
-import com.example.fittr_app.connections.ApiClient
-import com.example.fittr_app.connections.ApiPaths
 import com.example.fittr_app.types.GetUserBackendResponse
 import com.example.fittr_app.types.User
 import com.squareup.moshi.Moshi
@@ -16,10 +14,13 @@ import org.junit.Before
 import org.junit.Test
 import java.io.IOException
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
+import org.mockito.MockitoAnnotations
+import org.mockito.junit.MockitoJUnitRunner
+import org.robolectric.annotation.Config
 
-@RunWith(RobolectricTestRunner::class)
-class ApiClientTest {
+@RunWith(MockitoJUnitRunner::class)
+@Config(sdk = [30])
+class ApiClientUnitTest {
 
     private lateinit var mockWebServer: MockWebServer
     private var apiClient = ApiClient
@@ -27,6 +28,7 @@ class ApiClientTest {
 
     @Before
     fun setUp() {
+        MockitoAnnotations.openMocks(this)
         mockWebServer = MockWebServer()
         mockWebServer.start()
         apiClient.BASE_URL = mockWebServer.url("/").toString()
