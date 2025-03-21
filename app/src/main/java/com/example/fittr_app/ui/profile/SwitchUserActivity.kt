@@ -28,7 +28,7 @@ class SwitchUserActivity: AppCompatActivity() {
 
         val recyclerView: RecyclerView = findViewById(R.id.viewProfiles)
 
-        val productId = 1
+        val productId = intent.getIntExtra("product_id",1)
 
         // Launch the coroutine within the lifecycle scope
         lifecycleScope.launch {
@@ -37,8 +37,9 @@ class SwitchUserActivity: AppCompatActivity() {
             // Now set the adapter after the data is fetched
             recyclerView.layoutManager = GridLayoutManager(this@SwitchUserActivity, 2)
             recyclerView.adapter = UserProfileAdapter(userList) { selectedUser ->
-                val intent = Intent(this@SwitchUserActivity, AuthActivity::class.java).apply {
+                val intent = Intent(this@SwitchUserActivity, DashboardActivity::class.java).apply {
                     putExtra("User_Name", selectedUser.name)
+                    putExtra("user_id",selectedUser.user_id)
                 }
                 startActivity(intent)
                 finish()
@@ -57,7 +58,7 @@ class SwitchUserActivity: AppCompatActivity() {
             // If the response is not null, map it to a list of UserProfiles
             response?.users?.map { backendUser ->
                 // Map backend data to UserProfile
-                UserProfile(backendUser.full_name) // Adjust this if necessary
+                UserProfile(name = backendUser.full_name, user_id = backendUser.id) // Adjust this if necessary
             } ?: emptyList()
         } else {
             // On failure, show a Toast and return an empty list
