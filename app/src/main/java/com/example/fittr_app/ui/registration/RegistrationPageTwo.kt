@@ -28,7 +28,6 @@ class RegistrationPageTwo : Fragment() {
     private lateinit var viewModel: RegistrationViewModel
     private var _binding: RegistrationPageTwoBinding? = null
     private val binding get() = _binding!!
-    private lateinit var apiClient: ApiClient
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,7 +39,6 @@ class RegistrationPageTwo : Fragment() {
 
         viewModel = ViewModelProvider(requireActivity())[RegistrationViewModel::class.java]
         // initialise api client
-        apiClient = ApiClient()
         // Access views using binding instead of findViewById
         val genderField = binding.spinnerGender
         ArrayAdapter.createFromResource(
@@ -86,10 +84,16 @@ class RegistrationPageTwo : Fragment() {
         val dobField = binding.etDateOfBirth
         val weightField = binding.etWeight
         val heightField = binding.etHeight
+        val genderField = binding.spinnerGender
 
+        if(genderField.selectedItem == resources.getStringArray(R.array.gender_options).first()){
+            Toast.makeText(requireContext(), "Please select a gender", Toast.LENGTH_SHORT).show()
+            return false
+        }
         // Validate Date of Birth
-        if (dobField.text.isEmpty()) {
+        if (dobField.text.isNullOrEmpty()) {
             dobField.error = "Date of birth is required"
+            Toast.makeText(requireContext(),"Date of birth is required",Toast.LENGTH_SHORT).show()
             return false
         } else if (!isValidDate(dobField.text.toString())) {
             dobField.error = "Please enter a valid date of birth (YYYY-MM-DD)"

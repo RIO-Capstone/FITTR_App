@@ -23,7 +23,8 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 
-class ApiClient {
+object ApiClient {
+
     private val client = OkHttpClient.Builder()
         .connectTimeout(120, TimeUnit.SECONDS)  // Increase connection timeout
         .readTimeout(120, TimeUnit.SECONDS)     // Increase read timeout
@@ -32,9 +33,7 @@ class ApiClient {
 
     private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
 
-    companion object {
-        private const val BASE_URL = "http://192.168.50.147:8000/"
-    }
+    var BASE_URL = "http://GET FROM BACKEND:8000/"
     // Get user
     suspend fun getUser(endpoint: ApiPaths,data:Any?): Result<GetUserBackendResponse>{
         return makeApiRequest<GetUserBackendResponse>(endpoint,data)
@@ -49,10 +48,7 @@ class ApiClient {
     suspend fun registerUser(endpoint: ApiPaths, data: Any): Result<RegisterUserBackendResponse> {
         return makeApiRequest<RegisterUserBackendResponse>(endpoint, data)
     }
-    // Get user history
-    suspend fun getUserHistory(endpoint: ApiPaths, data: Any?): Result<UserHistoryBackendResponse> {
-        return makeApiRequest<UserHistoryBackendResponse>(endpoint, data)
-    }
+
     // Get product data
     suspend fun getProductData(endpoint: ApiPaths, data: Any?): Result<ProductData> {
         return makeApiRequest<ProductData>(endpoint,data)
@@ -130,7 +126,7 @@ class ApiClient {
                     return@withContext Result.failure(IOException("Unexpected response code: ${response.code}"))
                 }
             } catch (e: Exception) {
-                Log.e("ApiClient", "Error during API request", e)
+                Log.e("ApiClient", "Error during API request")
                 return@withContext Result.failure(e)
             }
         }
@@ -144,4 +140,8 @@ class ApiClient {
         val id: Int,
         val full_name: String
     )
+}
+
+object ApiClientProvider {
+    var apiClient: ApiClient = ApiClient
 }

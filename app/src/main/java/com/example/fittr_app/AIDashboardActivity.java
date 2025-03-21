@@ -36,26 +36,17 @@ public class AIDashboardActivity extends AppCompatActivity {
         rangeOfMotionScore = intent.getIntExtra("range_of_motion_score", 0);
         futureAdvice = intent.getStringExtra("future_advice");
 
-
         TextView adviceTextView = findViewById(R.id.adviceTextView);
         TextView formScoreTextView = findViewById(R.id.formScoreTextView);
         TextView stabilityScoreTextView = findViewById(R.id.stabilityScoreTextView);
         TextView rangeOfMotionScoreTextView = findViewById(R.id.rangeOfMotionScoreTextView);
         TextView futureAdviceTextView = findViewById(R.id.futureAdviceTextView);
 
-
-
-        // Remove the first two characters if the string has at least two characters
-
-
-        adviceTextView.setText(adviceText.substring(1));
+        adviceTextView.setText(adviceText);
         formScoreTextView.setText(String.valueOf(formScore));
         stabilityScoreTextView.setText(String.valueOf(stabilityScore));
         rangeOfMotionScoreTextView.setText(String.valueOf(rangeOfMotionScore));
-        futureAdviceTextView.setText(futureAdvice.substring(1));
-
-
-
+        futureAdviceTextView.setText(futureAdvice);
 
         ImageButton btnBack = findViewById(R.id.btnBack);  // Reference the back button
         btnBack.setOnClickListener(new View.OnClickListener() {

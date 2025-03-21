@@ -22,7 +22,7 @@
     android:background="@android:color/transparent">
 
     <RelativeLayout
-        android:id="@+id/relativeLayout"
+        android:id="@+id/mainRelativeLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -82,7 +82,7 @@
         android:text="Rep Count: 0"
         android:textColor="@android:color/white"
         android:textSize="20sp"
-        app:layout_anchor="@+id/relativeLayout"
+        app:layout_anchor="@+id/mainRelativeLayout"
         app:layout_anchorGravity="top|center" />
 
     <TextView

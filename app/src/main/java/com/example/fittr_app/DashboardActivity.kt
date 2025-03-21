@@ -1,7 +1,6 @@
 package com.example.fittr_app
 
 import android.animation.Animator
-import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.bluetooth.BluetoothDevice
@@ -10,8 +9,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.Looper
@@ -29,7 +26,6 @@ import com.example.fittr_app.databinding.ActivityDashboardBinding
 import com.example.fittr_app.types.Exercise
 import com.example.fittr_app.types.ProductData
 import com.example.fittr_app.types.User
-import com.github.mikephil.charting.data.BarEntry
 import kotlinx.coroutines.launch
 import android.os.Handler
 import android.text.InputFilter
@@ -39,6 +35,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
+import com.example.fittr_app.connections.ApiClientProvider
 import com.example.fittr_app.ui.auth.AuthActivity
 import com.example.fittr_app.ui.profile.SwitchUserActivity
 import com.example.fittr_app.utils.TextToSpeechHelper
@@ -60,8 +57,8 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
     }
 
     private lateinit var DashboardBinding : ActivityDashboardBinding
-    private lateinit var api_client : ApiClient
-    private lateinit var user: User
+    private val apiClient: ApiClient by lazy { ApiClientProvider.apiClient }
+    lateinit var user: User // public user object for testing purposes
     private lateinit var productData: ProductData
     private var isBluetoothConnected = false
     private val exerciseReps: MutableMap<Exercise, Int> = mutableMapOf()
@@ -93,13 +90,12 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         super.onCreate(savedInstanceState)
         DashboardBinding = ActivityDashboardBinding.inflate(layoutInflater)
         setContentView(DashboardBinding.root)
-        api_client = ApiClient()
         textToSpeech = TextToSpeechHelper.initialize(this) // Singleton object initialization
         if(intent.hasExtra("user_id")){ // getting the user_id from the login session
             val user_id = intent.getIntExtra("user_id",0)
             lifecycleScope.launch {
                 getUserInformation(user_id)
-//                getFITTRAIinformation(user_id)
+                getFITTRAIinformation(user_id)
                 getProductData(user.product_id)
             }
         }
@@ -186,9 +182,9 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             intent.putExtra("product_id",user.product_id)
             intent.putExtra("total_session_reps", exerciseReps[selectedExercise])
             BluetoothHelper.queueWriteOperation(
-            message = "true",
-            characteristicUUID = productData.exercise_initialize_uuid,
-            callback = this)
+                message = "true",
+                characteristicUUID = productData.exercise_initialize_uuid,
+                callback = this)
             startActivity(intent)
         } else {
             Toast.makeText(this,"Establish Bluetooth connection first",Toast.LENGTH_LONG).show()
@@ -204,7 +200,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         startEllipsisAnimation(aiMessageTextView)
 
         // Call the API and get the result
-        val result = api_client.getUserAIReply(user_id)
+        val result = apiClient.getUserAIReply(user_id)
 
         // Check if the result is successful
         result.onSuccess { aiReply ->
@@ -213,12 +209,12 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             stopEllipsisAnimation(aiMessageTextView, aiReply.feedback_message.summary_analysis)
 
             aiMessageTextView.alpha = 1f // Ensure it's fully visible before setting text
-            aiMessageTextView.setTextColor(android.graphics.Color.parseColor("#8C52FD")) // Set text color to purple
-            aiMessageTextView.text = aiReply.feedback_message.summary_analysis.substring(1)
+            aiMessageTextView.setTextColor(Color.parseColor("#8C52FD")) // Set text color to purple
+            aiMessageTextView.text = aiReply.feedback_message.summary_analysis
 
-            form_score = aiReply.feedback_message.form_score.toInt()
-            stability_score = aiReply.feedback_message.stability_score.toInt()
-            range_of_motion_score = aiReply.feedback_message.range_of_motion_score.toInt()
+            form_score = aiReply.feedback_message.form_score
+            stability_score = aiReply.feedback_message.stability_score
+            range_of_motion_score = aiReply.feedback_message.range_of_motion_score
 
             summary_analysis = aiReply.feedback_message.summary_analysis
             future_advice = aiReply.feedback_message.future_advice
@@ -234,7 +230,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         }.onFailure { exception ->
 
             aiMessageTextView.alpha = 1f // Ensure it's fully visible
-            aiMessageTextView.setTextColor(android.graphics.Color.RED) // Set color to red in case of failure
+            aiMessageTextView.setTextColor(Color.RED) // Set color to red in case of failure
             aiMessageTextView.text = "Failed to load AI information: ${exception.localizedMessage}"
 
             // Make sure the TextView is fully visible after animation ends
@@ -243,7 +239,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
     }
 
     suspend fun getAIExercisePlan(){
-        val result = api_client.getUserAIExercisePlan(userId = user.user_id)
+        val result = apiClient.getUserAIExercisePlan(userId = user.user_id)
         result.onSuccess { exercisePlan ->
             if(!exercisePlan.error.isNullOrEmpty()){
                 Log.e(TAG,"Error from backend failing to load AI exercise plan: ${exercisePlan.error}")
@@ -294,7 +290,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
 
     private suspend fun getUserInformation(userId:Int){
         try {
-            val response = api_client.getUser(ApiPaths.GetUser(userId),null)
+            val response = apiClient.getUser(ApiPaths.GetUser(userId),null)
             if(response.isSuccess){
                 Log.i(TAG,"User information retrieved successfully")
                 user = response.getOrNull()?.user!!
@@ -315,7 +311,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             return
         }
         try{
-            val response = api_client.getProductData(ApiPaths.GetProduct(productId),null)
+            val response = apiClient.getProductData(ApiPaths.GetProduct(productId),null)
             if(response.isSuccess){
                 productData = response.getOrNull()!!
             }else{
@@ -413,8 +409,10 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             Exercise.LEFT_BICEP_CURLS -> findViewById<FrameLayout>(R.id.dashboard_bicep_curl_left_frame)
             else -> return // no animation required
         }
-        withContext(Dispatchers.Main) {
-            animateBackgroundChange(frameLayout) // Ensures this animation completes before proceeding
+        if(frameLayout != null){
+            withContext(Dispatchers.Main) {
+                animateBackgroundChange(frameLayout) // Ensures this animation completes before proceeding
+            }
         }
     }
 

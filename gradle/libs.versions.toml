@@ -1,5 +1,6 @@
 [versions]
 agp = "8.6.1"
+espressoContrib = "3.6.1"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -25,9 +26,15 @@ moshi-kotlin = "1.13.0"
 mpandroidchart = "3.1.0"
 espressoIntents = "3.6.1"
 junitJupiter = "5.8.1"
+mockwebserver = "4.9.1"
+robolectric = "4.10.3"
+mockito = "5.0.0"
+mockitoInline = "5.0.0"
+mockitoKotlin = "5.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-espresso-contrib-v361 = { module = "androidx.test.espresso:espresso-contrib", version.ref = "espressoContrib" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -54,10 +61,16 @@ moshi-kotlin = { group = "com.squareup.moshi", name = "moshi-kotlin", version.re
 mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
 androidx-espresso-intents = { group = "androidx.test.espresso", name = "espresso-intents", version.ref = "espressoIntents" }
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }
+mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "mockwebserver" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "mockitoInline" }
+mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+jacoco = { id = "jacoco"}
 
 [bundles]
 camerax = ["camerax-core", "camerax-camera2", "camerax-lifecycle", "camerax-view"]

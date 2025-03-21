@@ -2,6 +2,7 @@ package com.example.fittr_app.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -9,20 +10,19 @@ import com.example.fittr_app.connections.ApiClient
 import com.example.fittr_app.connections.ApiPaths
 import com.example.fittr_app.databinding.ActivityAuthBinding
 import com.example.fittr_app.DashboardActivity
+import com.example.fittr_app.connections.ApiClientProvider
 import com.example.fittr_app.types.LoginUserBackendResponse
 import com.example.fittr_app.ui.registration.RegistrationActivity
 import kotlinx.coroutines.launch
 
 class AuthActivity:AppCompatActivity() {
     private lateinit var _binding: ActivityAuthBinding
-    private lateinit var apiClient: ApiClient
+    private val apiClient: ApiClient by lazy { ApiClientProvider.apiClient }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = ActivityAuthBinding.inflate(layoutInflater)
         setContentView(_binding.root)
-
-        apiClient = ApiClient()
 
         val userNameField = _binding.authIdField
         val passwordField = _binding.authPasswordField
