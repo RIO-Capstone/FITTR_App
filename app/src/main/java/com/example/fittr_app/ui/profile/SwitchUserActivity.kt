@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.fittr_app.DashboardActivity
 import com.example.fittr_app.R
 import com.example.fittr_app.connections.ApiClient
+import com.example.fittr_app.connections.ApiClientProvider
 import com.example.fittr_app.connections.ApiPaths
 import com.example.fittr_app.ui.auth.AuthActivity
 import kotlinx.coroutines.CoroutineScope
@@ -19,26 +20,13 @@ import kotlinx.coroutines.launch
 
 class SwitchUserActivity: AppCompatActivity() {
 
-    private lateinit var apiClient: ApiClient
+    private val apiClient = ApiClientProvider.apiClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_switch_user)
 
-        apiClient = ApiClient()
-
         val recyclerView: RecyclerView = findViewById(R.id.viewProfiles)
-        /*
-
-        val userList = listOf(
-            UserProfile("User 1"),
-            UserProfile("User 2"),
-            UserProfile("User 3"),
-            UserProfile("User 4"),
-            UserProfile("User 5"),
-            UserProfile("User 6")
-        )
-*/
 
         val productId = 1
 

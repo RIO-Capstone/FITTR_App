@@ -209,12 +209,12 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             stopEllipsisAnimation(aiMessageTextView, aiReply.feedback_message.summary_analysis)
 
             aiMessageTextView.alpha = 1f // Ensure it's fully visible before setting text
-            aiMessageTextView.setTextColor(android.graphics.Color.parseColor("#8C52FD")) // Set text color to purple
-            aiMessageTextView.text = aiReply.feedback_message.summary_analysis.substring(1)
+            aiMessageTextView.setTextColor(Color.parseColor("#8C52FD")) // Set text color to purple
+            aiMessageTextView.text = aiReply.feedback_message.summary_analysis
 
-            form_score = aiReply.feedback_message.form_score.toInt()
-            stability_score = aiReply.feedback_message.stability_score.toInt()
-            range_of_motion_score = aiReply.feedback_message.range_of_motion_score.toInt()
+            form_score = aiReply.feedback_message.form_score
+            stability_score = aiReply.feedback_message.stability_score
+            range_of_motion_score = aiReply.feedback_message.range_of_motion_score
 
             summary_analysis = aiReply.feedback_message.summary_analysis
             future_advice = aiReply.feedback_message.future_advice
