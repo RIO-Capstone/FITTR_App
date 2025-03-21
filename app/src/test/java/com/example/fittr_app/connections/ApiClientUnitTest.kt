@@ -103,7 +103,7 @@ class ApiClientUnitTest {
     }
 
     @Test
-    fun `get product returns a valid response`() = runBlocking {
+    fun `getProductData returns a valid response`() = runBlocking {
         val testProduct = ProductData(
             service_uuid = "",
             left_resistance_uuid = "",
