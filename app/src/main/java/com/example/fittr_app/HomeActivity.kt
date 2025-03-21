@@ -15,19 +15,15 @@ import com.example.fittr_app.ui.profile.SwitchUserActivity
 class HomeActivity : AppCompatActivity() {
     private lateinit var homeActivityBinding: ActivityHomeBinding
 
-    // Inflating the activity_home xml file
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         homeActivityBinding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(homeActivityBinding.root)
 
-        // Apply gradient to the TextView
         applyGradientToTextView()
 
         homeActivityBinding.homeNextButton.setOnClickListener {
-            // Navigate to login
-            navigateToUserProfileActivity()
+           navigateToAuth()
         }
     }
 
@@ -52,13 +48,6 @@ class HomeActivity : AppCompatActivity() {
 
     private fun navigateToAuth() {
         val intent = Intent(this, AuthActivity::class.java) // Navigate to AuthActivity
-        startActivity(intent)
-
-        //Navigates to AuthActivity
-    }
-
-    private fun navigateToUserProfileActivity() {
-        val intent = Intent(this, SwitchUserActivity::class.java)
         startActivity(intent)
     }
 }

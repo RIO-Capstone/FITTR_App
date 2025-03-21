@@ -12,6 +12,7 @@ import com.example.fittr_app.databinding.ActivityAuthBinding
 import com.example.fittr_app.DashboardActivity
 import com.example.fittr_app.connections.ApiClientProvider
 import com.example.fittr_app.types.LoginUserBackendResponse
+import com.example.fittr_app.ui.profile.SwitchUserActivity
 import com.example.fittr_app.ui.registration.RegistrationActivity
 import kotlinx.coroutines.launch
 
@@ -37,7 +38,7 @@ class AuthActivity:AppCompatActivity() {
                 val response = login(email = userNameField.text.toString(), password = passwordField.text.toString())
                 if (response != null) {
                     Toast.makeText(this@AuthActivity, "Login Complete", Toast.LENGTH_LONG).show()
-                    navigateToDashboard(response.user.user_id)
+                    navigateToUserProfileActivity(response.user.product_id)
                 } else {
                     Toast.makeText(this@AuthActivity, "Login Failed. Check your credentials.", Toast.LENGTH_LONG).show()
                 }
@@ -69,10 +70,9 @@ class AuthActivity:AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun navigateToDashboard(user_id: Int){
-        val intent = Intent(this, DashboardActivity::class.java).apply {
-            putExtra("user_id", user_id)
-        }
+    private fun navigateToUserProfileActivity(productId:Int) {
+        val intent = Intent(this, SwitchUserActivity::class.java)
+        intent.putExtra("product_id",productId)
         startActivity(intent)
     }
 }
