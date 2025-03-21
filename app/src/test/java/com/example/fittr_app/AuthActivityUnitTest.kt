@@ -1,8 +1,16 @@
 package com.example.fittr_app
 
 import android.content.Intent
-import android.os.Looper
 import android.view.View
+import android.widget.EditText
+import androidx.core.view.isVisible
+import androidx.test.core.app.ApplicationProvider
+import com.example.fittr_app.connections.ApiClient
+import com.example.fittr_app.connections.ApiClientProvider
+import com.example.fittr_app.connections.ApiPaths
+import com.example.fittr_app.databinding.ActivityAuthBinding
+import com.example.fittr_app.types.LoginUserBackendResponse
+import com.example.fittr_app.types.User
 import com.example.fittr_app.ui.auth.AuthActivity
 import com.example.fittr_app.ui.registration.RegistrationActivity
 import junit.framework.TestCase.assertEquals
@@ -82,7 +90,8 @@ class AuthActivityUnitTest {
     fun testLoginButtonClick_ValidCredentials() {
         runBlocking {
             `when`(mockApiClient.loginUser(ApiPaths.LoginUser, mapOf("email" to "testerone@gmail.com", "password" to "123")))
-                .thenReturn(Result.success(LoginUserBackendResponse(user = User(
+                .thenReturn(Result.success(
+                    LoginUserBackendResponse(user = User(
                     user_id = 1,
                     product_id = 1,
                     first_name = "Tester",
@@ -90,7 +99,8 @@ class AuthActivityUnitTest {
                     weight = 70,
                     height = 180,
                     email = "testerone@gmail.com"
-                ), message = "login successful")))
+                ), message = "login successful")
+                ))
         }
         val usernameField = activity.findViewById<EditText>(R.id.auth_id_field)
         val passwordField = activity.findViewById<EditText>(R.id.auth_password_field)
