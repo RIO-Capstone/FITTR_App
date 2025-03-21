@@ -3,16 +3,6 @@ package com.example.fittr_app
 import android.content.Intent
 import android.os.Looper
 import android.view.View
-import android.widget.EditText
-import android.widget.TextView
-import androidx.core.view.isVisible
-import androidx.test.core.app.ApplicationProvider
-import com.example.fittr_app.connections.ApiClient
-import com.example.fittr_app.connections.ApiClientProvider
-import com.example.fittr_app.connections.ApiPaths
-import com.example.fittr_app.databinding.ActivityAuthBinding
-import com.example.fittr_app.types.LoginUserBackendResponse
-import com.example.fittr_app.types.User
 import com.example.fittr_app.ui.auth.AuthActivity
 import com.example.fittr_app.ui.registration.RegistrationActivity
 import junit.framework.TestCase.assertEquals
