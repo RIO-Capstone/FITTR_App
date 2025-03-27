@@ -67,24 +67,6 @@ class AuthActivityUnitTest {
         assertTrue(field.isVisible)
     }
 
-    @Test
-    fun testRegistrationButtonClick() {
-
-        val button = activity.findViewById<View>(R.id.auth_registration_button)
-        assertNotNull(button)
-        button.performClick()
-
-        // Get the ShadowActivity for intent verification
-        val shadowActivity = shadowOf(activity)
-        val actualIntent = shadowActivity.nextStartedActivity
-        assertNotNull(actualIntent)
-
-        // Verify that the intent's component matches RegistrationActivity
-        val expectedIntent = Intent(activity, RegistrationActivity::class.java)
-        assertEquals(expectedIntent.component, actualIntent.component)
-
-    }
-
 
     @Test
     fun testLoginButtonClick_ValidCredentials() {

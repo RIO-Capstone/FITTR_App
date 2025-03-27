@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 
 class SwitchUserActivity: AppCompatActivity() {
 
-    private val apiClient = ApiClientProvider.apiClient
+    private val apiClient: ApiClient by lazy { ApiClientProvider.apiClient }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

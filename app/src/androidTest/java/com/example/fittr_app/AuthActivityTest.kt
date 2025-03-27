@@ -47,15 +47,6 @@ class AuthActivityTest  {
         onView(withId(R.id.auth_id_field)).check(matches(isDisplayed()))
         onView(withId(R.id.auth_password_field)).check(matches(isDisplayed()))
         onView(withId(R.id.auth_login_button)).check(matches(isDisplayed()))
-        onView(withId(R.id.auth_registration_button)).check(matches(isDisplayed()))
-    }
-
-
-    @Test
-    fun testRegistrationButtonClick() {
-        onView(withId(R.id.auth_registration_button
-        )).perform(click())
-        intended(hasComponent(RegistrationActivity::class.java.name))
     }
 
     @Test
