@@ -28,11 +28,7 @@ class AuthActivity:AppCompatActivity() {
         val userNameField = _binding.authIdField
         val passwordField = _binding.authPasswordField
         val loginButton = _binding.authLoginButton
-        val registrationButton = _binding.authRegistrationButton
 
-        registrationButton.setOnClickListener {
-            startRegistration()
-        }
         loginButton.setOnClickListener {
             lifecycleScope.launch {
                 val response = login(email = userNameField.text.toString(), password = passwordField.text.toString())
@@ -61,13 +57,6 @@ class AuthActivity:AppCompatActivity() {
 //            }
             null // return null
         }
-    }
-
-
-    private fun startRegistration(){
-        // Navigate to registration
-        val intent = Intent(this, RegistrationActivity::class.java)
-        startActivity(intent)
     }
 
     private fun navigateToUserProfileActivity(productId:Int) {

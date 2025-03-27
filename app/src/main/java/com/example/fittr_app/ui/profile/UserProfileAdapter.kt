@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.fittr_app.R
 import com.example.fittr_app.ui.auth.AuthActivity
+import com.example.fittr_app.ui.registration.RegistrationActivity
 
 
 class UserProfileAdapter(private val userList: List<UserProfile>, private val onClick: (UserProfile) -> Unit) : RecyclerView.Adapter<UserProfileAdapter.UserProfileViewHolder>() {
@@ -46,7 +47,7 @@ class UserProfileAdapter(private val userList: List<UserProfile>, private val on
         holder.itemView.setOnClickListener {
             if (userProfile.isAddUserButton) {
                 val context = holder.itemView.context
-                val intent = Intent(context, AuthActivity::class.java)
+                val intent = Intent(context, RegistrationActivity::class.java)
                 context.startActivity(intent)
             } else {
                 onClick(userProfile)

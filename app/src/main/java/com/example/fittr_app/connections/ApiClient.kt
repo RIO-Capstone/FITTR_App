@@ -8,10 +8,10 @@ import com.example.fittr_app.types.AIReply
 import com.example.fittr_app.types.AISessionReply
 import com.example.fittr_app.types.Feedback
 import com.example.fittr_app.types.GetUserBackendResponse
+import com.example.fittr_app.types.GetUsersBackendResponse
 import com.example.fittr_app.types.LoginUserBackendResponse
 import com.example.fittr_app.types.ProductData
 import com.example.fittr_app.types.RegisterUserBackendResponse
-import com.example.fittr_app.types.UserHistoryBackendResponse
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import kotlinx.coroutines.Dispatchers
@@ -131,15 +131,6 @@ object ApiClient {
             }
         }
     }
-
-    data class GetUsersBackendResponse(
-        val users: List<UserSimple>
-    )
-
-    data class UserSimple(
-        val id: Int,
-        val full_name: String
-    )
 }
 
 object ApiClientProvider {

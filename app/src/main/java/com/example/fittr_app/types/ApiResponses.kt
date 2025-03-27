@@ -22,14 +22,7 @@ data class User(
     val email: String,
     val product_id: Int
 )
-data class UserHistoryBackendResponse(
-    val session_data: List<SessionData>,
-    val streak: Int
-)
-data class SessionData(
-    val duration: Int,
-    val date: String
-)
+
 data class ProductData(
     val service_uuid:String,
     val left_resistance_uuid:String,
@@ -63,4 +56,13 @@ data class Feedback(
     val range_of_motion_score: Int,
     val form_score: Int,
     val stability_score: Int
+)
+
+data class GetUsersBackendResponse(
+    val users: List<UserSimple>
+)
+
+data class UserSimple(
+    val id: Int,
+    val full_name: String
 )

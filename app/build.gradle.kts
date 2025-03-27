@@ -214,4 +214,5 @@ dependencies {
     testImplementation(libs.mockito.kotlin)
     androidTestImplementation(libs.androidx.espresso.contrib.v361)
     androidTestImplementation(libs.mockito.core)
+    androidTestImplementation(libs.mockk.android)
 }
