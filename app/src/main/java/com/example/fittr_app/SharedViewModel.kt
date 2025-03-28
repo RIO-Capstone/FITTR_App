@@ -9,10 +9,14 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.fittr_app.types.Exercise
+import java.text.SimpleDateFormat
 import kotlin.time.Duration
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 // TODO: Refactor the class to get rid of calibration and to UUIDS do not need to be Mutable
 
@@ -93,11 +97,12 @@ class SharedViewModel : ViewModel() {
         _totalRepCount = count
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+
     fun getExerciseSessionData():Map<String, Any>{
-        val now = LocalDateTime.now(ZoneOffset.UTC) // Get current UTC time
-        val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
-        val formattedDateTime = now.format(formatter) + "Z"
+        val now = Date() // Get current date and time
+        val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
+        formatter.timeZone = TimeZone.getTimeZone("UTC") // Set to UTC timezone
+        val formattedDateTime = formatter.format(now)
         return mapOf(
             "exercise_type" to (selectedExercise.value?.toString() ?: ""),
             "rep_count" to (repCount.value ?: 0),

@@ -29,6 +29,7 @@ data class ProductData(
     val right_resistance_uuid:String,
     val exercise_initialize_uuid: String,
     val stop_uuid:String,
+    val heartbeat_uuid:String,
     val error:String?,
     val message:String?
 )
