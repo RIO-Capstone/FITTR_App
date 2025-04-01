@@ -51,10 +51,6 @@
     </fragment>
 
     <fragment
-        android:id="@+id/gallery_fragment"
-        android:name="com.example.fittr_app.media_pipe.GalleryFragment"
-        android:label="GalleryFragment" />
-    <fragment
         android:id="@+id/exercise_success_fragment"
         android:name="com.example.fittr_app.media_pipe.ExerciseSuccessFragment"
         android:label="ExerciseSuccessFragment" />

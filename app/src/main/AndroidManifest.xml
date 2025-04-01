@@ -51,6 +51,7 @@
         <activity android:name=".ui.auth.AuthActivity" />
         <activity android:name=".ui.registration.RegistrationActivity"/>
         <activity android:name=".ui.profile.SwitchUserActivity"/>
+        <activity android:name=".media_pipe.NoCameraActivity"/>
     </application>
 
 </manifest>

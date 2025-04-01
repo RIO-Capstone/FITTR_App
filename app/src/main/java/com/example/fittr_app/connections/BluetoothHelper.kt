@@ -23,7 +23,7 @@ object BluetoothHelper {
     private var currentCallback: BluetoothReadCallback? = null
     private val connectionTimeoutHandler = Handler(Looper.getMainLooper())
     private var device: BluetoothDevice? = null
-    private var HEARTBEAT_CHARACTERISTIC_UUID = "e429a327-c1a4-4a25-956e-f3d632bdd63a"
+    var HEARTBEAT_CHARACTERISTIC_UUID = "" // reset on successful initialization
     private var operationInProgress = false
     private var operationsQueue = LinkedList<BluetoothOperation>()
     private var heartbeatRetryCount = 0

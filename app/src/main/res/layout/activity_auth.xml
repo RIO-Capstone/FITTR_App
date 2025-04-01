@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".YourActivity">
+    tools:context=".ui.auth.AuthActivity">
 
     <!-- A central LinearLayout to evenly space elements -->
     <LinearLayout
@@ -74,20 +74,9 @@
             android:textColor="@color/white"
             android:layout_marginTop="16dp" />
 
-        <!-- Register Button -->
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/auth_registration_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/rounded_button"
-            android:fontFamily="@font/poppins_bold"
-            android:text="Register"
-            android:textColor="@color/white"
-            android:layout_marginTop="12dp" />
-
         <!-- Help Text -->
         <TextView
-            android:id="@+id/helpText"
+            android:id="@+id/authHelpText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/poppins_light"

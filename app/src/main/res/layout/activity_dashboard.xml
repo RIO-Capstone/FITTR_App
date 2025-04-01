@@ -41,11 +41,22 @@
             android:layout_width="230dp"
             android:layout_height="60dp"
             android:layout_weight="2"
-            android:text="Activity Dashboard"
+            android:text="Dashboard"
             android:textSize="18sp"
             android:textStyle="bold"
             android:gravity="center"
             android:textColor="@color/black" />
+<!--        <ImageButton-->
+<!--            android:id="@+id/dashboard_motor_reset"-->
+<!--            android:layout_width="40dp"-->
+<!--            android:layout_height="40dp"-->
+<!--            android:contentDescription="Button to reset motor"-->
+<!--            android:scaleType="centerInside"-->
+<!--            android:layout_marginEnd="5dp"-->
+<!--            android:elevation="1dp"-->
+<!--            android:src="@mipmap/reset_image_foreground"-->
+<!--            android:background="@drawable/rounded_button"-->
+<!--            />-->
         <!-- Bluetooth Status Icon -->
         <ImageButton
             android:id="@+id/dashboard_bluetooth_status_button"
@@ -96,7 +107,7 @@
         android:background="@drawable/rounded_white_view"
         android:elevation="1dp"
         android:layout_marginTop="10dp"
-        app:layout_constraintBottom_toTopOf="@id/top_dashboard_recycle_view_container"
+        app:layout_constraintBottom_toTopOf="@id/dashboard_exercises_linear_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.528"
         app:layout_constraintStart_toStartOf="parent"
@@ -170,43 +181,37 @@
 
     </FrameLayout>
 
-
     <LinearLayout
-        android:id="@+id/top_dashboard_recycle_view_container"
-        android:layout_width="357dp"
-        android:layout_height="154dp"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="24dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        app:layout_constraintRight_toRightOf="parent"
+        android:id="@+id/dashboard_exercises_linear_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/dashboard_progress_layout"
+        app:layout_constraintBottom_toTopOf="@+id/dashboard_ai_button_text"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/dashboard_progress_layout">
-        <!-- Left Card -->
+        app:layout_constraintEnd_toEndOf="parent"
+        android:orientation="vertical"
+        android:padding="10dp">
+
         <FrameLayout
             android:id="@+id/dashboard_squats_frame"
-            android:layout_width="170dp"
+            android:layout_width="match_parent"
             android:layout_height="150dp"
-            android:layout_marginEnd="15dp"
+            android:layout_marginEnd="5dp"
             android:background="@drawable/rounded_white_view"
             android:elevation="1dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.112"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.415"
-            >
+            android:layout_marginBottom="10dp"
+            app:layout_constraintVertical_bias="0.415">
 
             <ImageView
                 android:id="@+id/dashboard_exercise_squats"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center|start"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginBottom="5dp"
                 android:src="@drawable/icons8_squat_64" />
 
-            <!-- TextView positioned at the top-center -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -214,47 +219,99 @@
                 android:layout_marginTop="12dp"
                 android:fontFamily="@font/poppins_bold"
                 android:text="Squats"
-
                 android:textColor="@android:color/black"
                 android:textSize="15sp" />
 
-            <EditText
-                android:id="@+id/squat_exercise_rep"
-                android:layout_width="60dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:layout_marginTop="52dp"
-                android:autofillHints="0"
-                android:hint="0"
-                android:inputType="number"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:textAlignment="center"
-                android:textColor="@android:color/black"
-                android:textColorHint="@android:color/darker_gray"
-                android:textSize="10sp"
-                android:imeOptions="actionDone"
-                />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/rounded_gradient_bg"
+                android:padding="5dp"
+                android:layout_marginEnd="20dp"
+                android:layout_gravity="center|end">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginEnd="10dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="REPS"
+                        android:textColor="@color/purple_200"
+                        android:textStyle="bold"
+                        android:textSize="12sp"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginBottom="4dp" />
+
+                    <EditText
+                        android:id="@+id/squat_exercise_rep"
+                        android:layout_width="70dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/rounded_button"
+                        android:hint="Set Reps"
+                        android:inputType="number"
+                        android:textAlignment="center"
+                        android:textColor="@android:color/white"
+                        android:textColorHint="#E0E0E0"
+                        android:textSize="14sp"
+                        android:imeOptions="actionDone"
+                        android:autofillHints="0"
+                        android:padding="8dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="WEIGHT"
+                        android:textColor="@color/purple_200"
+                        android:textStyle="bold"
+                        android:textSize="12sp"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginBottom="4dp" />
+
+                    <EditText
+                        android:id="@+id/squat_exercise_weight"
+                        android:layout_width="70dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/rounded_button"
+                        android:hint="Weight"
+                        android:inputType="numberDecimal"
+                        android:textAlignment="center"
+                        android:textColor="@android:color/white"
+                        android:textColorHint="#E0E0E0"
+                        android:textSize="14sp"
+                        android:imeOptions="actionDone"
+                        android:autofillHints="0"
+                        android:padding="8dp" />
+                </LinearLayout>
+            </LinearLayout>
         </FrameLayout>
 
-
-        <!-- Right Card -->
         <FrameLayout
             android:id="@+id/dashboard_bicep_curl_right_frame"
-            android:layout_width="170dp"
+            android:layout_width="match_parent"
             android:layout_height="150dp"
+            android:layout_marginEnd="5dp"
             android:background="@drawable/rounded_white_view"
             android:elevation="1dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_marginBottom="10dp">
 
             <ImageView
                 android:id="@+id/dashboard_exercises_bicep_curl_right"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center|start"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="5dp"
                 android:src="@drawable/icons8_curls_with_dumbbells_48" />
 
             <TextView
@@ -267,62 +324,65 @@
                 android:textColor="@android:color/black"
                 android:textSize="15sp" />
 
-            <EditText
-                android:id="@+id/right_bicep_curl_exercise_rep"
-                android:layout_width="60dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:layout_marginTop="52dp"
-                android:autofillHints="0"
-                android:hint="0"
-                android:inputType="number"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:textAlignment="center"
-                android:textColor="@android:color/black"
-                android:textColorHint="@android:color/darker_gray"
-                android:imeOptions="actionDone"
-                android:textSize="10sp" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|end"
+                android:layout_marginEnd="30dp"
+                android:orientation="horizontal"
+                >
+                <EditText
+                    android:id="@+id/right_bicep_curl_exercise_rep"
+                    android:layout_width="65dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/rounded_gradient_bg"
+                    android:hint="Set Reps"
+                    android:inputType="number"
+                    android:textAlignment="center"
+                    android:textColor="@color/purple_500"
+                    android:textColorHint="@color/purple_500"
+                    android:imeOptions="actionDone"
+                    android:textSize="10sp"
+                    android:autofillHints="0" />
 
+                <EditText
+                    android:id="@+id/right_bicep_curl_exercise_weight"
+                    android:layout_width="65dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/rounded_gradient_bg"
+                    android:hint="Weight"
+                    android:inputType="numberDecimal"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:textAlignment="center"
+                    android:textColor="@color/purple_500"
+                    android:textColorHint="@color/purple_500"
+                    android:imeOptions="actionDone"
+                    android:textSize="10sp"
+                    android:autofillHints="0" />
+            </LinearLayout>
         </FrameLayout>
 
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/bottom_dashboard_recycle_view_container"
-        android:layout_width="357dp"
-        android:layout_height="154dp"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="24dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/top_dashboard_recycle_view_container">
-        <!-- Left Card -->
         <FrameLayout
             android:id="@+id/dashboard_bicep_curl_left_frame"
-            android:layout_width="170dp"
+            android:layout_width="match_parent"
             android:layout_height="150dp"
-            android:layout_marginEnd="15dp"
+            android:layout_marginEnd="5dp"
             android:background="@drawable/rounded_white_view"
             android:elevation="1dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.112"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.415">
+            app:layout_constraintVertical_bias="0.415"
+            android:layout_marginBottom="10dp">
 
             <ImageView
                 android:id="@+id/dashboard_exercises_bicep_curl_left"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_marginTop="5dp"
+                android:layout_gravity="center|start"
+                android:layout_marginStart="20dp"
                 android:src="@drawable/icons8_curls_with_dumbbells_48"
                 android:scaleX="-1"/>
 
-            <!-- TextView positioned at the top-center -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -333,56 +393,90 @@
                 android:textColor="@android:color/black"
                 android:textSize="15sp" />
 
-            <EditText
-                android:id="@+id/left_bicep_curl_exercise_rep"
-                android:layout_width="60dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:layout_marginTop="52dp"
-                android:autofillHints="0"
-                android:hint="0"
-                android:inputType="number"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:textAlignment="center"
-                android:textColor="@android:color/black"
-                android:textColorHint="@android:color/darker_gray"
-                android:imeOptions="actionDone"
-                android:textSize="10sp" />
-        </FrameLayout>
-
-        <!-- Right Card -->
-        <FrameLayout
-            android:id="@+id/dashboard_exercise_tricep_extensions"
-            android:layout_width="170dp"
-            android:layout_height="150dp"
-            android:background="@drawable/rounded_white_view"
-            android:contentDescription="exercise selection"
-            android:elevation="1dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ImageView
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:src="@drawable/chevron_left_24px"
-                />
+                android:layout_gravity="center|end"
+                android:layout_marginEnd="30dp"
+                android:orientation="horizontal">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="12dp"
-                android:fontFamily="@font/poppins_bold"
-                android:text="Coming Soon"
-                android:textColor="@android:color/black"
-                android:textSize="15sp" />
+                <EditText
+                    android:id="@+id/left_bicep_curl_exercise_rep"
+                    android:layout_width="65dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/rounded_gradient_bg"
+                    android:hint="Set Reps"
+                    android:inputType="number"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:textAlignment="center"
+                    android:textColor="@color/purple_500"
+                    android:textColorHint="@color/purple_500"
+                    android:imeOptions="actionDone"
+                    android:textSize="10sp"
+                    android:autofillHints="0" />
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="2dp">
+
+                    <EditText
+                        android:id="@+id/left_bicep_curl_exercise_weight"
+                        android:layout_width="65dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/rounded_gradient_bg"
+                        android:hint="Weight"
+                        android:inputType="numberDecimal"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:textAlignment="center"
+                        android:textColor="@color/purple_500"
+                        android:textColorHint="@color/purple_500"
+                        android:imeOptions="actionDone"
+                        android:textSize="10sp"
+                        android:autofillHints="0" />
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
         </FrameLayout>
 
+            <FrameLayout
+                android:id="@+id/dashboard_free_flow_exercise"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:layout_marginEnd="5dp"
+                android:background="@drawable/rounded_white_view"
+                android:contentDescription="exercise selection"
+                android:elevation="1dp">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:src="@drawable/chevron_left_24px"
+                    />
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:src="@drawable/chevron_left_24px"
+                    android:scaleX="-1"
+                    android:layout_marginStart="10dp"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="12dp"
+                    android:fontFamily="@font/poppins_bold"
+                    android:text="Free Session"
+                    android:textColor="@android:color/black"
+                    android:textSize="15sp" />
+            </FrameLayout>
     </LinearLayout>
+
 
     <!-- AI Exercise plan text -->
     <TextView
@@ -392,7 +486,7 @@
         android:fontFamily="@font/poppins_bold"
         android:text="Generate AI Exercise Plan"
         android:layout_marginTop="10dp"
-        app:layout_constraintTop_toBottomOf="@id/bottom_dashboard_recycle_view_container"
+        app:layout_constraintTop_toBottomOf="@id/dashboard_exercises_linear_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         />

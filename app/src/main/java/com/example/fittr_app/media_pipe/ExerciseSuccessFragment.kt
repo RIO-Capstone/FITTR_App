@@ -12,17 +12,18 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.fittr_app.SharedViewModel
 import com.example.fittr_app.connections.ApiClient
+import com.example.fittr_app.connections.ApiClientProvider
 import com.example.fittr_app.databinding.FragmentExerciseSuccessBinding
 import com.example.fittr_app.types.Exercise
 import kotlinx.coroutines.launch
 
-@RequiresApi(Build.VERSION_CODES.O)
+
 class ExerciseSuccessFragment : Fragment() {
 
     private var _binding: FragmentExerciseSuccessBinding? = null
     private val binding get() = _binding!!
     private lateinit var sharedViewModel: SharedViewModel
-    private var apiClient = ApiClient
+    private val apiClient: ApiClient by lazy { ApiClientProvider.apiClient }
     private var exerciseFeedback = "No feedback at the moment"
 
     override fun onCreateView(
