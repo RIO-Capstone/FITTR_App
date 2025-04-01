@@ -40,6 +40,7 @@ import androidx.core.content.ContextCompat
 import com.example.fittr_app.connections.ApiClientProvider
 import com.example.fittr_app.media_pipe.NoCameraActivity
 import com.example.fittr_app.media_pipe.PoseLandmarkerHelper.Companion.MAX_RESISTANCE_VALUE
+import com.example.fittr_app.media_pipe.PoseLandmarkerHelper.Companion.MIN_RESISTANCE_VALUE
 import com.example.fittr_app.ui.profile.SwitchUserActivity
 import com.example.fittr_app.utils.TextToSpeechHelper
 import kotlinx.coroutines.Dispatchers
@@ -66,6 +67,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
     private lateinit var productData: ProductData
     private var isBluetoothConnected = false
     private val exerciseReps: MutableMap<Exercise, Int> = mutableMapOf()
+    private val exerciseWeights: MutableMap<Exercise, Float> = mutableMapOf()
     private lateinit var textToSpeech:TextToSpeechHelper
 
     override fun onError(message: String) {
@@ -82,6 +84,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             bluetoothButton.setImageResource(R.drawable.bluetooth_red)
         }
         isBluetoothConnected = isConnected
+        Log.w(TAG,"Setting bluetooth heartbeat uuid to ${productData.heartbeat_uuid}")
         BluetoothHelper.HEARTBEAT_CHARACTERISTIC_UUID = productData.heartbeat_uuid
     }
 
@@ -91,21 +94,21 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
     private var summary_analysis: String = ""
     private var future_advice: String = ""
 
-    private val handler = Handler(Looper.getMainLooper())
-    private var isButtonHeld = false
-
-    private val sendBluetoothCommand = object : Runnable {
-        override fun run() {
-            if (isButtonHeld && isBluetoothConnected) {
-                BluetoothHelper.queueWriteOperation(
-                    message = "true",
-                    characteristicUUID = productData.stop_uuid,
-                    callback = this@DashboardActivity
-                )
-                handler.postDelayed(this, 500) // Send message every 500ms while holding
-            }
-        }
-    }
+//    private val handler = Handler(Looper.getMainLooper())
+//    private var isButtonHeld = false
+//
+//    private val sendBluetoothCommand = object : Runnable {
+//        override fun run() {
+//            if (isButtonHeld && isBluetoothConnected) {
+//                BluetoothHelper.queueWriteOperation(
+//                    message = "true",
+//                    characteristicUUID = productData.stop_uuid,
+//                    callback = this@DashboardActivity
+//                )
+//                handler.postDelayed(this, 500) // Send message every 500ms while holding
+//            }
+//        }
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -127,30 +130,34 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             profileIntent.putExtra("product_id",user.product_id)
             startActivity(profileIntent)
         }
-        val squatStartButton = findViewById<View>(R.id.dashboard_exercise_squats)
-        val squatExerciseRep: EditText = findViewById(R.id.squat_exercise_rep)
-        squatStartButton.setOnClickListener{
-            navigateToMain(Exercise.SQUATS)
-        }
-        val squatExerciseWeight = findViewById<View>(R.id.squat_exercise_weight)
-        applyIntegerFilterAndTypeMapping(squatExerciseRep,Exercise.SQUATS)
 
-        val rightBicepCurlStartButton = findViewById<View>(R.id.dashboard_exercises_bicep_curl_right)
+        val squatFrameLayout = findViewById<FrameLayout>(R.id.dashboard_squats_frame)
+        val squatExerciseRep: EditText = findViewById(R.id.squat_exercise_rep)
+        val squatExerciseWeight = findViewById<EditText>(R.id.squat_exercise_weight)
+        squatFrameLayout.setOnClickListener { navigateToMain(Exercise.SQUATS) }
+        applyIntegerFilterAndTypeMapping(squatExerciseRep,Exercise.SQUATS)
+        applyInputFilterForWeights(squatExerciseWeight,Exercise.SQUATS)
+
+        val rightBicepCurlFrame = findViewById<FrameLayout>(R.id.dashboard_bicep_curl_right_frame)
         val rightBicepCurlExerciseRep: EditText = findViewById(R.id.right_bicep_curl_exercise_rep)
-        rightBicepCurlStartButton.setOnClickListener {
+        val rightBicepCurlExerciseWeight = findViewById<EditText>(R.id.right_bicep_curl_exercise_weight)
+        rightBicepCurlFrame.setOnClickListener {
             navigateToMain(Exercise.RIGHT_BICEP_CURLS)
         }
         applyIntegerFilterAndTypeMapping(rightBicepCurlExerciseRep,Exercise.RIGHT_BICEP_CURLS)
+        applyInputFilterForWeights(rightBicepCurlExerciseWeight,Exercise.RIGHT_BICEP_CURLS)
 
-        val leftBicepCurlStartButton = findViewById<View>(R.id.dashboard_exercises_bicep_curl_left)
+        val leftBicepCurlFrame = findViewById<FrameLayout>(R.id.dashboard_bicep_curl_left_frame)
         val leftBicepCurlExerciseRep: EditText = findViewById(R.id.left_bicep_curl_exercise_rep)
-        leftBicepCurlStartButton.setOnClickListener{
+        val leftBicepCurlExerciseWeight = findViewById<EditText>(R.id.left_bicep_curl_exercise_weight)
+        leftBicepCurlFrame.setOnClickListener{
             navigateToMain(Exercise.LEFT_BICEP_CURLS)
         }
         applyIntegerFilterAndTypeMapping(leftBicepCurlExerciseRep,Exercise.LEFT_BICEP_CURLS)
+        applyInputFilterForWeights(leftBicepCurlExerciseWeight,Exercise.LEFT_BICEP_CURLS)
 
-        val freeFlowExerciseButton = findViewById<View>(R.id.dashboard_free_flow_exercise)
-        freeFlowExerciseButton.setOnClickListener {
+        val freeFlowFrame = findViewById<FrameLayout>(R.id.dashboard_free_flow_exercise)
+        freeFlowFrame.setOnClickListener {
             // navigate to the no camera activity
             if(isBluetoothConnected) {
                 val noCameraIntent = Intent(this, NoCameraActivity::class.java)
@@ -170,32 +177,32 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             checkBluetoothConnection()
         }
 
-        val motorResetButton = findViewById<ImageButton>(R.id.dashboard_motor_reset)
-        // overriding the perform click operation
-        motorResetButton.setOnClickListener {
-            BluetoothHelper.queueWriteOperation("true",productData.stop_uuid,this)
-            Log.d(TAG, "Motor reset button clicked")
-        }
-
-        motorResetButton.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    isButtonHeld = true
-                    Log.i(TAG, "Sending bluetooth reset command")
-                    //handler.post(sendBluetoothCommand) // Start sending commands using a background looper
-                    motorResetButton.performClick() // Ensure accessibility
-                    true
-                }
-                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                    isButtonHeld = false
-                    Log.i(TAG, "Motor reset button released")
-                    BluetoothHelper.queueWriteOperation("false",productData.stop_uuid,this)
-                    handler.removeCallbacks(sendBluetoothCommand) // Stop sending commands
-                    true
-                }
-                else -> false
-            }
-        }
+//        val motorResetButton = findViewById<ImageButton>(R.id.dashboard_motor_reset)
+//        // overriding the perform click operation
+//        motorResetButton.setOnClickListener {
+//            BluetoothHelper.queueWriteOperation("true",productData.stop_uuid,this)
+//            Log.d(TAG, "Motor reset button clicked")
+//        }
+//
+//        motorResetButton.setOnTouchListener { _, event ->
+//            when (event.action) {
+//                MotionEvent.ACTION_DOWN -> {
+//                    isButtonHeld = true
+//                    Log.i(TAG, "Sending bluetooth reset command")
+//                    //handler.post(sendBluetoothCommand) // Start sending commands using a background looper
+//                    motorResetButton.performClick() // Ensure accessibility
+//                    true
+//                }
+//                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+//                    isButtonHeld = false
+//                    Log.i(TAG, "Motor reset button released")
+//                    BluetoothHelper.queueWriteOperation("false",productData.stop_uuid,this)
+//                    handler.removeCallbacks(sendBluetoothCommand) // Stop sending commands
+//                    true
+//                }
+//                else -> false
+//            }
+//        }
 
         val aiExercisePlanButton = findViewById<View>(R.id.dashboard_ai_button)
         val loadingComponent = findViewById<View>(R.id.dashboard_loading_progress)
@@ -234,10 +241,10 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
 
     // Function responsible for starting the Exercise Session from the dashboard
     private fun navigateToMain(selectedExercise:Exercise){
-        if(::textToSpeech.isInitialized){
-            textToSpeech.speak("Start")
-        }
         if(isBluetoothConnected && exerciseReps[selectedExercise]!! > 0){
+            if(::textToSpeech.isInitialized){
+                textToSpeech.speak("Start")
+            }
             val intent = Intent(this, MainActivity::class.java)
             intent.putExtra("selectedExercise", selectedExercise)
             intent.putExtra("deviceServiceUUID",productData.service_uuid)
@@ -441,7 +448,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         return false
     }
 
-    private fun applyIntegerFilterAndTypeMapping(editText: EditText, exercise: Exercise,weightText: Boolean=false) {
+    private fun applyIntegerFilterAndTypeMapping(editText: EditText, exercise: Exercise) {
         editText.filters = arrayOf(InputFilter { source, start, end, dest, dstart, dend ->
             for (i in start until end) {
                 if (!Character.isDigit(source[i])) {
@@ -462,9 +469,6 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
                     val value = input.toInt()
                     if (value > 0) {
                         exerciseReps[exercise] = value
-                        if(weightText && value > MAX_RESISTANCE_VALUE){
-                            Toast.makeText(this@DashboardActivity,"Value must be less than ${MAX_RESISTANCE_VALUE.toInt()}",Toast.LENGTH_LONG).show()
-                        }
                     } else {
                         editText.setText("")
                         exerciseReps.remove(exercise) // remove the exercise if value is not > 0
@@ -472,6 +476,58 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
                     }
                 } else {
                     exerciseReps.remove(exercise) // remove the exercise if input is empty
+                }
+            }
+        })
+    }
+
+    fun applyInputFilterForWeights(editText: EditText, exercise: Exercise, minResistance: Float = MIN_RESISTANCE_VALUE, maxResistance: Float = MAX_RESISTANCE_VALUE, increment: Float = 1.0f) {
+        editText.filters = arrayOf(InputFilter { source, start, end, dest, dstart, dend ->
+            for (i in start until end) {
+                if (!Character.isDigit(source[i])) {
+                    Toast.makeText(this, "Only whole numbers are allowed.", Toast.LENGTH_SHORT).show()
+                    return@InputFilter ""
+                }
+            }
+            null
+        })
+
+        editText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: android.text.Editable?) {
+                val input = s.toString()
+                if (input.isNotEmpty()) {
+                    try {
+                        val value = input.toFloat()
+
+                        // Check if the value is a valid increment
+                        val validValues = generateSequence(minResistance) { it + increment }
+                            .takeWhile { it <= maxResistance }
+                            .toList()
+
+                        if (validValues.contains(value)) {
+                            exerciseWeights[exercise] = value
+                        } else {
+                            editText.setText("")
+                            Toast.makeText(
+                                this@DashboardActivity,
+                                "Please select from valid values between $minResistance and $maxResistance",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    } catch (e: NumberFormatException) {
+                        editText.setText("")
+                        Toast.makeText(
+                            this@DashboardActivity,
+                            "Invalid input",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                } else {
+                    exerciseWeights.remove(exercise)
                 }
             }
         })
