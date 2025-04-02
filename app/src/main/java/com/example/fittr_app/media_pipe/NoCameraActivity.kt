@@ -22,7 +22,7 @@ class NoCameraActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityNoCameraBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val user_id = intent.getStringExtra("user_id")
+        val user_id = intent.getIntExtra("user_id",1)
         val leftDeviceResistanceUUID = intent.getStringExtra("leftResistanceUUID")
         val rightDeviceResistanceUUID = intent.getStringExtra("rightResistanceUUID")
 
@@ -51,7 +51,7 @@ class NoCameraActivity : AppCompatActivity() {
      * @param rightDeviceResistanceUUID The UUID for the right motor.
      * @param leftDeviceResistanceUUID The UUID for the left motor.
      */
-    private fun handleResistanceUpdate(newResistance: Float,rightDeviceResistanceUUID: String,leftDeviceResistanceUUID: String) {
+    fun handleResistanceUpdate(newResistance: Float,rightDeviceResistanceUUID: String,leftDeviceResistanceUUID: String) {
         if(newResistance < MIN_RESISTANCE_VALUE){
             Toast.makeText(this,"Cannot set resistance value lower than the minimum", Toast.LENGTH_LONG).show()
             return

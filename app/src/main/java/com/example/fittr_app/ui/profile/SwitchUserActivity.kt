@@ -20,7 +20,9 @@ import kotlinx.coroutines.launch
 
 class SwitchUserActivity: AppCompatActivity() {
 
-    private val apiClient: ApiClient by lazy { ApiClientProvider.apiClient }
+    private val apiClient: ApiClient
+        get() = ApiClientProvider.apiClient
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,7 +74,4 @@ class SwitchUserActivity: AppCompatActivity() {
             emptyList()
         }
     }
-
-
-
 }
