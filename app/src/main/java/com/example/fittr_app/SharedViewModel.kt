@@ -36,6 +36,8 @@ class SharedViewModel : ViewModel() {
     private var isTimerRunning = false
     private var startTimeMillis: Long = 0L
     private var _totalRepCount: Int = 0;
+    private var _initialSessionWeight: Float = 0.0f
+    private var _exerciseWeightRecord: List<Float> = listOf(initialSessionWeight)
 
     val isCalibrating: LiveData<Boolean> get() = _isCalibrating
     val selectedExercise: LiveData<Exercise> get() = _selectedExercise
@@ -46,9 +48,11 @@ class SharedViewModel : ViewModel() {
     val deviceStopUUID: String get() = _deviceStopUUID.value.toString()
     val user_id: Int get() = _userId
     val product_id: Int get() = _productId
-    private val _repCount = MutableLiveData<Int>()
+    private val _repCount = MutableLiveData<Int>(0)
     val repCount: LiveData<Int> = _repCount
     val totalRepCount: Int get() = _totalRepCount
+    val initialSessionWeight: Float get() = _initialSessionWeight
+    val exerciseWeightRecord: List<Float> get() = _exerciseWeightRecord
 
     val displayText: MediatorLiveData<String> = MediatorLiveData<String>().apply {
         addSource(_repCount) { updateDisplayText() }
@@ -62,7 +66,11 @@ class SharedViewModel : ViewModel() {
         _selectedExercise.value = exercise
     }
 
-    fun updateRepCount(count: Int) {
+    fun updateRepCount(count: Int, weight: Float) {
+        // every time there is a change in the repCount, update the weight used for that rep
+        if(count > _repCount.value!!){
+            addExerciseWeightRecord(weight)
+        }
         _repCount.postValue(count)
     }
 
@@ -97,18 +105,27 @@ class SharedViewModel : ViewModel() {
         _totalRepCount = count
     }
 
+    fun setInitialSessionWeight(weight: Float) {
+        _initialSessionWeight = weight
+    }
+
+    fun addExerciseWeightRecord(weight: Float) {
+        _exerciseWeightRecord = _exerciseWeightRecord + weight
+    }
 
     fun getExerciseSessionData():Map<String, Any>{
         val now = Date() // Get current date and time
         val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
         formatter.timeZone = TimeZone.getTimeZone("UTC") // Set to UTC timezone
         val formattedDateTime = formatter.format(now)
+        val averageWeight = String.format("%.2f", exerciseWeightRecord.average()).toFloat() // Setting to 2 d.p
         return mapOf(
             "exercise_type" to (selectedExercise.value?.toString() ?: ""),
             "rep_count" to (repCount.value ?: 0),
             "created_at" to formattedDateTime, // following the same format as the Django model created_at field
             "duration" to (timerValue.value?.div(1000)).toString(), // In seconds
             "errors" to 0, // TODO: Fix this hardcoded implementation
+            "average_weight" to averageWeight, // Double value
             "user_id" to (user_id),
         )
     }

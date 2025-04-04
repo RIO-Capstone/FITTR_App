@@ -35,6 +35,7 @@ class MainActivity : AppCompatActivity() {
 
         val selectedExercise = intent.getSerializableExtra("selectedExercise") as? Exercise ?: Exercise.UNKNOWN
         val totalSessionReps = intent.getIntExtra("total_session_reps",0)
+        val initialSessionWeight = intent.getFloatExtra("initial_session_weight",0.0f)
         val deviceServiceUUID = intent.getStringExtra("deviceServiceUUID")
         val leftDeviceResistanceUUID = intent.getStringExtra("leftResistanceUUID")
         val rightDeviceResistanceUUID = intent.getStringExtra("rightResistanceUUID")
@@ -54,6 +55,7 @@ class MainActivity : AppCompatActivity() {
         sharedViewModel.setUserId(userId)
         sharedViewModel.setProductId(productId)
         sharedViewModel.setTotalRepCount(totalSessionReps)
+        sharedViewModel.setInitialSessionWeight(initialSessionWeight)
         sharedViewModel.updateDisplayText()
 
         val repCountTextView = findViewById<TextView>(R.id.rep_count)

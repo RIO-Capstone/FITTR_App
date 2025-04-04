@@ -84,7 +84,9 @@ tasks.register<JacocoReport>("jacocoFullReport") {
 
     val fileFilter = listOf(
         "**/R.class", "**/R\$*.class", "**/BuildConfig.*",
-        "**/Manifest*.*", "**/*Test*.*", "android/**/*.*"
+        "**/Manifest*.*", "**/*Test*.*", "android/**/*.*","**/OverlayView.*",
+        "**/CameraFragment.*","**/PoseLandmarkerHelper.*","**/ExerciseSuccessFragment.*","**/BluetoothHelper.*",
+        "**/databinding/**"
     )
 
     val javaClasses = fileTree("${project.buildDir}/intermediates/javac/debug") {

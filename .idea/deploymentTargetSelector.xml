@@ -13,19 +13,19 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="testRecyclerViewPopulatedWithUsers()">
+      <SelectionState runConfigName="testInitialization()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="testNavigationToDashboard()">
+      <SelectionState runConfigName="ApiClientUITest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="testErrorHandlingWhenNoUsersLoaded()">
+      <SelectionState runConfigName="testMalformedJson_returns_failure()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="testApiRequestDetails()">
+      <SelectionState runConfigName="testEmptyResponse_returns_failure()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="NoCameraActivity">
+      <SelectionState runConfigName="testMakeApiRequest_GET_success()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
