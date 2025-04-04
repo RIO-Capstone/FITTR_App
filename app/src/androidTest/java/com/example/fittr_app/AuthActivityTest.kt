@@ -15,7 +15,16 @@ import androidx.test.filters.LargeTest
 import com.example.fittr_app.DashboardActivity
 import com.example.fittr_app.R
 import com.example.fittr_app.ToastMatcher
+import com.example.fittr_app.connections.ApiClient
+import com.example.fittr_app.connections.ApiClientProvider
+import com.example.fittr_app.types.GetUsersBackendResponse
+import com.example.fittr_app.types.LoginUserBackendResponse
+import com.example.fittr_app.types.User
+import com.example.fittr_app.types.UserSimple
+import com.example.fittr_app.ui.profile.SwitchUserActivity
 import com.example.fittr_app.ui.registration.RegistrationActivity
+import io.mockk.coEvery
+import io.mockk.mockk
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -32,10 +41,26 @@ class AuthActivityTest  {
 
     private lateinit var decorView : View
 
+    private var mockApiClient = mockk<ApiClient>()
+
     @Before
     fun setUp() {
         // Initialize Espresso Intents before running tests
         Intents.init()
+        coEvery { mockApiClient.loginUser(any(),any()) } returns Result.success(
+            LoginUserBackendResponse(user =
+                User(user_id = 1,
+                    first_name = "John",
+                    last_name = "Doe",
+                    weight = 80,
+                    height = 180,
+                    email = "johndoe@gmail.com",
+                    product_id = 1), message = "")
+        )
+        coEvery { mockApiClient.getUsers(any(),any())} returns Result.success(
+            GetUsersBackendResponse(listOf(UserSimple(id = 1, full_name = "John Doe")))
+        )
+        ApiClientProvider.apiClient = mockApiClient
         activityRule.scenario.onActivity{activity->
             decorView = activity.window.decorView
         }
@@ -51,6 +76,7 @@ class AuthActivityTest  {
 
     @Test
     fun testLoginButtonClick_EmptyCredentials() {
+        coEvery { mockApiClient.loginUser(any(),any()) } returns Result.failure(Exception("Test Error"))
         onView(withId(R.id.auth_login_button)).perform(click())
         Thread.sleep(500)
         onView(withText("Login Failed. Check your credentials."))
@@ -59,6 +85,7 @@ class AuthActivityTest  {
 
     @Test
     fun testLoginButtonClick_InvalidCredentials() {
+        coEvery { mockApiClient.loginUser(any(),any()) } returns Result.failure(Exception("Test Error"))
         onView(withId(R.id.auth_id_field)).perform(typeText("invalid@email.com"), closeSoftKeyboard())
         onView(withId(R.id.auth_password_field)).perform(typeText("wrongpassword"), closeSoftKeyboard())
         onView(withId(R.id.auth_login_button)).perform(click())
@@ -79,9 +106,9 @@ class AuthActivityTest  {
         onView(withText("Login Complete"))
             .inRoot(ToastMatcher().apply { matches(isDisplayed()) })
         Thread.sleep(200)
-        // Verify that DashboardActivity is launched
-        intended(hasComponent(DashboardActivity::class.java.name))
-        intended(hasExtra("user_id", 1)) //
+        // Verify that SwitchUserActivity is launched
+        intended(hasComponent(SwitchUserActivity::class.java.name))
+        intended(hasExtra("product_id", 1))
     }
 
     @After

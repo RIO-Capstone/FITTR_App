@@ -21,7 +21,6 @@ object BluetoothHelper {
     private val heartbeatRunnable: Runnable = Runnable { sendHeartbeat() }
     private const val heartbeatInterval: Long = 5000
     private var currentCallback: BluetoothReadCallback? = null
-    private val connectionTimeoutHandler = Handler(Looper.getMainLooper())
     private var device: BluetoothDevice? = null
     var HEARTBEAT_CHARACTERISTIC_UUID = "" // reset on successful initialization
     private var operationInProgress = false
@@ -40,14 +39,6 @@ object BluetoothHelper {
         this.device = device
         this.currentCallback = initCallback
         handleConnection(context)
-    }
-
-    private fun startConnectionTimeout() {
-        connectionTimeoutHandler.postDelayed(connectionTimeoutRunnable, 10000) // 10 sec timeout
-    }
-
-    private fun clearConnectionTimeout() {
-        connectionTimeoutHandler.removeCallbacks(connectionTimeoutRunnable)
     }
 
     private fun startHeartbeat() {
@@ -161,11 +152,6 @@ object BluetoothHelper {
             operationInProgress = false
             processNextOperation()
         }
-    }
-
-    fun queueReadOperation(characteristicUUID: String, callback: BluetoothReadCallback) {
-        operationsQueue.add(BluetoothOperation.Read(characteristicUUID, callback))
-        processNextOperation()
     }
 
     fun queueWriteOperation(

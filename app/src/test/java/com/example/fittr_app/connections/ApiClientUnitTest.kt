@@ -58,11 +58,7 @@ class ApiClientUnitTest {
         val responseBody = moshi.adapter(GetUserBackendResponse::class.java).toJson(expectedResponse)
 
         mockWebServer.enqueue(MockResponse().setBody(responseBody).setResponseCode(200))
-
-        // When
         val result = apiClient.getUser(ApiPaths.GetUser(userId = 1), null)
-
-        // Then
         assertTrue(result.isSuccess)
         assertEquals(expectedResponse, result.getOrNull())
     }
@@ -71,11 +67,7 @@ class ApiClientUnitTest {
     fun `loginUser should return error when API responds with 401`() = runBlocking {
         // Given
         mockWebServer.enqueue(MockResponse().setResponseCode(401).setBody("{\"error\": \"Unauthorized\"}"))
-
-        // When
         val result = apiClient.loginUser(ApiPaths.LoginUser, mapOf("username" to "test", "password" to "wrong"))
-
-        // Then
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull()?.message?.contains("Unexpected response code: 401") == true)
     }
@@ -91,7 +83,7 @@ class ApiClientUnitTest {
         // Then
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull() is IOException)
-        assertEquals("End of input", result.exceptionOrNull()?.message)
+        assertEquals("Empty response body", result.exceptionOrNull()?.message)
     }
 
     @Test
@@ -116,7 +108,8 @@ class ApiClientUnitTest {
             stop_uuid = "",
             exercise_initialize_uuid = "",
             message = "",
-            error = "")
+            error = "",
+            heartbeat_uuid = "")
         val validResponse = moshi.adapter(ProductData::class.java).toJson(testProduct)
         mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody(validResponse))
         val result = apiClient.getProductData(ApiPaths.GetProduct(1),null)
@@ -339,6 +332,59 @@ class ApiClientUnitTest {
                 else -> assertTrue(requestBody.contains(value.toString()))
             }
         }
+    }
+
+    @Test
+    fun `put request should return success on valid response`() = runBlocking {
+        // Given
+        val updateData = mapOf("field" to "new value")
+        val expectedResponse = mapOf("status" to "success")
+        val responseBody = moshi.adapter(Map::class.java).toJson(expectedResponse)
+
+        mockWebServer.enqueue(MockResponse().setBody(responseBody).setResponseCode(200))
+        val result: Result<Map<String, String>> = apiClient.makeApiRequest(
+            ApiPaths.TestPut(userId = 1),
+            updateData
+        )
+        assertTrue(result.isSuccess)
+        assertEquals(expectedResponse, result.getOrNull())
+    }
+
+    @Test
+    fun `delete request should return success on valid response`() = runBlocking {
+        mockWebServer.enqueue(MockResponse().setResponseCode(200))
+        val result: Result<Unit> = apiClient.makeApiRequest(ApiPaths.TestDelete(userId = 1))
+        assertTrue(result.isSuccess)
+    }
+
+    @Test
+    fun `should return failure on empty response body`() = runBlocking {
+        // Enqueue a null response
+        mockWebServer.enqueue(MockResponse().setResponseCode(200))
+        val result: Result<Map<String, String>> = apiClient.makeApiRequest(
+            ApiPaths.GetUser(userId = 1),
+            null
+        )
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull() is IOException)
+        assertEquals("Empty response body", result.exceptionOrNull()?.message)
+    }
+
+    @Test
+    fun `should return failure on unexpected response code`() = runBlocking {
+        // Given
+        mockWebServer.enqueue(MockResponse().setResponseCode(404))
+
+        // When
+        val result: Result<Map<String, String>> = apiClient.makeApiRequest(
+            ApiPaths.GetUser(userId = 1),
+            null
+        )
+
+        // Then
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull() is IOException)
+        assertEquals("Unexpected response code: 404", result.exceptionOrNull()?.message)
     }
 
 }

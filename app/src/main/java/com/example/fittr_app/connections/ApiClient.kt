@@ -71,7 +71,7 @@ object ApiClient {
         return makeApiRequest<GetUsersBackendResponse>(endpoint, data)
     }
 
-    private suspend inline fun <reified T> makeApiRequest(
+    internal suspend inline fun <reified T> makeApiRequest(
         endpoint: ApiPaths,
         data: Any? = null
     ): Result<T> {
@@ -104,8 +104,14 @@ object ApiClient {
                 Log.d("ApiClient", "Response code: ${response.code}, feedback_message: ${response.message}")
 
                 if (response.isSuccessful) {
+                    if (endpoint.method == "DELETE" && response.body?.string().isNullOrEmpty()) {
+                        return@withContext Result.success(Unit as T)
+                    }
                     response.body?.let {
                         val responseBody = it.string()
+                        if (responseBody.isBlank()) {
+                            return@withContext Result.failure(IOException("Empty response body"))
+                        }
                         Log.d("ApiClient", "Response body: $responseBody")
 
                         val jsonAdapter = if (T::class.java == List::class.java) {

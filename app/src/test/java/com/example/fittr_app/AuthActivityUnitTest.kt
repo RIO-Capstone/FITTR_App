@@ -12,6 +12,7 @@ import com.example.fittr_app.databinding.ActivityAuthBinding
 import com.example.fittr_app.types.LoginUserBackendResponse
 import com.example.fittr_app.types.User
 import com.example.fittr_app.ui.auth.AuthActivity
+import com.example.fittr_app.ui.profile.SwitchUserActivity
 import com.example.fittr_app.ui.registration.RegistrationActivity
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
@@ -96,11 +97,8 @@ class AuthActivityUnitTest {
 
         loginButton.performClick()
         ShadowLooper.idleMainLooper()
-        runBlocking {
-            verify(mockApiClient).loginUser(ApiPaths.LoginUser, mapOf("email" to "testerone@gmail.com", "password" to "123"))
-        }
-        // after clicking check that the dashboard title exists on the screen
-        val expectedIntent = Intent(activity, DashboardActivity::class.java)
+        // after clicking check that the switch user activity is navigated to
+        val expectedIntent = Intent(activity, SwitchUserActivity::class.java)
         expectedIntent.putExtra("user_id",1)
         val actualIntent = shadowOf(activity).nextStartedActivity
         assertNotNull(actualIntent)

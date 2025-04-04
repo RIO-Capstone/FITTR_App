@@ -37,6 +37,7 @@ import android.widget.EditText
 import android.widget.FrameLayout
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import com.example.fittr_app.connections.ApiClientProvider
 import com.example.fittr_app.media_pipe.NoCameraActivity
 import com.example.fittr_app.media_pipe.PoseLandmarkerHelper.Companion.MAX_RESISTANCE_VALUE
@@ -64,11 +65,14 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
     private lateinit var DashboardBinding : ActivityDashboardBinding
     private val apiClient: ApiClient by lazy { ApiClientProvider.apiClient }
     lateinit var user: User // public user object for testing purposes
-    private lateinit var productData: ProductData
-    private var isBluetoothConnected = false
-    private val exerciseReps: MutableMap<Exercise, Int> = mutableMapOf()
+    lateinit var productData: ProductData
+    var isBluetoothConnected = false
+    val exerciseReps: MutableMap<Exercise, Int> = mutableMapOf()
     private val exerciseWeights: MutableMap<Exercise, Float> = mutableMapOf()
     private lateinit var textToSpeech:TextToSpeechHelper
+    var testMode = false // public variable for testing purposes
+    var bluetoothManagerForTesting: BluetoothManager? = null
+    var checkSelfPermissionForTesting: ((String) -> Int)? = null
 
     override fun onError(message: String) {
         Log.e(TAG,"Bluetooth error : $message")
@@ -88,11 +92,11 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         BluetoothHelper.HEARTBEAT_CHARACTERISTIC_UUID = productData.heartbeat_uuid
     }
 
-    private var form_score: Int = 0
-    private var stability_score: Int = 0
-    private var range_of_motion_score: Int = 0
-    private var summary_analysis: String = ""
-    private var future_advice: String = ""
+    var form_score: Int = 0
+    var stability_score: Int = 0
+    var range_of_motion_score: Int = 0
+    var summary_analysis: String = ""
+    var future_advice: String = ""
 
 //    private val handler = Handler(Looper.getMainLooper())
 //    private var isButtonHeld = false
@@ -123,6 +127,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
                 getFITTRAIinformation(user_id)
             }
         }
+        if(testMode) window.setWindowAnimations(0); // disable animations when testing
         val backButton = findViewById<View>(R.id.dashboard_back_btn)
         backButton.setOnClickListener{
             // navigate back to the profile page
@@ -272,15 +277,13 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
     }
 
     private suspend fun getFITTRAIinformation(user_id: Int) {
+        if(testMode)return; // disable all animations when testing
         val aiMessageTextView: TextView = findViewById(R.id.ai_message)
         Log.i(TAG, "Getting FITTR AI information")
-
         // Start the strobing effect on the TextView
         startEllipsisAnimation(aiMessageTextView)
-
         // Call the API and get the result
         val result = apiClient.getUserAIReply(user_id)
-
         // Check if the result is successful
         result.onSuccess { aiReply ->
             // Stop the strobing animation and set the solid text
@@ -401,11 +404,15 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         }
     }
 
-    private fun checkBluetoothConnection(): Boolean {
+    fun checkBluetoothConnection(): Boolean {
+        val bluetoothManager = bluetoothManagerForTesting ?:
+        getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
         // Check if the app has the BLUETOOTH_CONNECT permission (required for Android 12+)
         Log.d(TAG, "Checking Bluetooth connection")
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-            if (checkSelfPermission(android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+            val permissionResult = checkSelfPermissionForTesting?.invoke(android.Manifest.permission.BLUETOOTH_CONNECT)
+                ?: checkSelfPermission(android.Manifest.permission.BLUETOOTH_CONNECT)
+            if (permissionResult != PackageManager.PERMISSION_GRANTED) {
                 // Request the permission if it hasn't been granted
                 requestPermissions(
                     arrayOf(android.Manifest.permission.BLUETOOTH_CONNECT),
@@ -416,8 +423,6 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             }
         }
 
-        // Get the BluetoothManager and BluetoothAdapter
-        val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         val bluetoothAdapter = bluetoothManager.adapter
 
         // Check if Bluetooth is enabled
@@ -534,6 +539,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
     }
 
     private suspend fun triggerLayoutAnimation(exercise: Exercise) {
+        if(testMode) return;
         val frameLayout = when (exercise) {
             Exercise.SQUATS -> findViewById<FrameLayout>(R.id.dashboard_squats_frame)
             Exercise.RIGHT_BICEP_CURLS -> findViewById<FrameLayout>(R.id.dashboard_bicep_curl_right_frame)

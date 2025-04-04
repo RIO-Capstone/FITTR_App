@@ -14,8 +14,9 @@ import com.example.fittr_app.types.AIExercisePlan
 import com.example.fittr_app.types.AIReply
 import com.example.fittr_app.types.Feedback
 import com.example.fittr_app.types.GetUserBackendResponse
+import com.example.fittr_app.types.ProductData
 import com.example.fittr_app.types.User
-import com.example.fittr_app.ui.auth.AuthActivity
+import com.example.fittr_app.ui.profile.SwitchUserActivity
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertNull
@@ -32,7 +33,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowToast
-import java.lang.reflect.Field
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [30])
@@ -51,6 +51,18 @@ class DashboardActivityUnitTest {
         ApiClientProvider.apiClient = mockApiClient // using Dependency Injection
         // initialize user object in DashboardActivity
         runBlocking {
+            `when`(mockApiClient.getProductData(endpoint = ApiPaths.GetProduct(productId = 1),null)).thenReturn(
+                Result.success(ProductData(
+                    service_uuid = "test_service_uuid",
+                    stop_uuid = "test_stop_uuid",
+                    left_resistance_uuid = "test_left_resistance_uuid",
+                    right_resistance_uuid = "test_right_resistance_uuid",
+                    heartbeat_uuid = "test_heartbeat_uuid",
+                    exercise_initialize_uuid = "test_exercise_uuid",
+                    error = "",
+                    message = ""
+                ))
+            )
             `when`(mockApiClient.getUser(endpoint = ApiPaths.GetUser(userId = 1),data = null)).thenReturn(
                 Result.success(
                     GetUserBackendResponse(
@@ -95,7 +107,7 @@ class DashboardActivityUnitTest {
     fun `Check back button navigation`() {
         val backButton = activity.findViewById<View>(R.id.dashboard_back_btn)
         backButton.performClick()
-        val expectedIntent = Intent(activity, AuthActivity::class.java)
+        val expectedIntent = Intent(activity, SwitchUserActivity::class.java)
         val actualIntent = shadowOf(activity).nextStartedActivity
         assertNotNull(actualIntent)
         assertEquals(expectedIntent.component, actualIntent.component)
