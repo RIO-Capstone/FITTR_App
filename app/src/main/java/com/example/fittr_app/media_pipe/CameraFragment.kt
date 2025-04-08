@@ -69,7 +69,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, Back
     private lateinit var sharedViewModel: SharedViewModel
     private var textToSpeech = TextToSpeechHelper
     private val client = OkHttpClient()
-    private val IP_ADDRESS = "GET FROM BACKEND";
+    private val IP_ADDRESS = "172.20.10.9";
 
     private var _fragmentCameraBinding: FragmentCameraBinding? = null
 
@@ -184,9 +184,9 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, Back
         super.onViewCreated(view, savedInstanceState)
 
         // set up live data state listeners
-        viewModel.currentMotorState.observe(viewLifecycleOwner) { motorState ->
-            fragmentCameraBinding.bottomSheetLayout.motorStateToggle.isChecked = motorState
-        }
+//        #viewModel.currentMotorState.observe(viewLifecycleOwner) { motorState ->
+//            #fragmentCameraBinding.bottomSheetLayout.motorStateToggle.isChecked = motorState
+//        }
 
         val updateFunction = exerciseToUpdateMap(sharedViewModel.selectedExercise.value!!)
 
@@ -341,11 +341,11 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, Back
             }
         })
 
-        fragmentCameraBinding.bottomSheetLayout.motorStateToggle.setOnClickListener {
-            val currentState = viewModel.currentMotorState.value ?: PoseLandmarkerHelper.DEFAULT_MOTOR_STATE
-            val newState = !currentState
-            sendMotorStateUpdate(newState)
-        }
+//        fragmentCameraBinding.bottomSheetLayout.motorStateToggle.setOnClickListener {
+//            val currentState = viewModel.currentMotorState.value ?: PoseLandmarkerHelper.DEFAULT_MOTOR_STATE
+//            val newState = !currentState
+//            sendMotorStateUpdate(newState)
+//        }
     }
 
     private fun exerciseToUpdateMap(exercise: Exercise): (Float) -> Unit {

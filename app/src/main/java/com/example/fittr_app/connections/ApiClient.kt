@@ -33,7 +33,7 @@ object ApiClient {
 
     private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
 
-    var BASE_URL = "http://GET FROM BACKEND:8000/"
+    var BASE_URL = "http://172.20.10.9:8000/"
     // Get user
     suspend fun getUser(endpoint: ApiPaths,data:Any?): Result<GetUserBackendResponse>{
         return makeApiRequest<GetUserBackendResponse>(endpoint,data)
