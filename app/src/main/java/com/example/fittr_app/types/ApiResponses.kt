@@ -56,7 +56,8 @@ data class Feedback(
     val future_advice: String,
     val range_of_motion_score: Int,
     val form_score: Int,
-    val stability_score: Int
+    val stability_score: Int,
+    val calories_burnt: Float
 )
 
 data class GetUsersBackendResponse(

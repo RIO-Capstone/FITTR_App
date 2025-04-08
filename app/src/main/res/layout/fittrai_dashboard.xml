@@ -155,7 +155,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/poppins_bold"
-                        android:text="62"
+                        android:text="0"
                         android:textColor="#34C759"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -182,7 +182,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/poppins_bold"
-                        android:text="58"
+                        android:text="0"
                         android:textColor="#FFA500"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -209,7 +209,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/poppins_bold"
-                        android:text="25"
+                        android:text="0"
                         android:textColor="#FF3B30"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -233,15 +233,16 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:fontFamily="@font/poppins_bold"
-                    android:text="Calories burnt"
+                    android:text="Calories burnt (kcal)"
                     android:textColor="@android:color/white"
                     android:textSize="20sp" />
 
                 <TextView
+                    android:id="@+id/caloriesBurntTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins_bold"
-                    android:text="48 kcal"
+                    android:text="0"
                     android:textColor="@android:color/white"
                     android:textSize="24sp"
                     android:textStyle="bold" />

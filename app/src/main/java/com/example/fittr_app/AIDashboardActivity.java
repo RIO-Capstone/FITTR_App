@@ -18,6 +18,8 @@ public class AIDashboardActivity extends AppCompatActivity {
     private int stabilityScore;
     private int rangeOfMotionScore;
 
+    private float caloriesBurnt;
+
     private String adviceText;
 
     private String futureAdvice;
@@ -35,13 +37,16 @@ public class AIDashboardActivity extends AppCompatActivity {
         stabilityScore = intent.getIntExtra("stability_score", 0);
         rangeOfMotionScore = intent.getIntExtra("range_of_motion_score", 0);
         futureAdvice = intent.getStringExtra("future_advice");
+        caloriesBurnt = intent.getFloatExtra("calories_burnt", 0.0f);
 
         TextView adviceTextView = findViewById(R.id.adviceTextView);
         TextView formScoreTextView = findViewById(R.id.formScoreTextView);
         TextView stabilityScoreTextView = findViewById(R.id.stabilityScoreTextView);
         TextView rangeOfMotionScoreTextView = findViewById(R.id.rangeOfMotionScoreTextView);
         TextView futureAdviceTextView = findViewById(R.id.futureAdviceTextView);
+        TextView caloriesBurntTextView = findViewById(R.id.caloriesBurntTextView);
 
+        caloriesBurntTextView.setText(String.format("%.2f", caloriesBurnt));  // Format the calories burnt to 2 decimal places
         adviceTextView.setText(adviceText);
         formScoreTextView.setText(String.valueOf(formScore));
         stabilityScoreTextView.setText(String.valueOf(stabilityScore));

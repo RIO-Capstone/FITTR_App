@@ -93,6 +93,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
     private var range_of_motion_score: Int = 0
     private var summary_analysis: String = ""
     private var future_advice: String = ""
+    private var calories_burnt: Float = 0.0f
 
 //    private val handler = Handler(Looper.getMainLooper())
 //    private var isButtonHeld = false
@@ -225,6 +226,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
             intent.putExtra("form_score", form_score)
             intent.putExtra("stability_score", stability_score)
             intent.putExtra("range_of_motion_score", range_of_motion_score)
+            intent.putExtra("calories_burnt", calories_burnt)
             startActivity(intent)
         }
 
@@ -297,6 +299,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
 
             summary_analysis = aiReply.feedback_message.summary_analysis
             future_advice = aiReply.feedback_message.future_advice
+            calories_burnt = aiReply.feedback_message.calories_burnt
 
             Log.i(TAG, "Form Score: $form_score")
             Log.i(TAG, "Stability Score: $stability_score")
