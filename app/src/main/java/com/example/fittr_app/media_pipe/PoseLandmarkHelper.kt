@@ -375,9 +375,9 @@ class PoseLandmarkerHelper(
         const val MODEL_POSE_LANDMARKER_FULL = 0
         const val MODEL_POSE_LANDMARKER_LITE = 1
         const val MODEL_POSE_LANDMARKER_HEAVY = 2
-        const val DEFAULT_RESISTANCE_VALUE = 1.0F; // 1kg resistance
+        const val DEFAULT_RESISTANCE_VALUE = 5.0F; // 1kg resistance
         const val DEFAULT_MOTOR_STATE = false; // unlocked state
-        const val MIN_RESISTANCE_VALUE = 0.0F;
+        const val MIN_RESISTANCE_VALUE = 5.0F;
         const val MAX_RESISTANCE_VALUE = 10.0F;
     }
 

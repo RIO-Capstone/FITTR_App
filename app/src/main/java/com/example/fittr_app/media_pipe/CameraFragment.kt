@@ -32,6 +32,7 @@ import com.example.fittr_app.SharedViewModel
 import com.example.fittr_app.connections.BluetoothHelper
 import com.example.fittr_app.databinding.FragmentCameraBinding
 import com.example.fittr_app.connections.WebSocketClient
+import com.example.fittr_app.media_pipe.PoseLandmarkerHelper.Companion.MIN_RESISTANCE_VALUE
 import com.example.fittr_app.types.Exercise
 import com.example.fittr_app.utils.TextToSpeechHelper
 import com.google.gson.Gson
@@ -82,7 +83,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, Back
     private var imageAnalyzer: ImageAnalysis? = null
     private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
-    private var cameraFacing = CameraSelector.LENS_FACING_BACK
+    private var cameraFacing = CameraSelector.LENS_FACING_FRONT
     private var isPaused = false
 
     /** Blocking backend operations are performed using this executor */
@@ -229,20 +230,19 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, Back
             fragmentCameraBinding.bottomSheetLayout.resistanceValue.text =
                 String.format(Locale.US,"%.2f",resistanceValue)
         }
-        BluetoothHelper.queueReadOperation(sharedViewModel.deviceRightResistanceUUID,
-            object : BluetoothReadCallback{
-                override fun onValueRead(value: String) {
-                    handleRightUIUpdateResistance(value.toFloat())
-                }
+
+        BluetoothHelper.queueWriteOperation(message = MIN_RESISTANCE_VALUE.toString(),
+            characteristicUUID = sharedViewModel.deviceRightResistanceUUID,
+            callback = object : BluetoothReadCallback{
+                override fun onValueRead(value: String) = Unit
                 override fun onError(message: String) {
-                    Log.e(TAG, "Error reading right resistance value from Bluetooth: $message")
+                    Log.e(TAG, "Error updating the right resistance value $message")
                 }
-            }
-        )
+            })
 
         // Setting the left motor resistance to 0, using only right motor for now
         BluetoothHelper.queueWriteOperation(
-            "0",
+            MIN_RESISTANCE_VALUE.toString(),
             sharedViewModel.deviceLeftResistanceUUID,
             object : BluetoothReadCallback{
                 override fun onValueRead(value: String) = Unit // no UI update required
@@ -290,7 +290,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, Back
                 }})
         // Setting the right motor resistance to 0, using only left motor for now
         BluetoothHelper.queueWriteOperation(
-            "0",
+            MIN_RESISTANCE_VALUE.toString(),
             sharedViewModel.deviceRightResistanceUUID,
             object : BluetoothReadCallback{
                 override fun onValueRead(value: String) = Unit
@@ -331,15 +331,15 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, Back
             togglePausePlay()
         }
         // init bottom sheet settings (should not start without already establishing a bluetooth connection in the parent activity)
-        BluetoothHelper.queueReadOperation(sharedViewModel.deviceStopUUID,
-            object : BluetoothReadCallback {
-            override fun onValueRead(value: String) {
-                handleUpdateMotorState(value.toBoolean())
-            }
-            override fun onError(message: String) {
-                Log.e(TAG, "Error reading motor value from Bluetooth: $message")
-            }
-        })
+//        BluetoothHelper.queueReadOperation(sharedViewModel.deviceStopUUID,
+//            object : BluetoothReadCallback {
+//            override fun onValueRead(value: String) {
+//                handleUpdateMotorState(value.toBoolean())
+//            }
+//            override fun onError(message: String) {
+//                Log.e(TAG, "Error reading motor value from Bluetooth: $message")
+//            }
+//        })
 
 //        fragmentCameraBinding.bottomSheetLayout.motorStateToggle.setOnClickListener {
 //            val currentState = viewModel.currentMotorState.value ?: PoseLandmarkerHelper.DEFAULT_MOTOR_STATE

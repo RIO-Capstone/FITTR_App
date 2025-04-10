@@ -440,7 +440,7 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
         for (device in connectedDevices) {
 
             // Check if the device is connected (bonded)
-            val state_check = device.bondState == BluetoothDevice.BOND_BONDED
+            val state_check = device.bondState == BluetoothDevice.BOND_BONDED && device.name == "FITTR"
 //            val id_check = device.uuids[0].toString() // TODO: Identify that the device is a FITTR device using serviceUUID
             if (state_check) {
                 BluetoothHelper.initialize(this,device,this)
