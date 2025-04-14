@@ -90,6 +90,8 @@ class NoCameraActivity : AppCompatActivity() {
     }
 
     private fun handleUIUpdateResistance(newResistance: Float){
-        binding.noCameraResistanceValue.text = newResistance.toString()
+        this.runOnUiThread {
+            binding.noCameraResistanceValue.text = newResistance.toString()
+        }
     }
 }

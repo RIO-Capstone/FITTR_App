@@ -243,6 +243,10 @@ class DashboardActivity : AppCompatActivity(), BluetoothReadCallback {
 
     // Function responsible for starting the Exercise Session from the dashboard
     private fun navigateToMain(selectedExercise:Exercise){
+        if(exerciseReps[selectedExercise] == null){
+            Toast.makeText(this,"Set a number for reps before starting", Toast.LENGTH_LONG).show()
+            return
+        }
         if(isBluetoothConnected && exerciseReps[selectedExercise]!! > 0){
             if(::textToSpeech.isInitialized){
                 textToSpeech.speak("Start")
