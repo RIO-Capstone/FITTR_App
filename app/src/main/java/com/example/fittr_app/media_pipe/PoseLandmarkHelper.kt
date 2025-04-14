@@ -378,7 +378,7 @@ class PoseLandmarkerHelper(
         const val DEFAULT_RESISTANCE_VALUE = 5.0F; // 1kg resistance
         const val DEFAULT_MOTOR_STATE = false; // unlocked state
         const val MIN_RESISTANCE_VALUE = 5.0F;
-        const val MAX_RESISTANCE_VALUE = 10.0F;
+        const val MAX_RESISTANCE_VALUE = 20.0F;
     }
 
     data class ResultBundle(

@@ -255,7 +255,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, Back
 
         fragmentCameraBinding.bottomSheetLayout.resistanceMinus.setOnClickListener {
             val currentResistance = viewModel.rightCurrentResistance.value ?: PoseLandmarkerHelper.DEFAULT_RESISTANCE_VALUE
-            if (currentResistance > PoseLandmarkerHelper.MIN_RESISTANCE_VALUE) {
+            if (currentResistance > MIN_RESISTANCE_VALUE) {
                 val newResistance = currentResistance - 1
                 updateFunction(newResistance)
             } else {
@@ -280,26 +280,29 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener, Back
             fragmentCameraBinding.bottomSheetLayout.resistanceValue.text =
                 String.format(Locale.US,"%.2f",resistanceValue)
         }
-        BluetoothHelper.queueReadOperation(sharedViewModel.deviceLeftResistanceUUID,
-            object : BluetoothReadCallback{
-                override fun onValueRead(value: String) {
-                    handleLeftUIUpdateResistance(value.toFloat())
-                }
+        // setting initial minimum resistance
+        BluetoothHelper.queueWriteOperation(message = MIN_RESISTANCE_VALUE.toString(),
+            characteristicUUID = sharedViewModel.deviceLeftResistanceUUID,
+            callback = object : BluetoothReadCallback{
+                override fun onValueRead(value: String) = Unit
                 override fun onError(message: String) {
-                    Log.e(TAG, "Error reading left resistance value from Bluetooth: $message")
-                }})
-        // Setting the right motor resistance to 0, using only left motor for now
+                    Log.e(TAG, "Error updating the right resistance value $message")
+                }
+            })
+
+        // Setting the right motor resistance to minimum, using only right motor for now
         BluetoothHelper.queueWriteOperation(
             MIN_RESISTANCE_VALUE.toString(),
             sharedViewModel.deviceRightResistanceUUID,
             object : BluetoothReadCallback{
-                override fun onValueRead(value: String) = Unit
+                override fun onValueRead(value: String) = Unit // no UI update required
 
                 override fun onError(message: String) {
-                    Log.e(TAG, "Error updating the right resistance value $message")
+                    Log.e(TAG, "Error updating the left resistance value $message")
                 }
             }
         )
+
         fragmentCameraBinding.bottomSheetLayout.resistanceMinus.setOnClickListener {
             val currentResistance = viewModel.leftCurrentResistance.value ?: PoseLandmarkerHelper.MIN_RESISTANCE_VALUE
             if (currentResistance > PoseLandmarkerHelper.MIN_RESISTANCE_VALUE) {
